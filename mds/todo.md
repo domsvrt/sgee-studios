@@ -1,2 +1,3 @@
-- scan these  sample files in sampleOnly/admin.html sampleOnly/usersample.html and create a mysql database based on the possible datas that can be used (because the first thing i will do is the admin interface before user), remove the payment feature, and add a user account (users that can book)
-- do not implement the database yet, i want to read it before implementing
+# create an implementation plan using a markdown file
+- create an admin interface using modern aesthetic design
+- implement all the existing databases to the admin interface management
