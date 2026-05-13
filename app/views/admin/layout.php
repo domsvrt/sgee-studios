@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,91 +8,105 @@
         (function () {
             var theme = localStorage.getItem('admin-theme');
             var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            document.documentElement.setAttribute('data-bs-theme', theme || (prefersDark ? 'dark' : 'light'));
+            if ((theme || (prefersDark ? 'dark' : 'light')) === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
         })();
     </script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slateglass: '#111827',
+                        surface: '#f7f8fb',
+                        accent: '#0f766e',
+                        iris: '#4f46e5'
+                    },
+                    boxShadow: {
+                        panel: '0 18px 50px rgba(15, 23, 42, 0.08)'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <style>
-        body { background: var(--bs-body-bg); }
-        .admin-shell { min-height: 100vh; }
-        .admin-sidebar { width: 250px; }
-        .admin-nav .nav-link { color: var(--bs-secondary-color); border-radius: .5rem; font-weight: 500; }
-        .admin-nav .nav-link:hover { background: rgba(var(--bs-emphasis-color-rgb), .06); color: var(--bs-emphasis-color); }
-        .admin-nav .nav-link.active { background: var(--bs-primary); color: #fff; }
-        @media (max-width: 991.98px) { .admin-sidebar { width: 100%; } }
+        * { scrollbar-width: thin; scrollbar-color: #94a3b8 transparent; }
     </style>
 </head>
-<body>
+<body class="h-full bg-surface text-slate-950 antialiased dark:bg-slate-950 dark:text-slate-100">
 <?php
 $nav = [
-    'dashboard' => ['/admin', 'Dashboard', 'bi-speedometer2'],
-    'users' => ['/admin/users', 'Users', 'bi-people'],
-    'categories' => ['/admin/categories', 'Categories', 'bi-grid'],
-    'services' => ['/admin/services', 'Services', 'bi-tools'],
-    'bookings' => ['/admin/bookings', 'Bookings', 'bi-calendar-check'],
-    'logs' => ['/admin/logs', 'Status Logs', 'bi-journal-text'],
+    'dashboard' => ['/admin', 'Dashboard', 'DB'],
+    'users' => ['/admin/users', 'Users', 'US'],
+    'categories' => ['/admin/categories', 'Categories', 'CT'],
+    'services' => ['/admin/services', 'Services', 'SV'],
+    'bookings' => ['/admin/bookings', 'Bookings', 'BK'],
+    'logs' => ['/admin/logs', 'Status Logs', 'LG'],
 ];
 ?>
-<div class="admin-shell d-flex">
-    <aside class="admin-sidebar border-end bg-body-tertiary p-3">
-        <div class="d-flex align-items-center gap-2 border rounded p-2 mb-3">
-            <div class="bg-primary text-white rounded d-flex align-items-center justify-content-center fw-bold" style="width:32px;height:32px;">SG</div>
-            <div>
-                <div class="small text-uppercase text-secondary fw-semibold">SGee Studios</div>
-                <div class="fw-semibold">Operations Admin</div>
+<div class="min-h-screen lg:flex">
+    <aside class="border-b border-slate-200 bg-white/90 px-4 py-4 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95 lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:border-b-0 lg:border-r">
+        <div class="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/60">
+            <div class="grid h-10 w-10 place-items-center rounded-lg bg-slate-950 text-sm font-black text-white dark:bg-white dark:text-slate-950">SG</div>
+            <div class="min-w-0">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300">SGee Studios</p>
+                <h1 class="truncate text-sm font-semibold text-slate-950 dark:text-white">Operations Admin</h1>
             </div>
         </div>
-        <div class="small text-secondary border rounded p-2 mb-3">Manage bookings, services, categories, and users.</div>
-        <nav class="nav admin-nav flex-column gap-1">
+        <div class="mt-4 rounded-lg border border-slate-200 bg-white p-3 text-xs leading-5 text-slate-500 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-400">
+            Manage bookings, services, categories, and users from one focused workspace.
+        </div>
+        <nav class="mt-4 grid gap-1">
             <?php foreach ($nav as $key => [$href, $label, $icon]): ?>
-                <a href="<?= $e($href) ?>" class="nav-link d-flex align-items-center gap-2 <?= ($activeNav ?? '') === $key ? 'active' : '' ?>">
-                    <i class="bi <?= $e($icon) ?>"></i><span><?= $e($label) ?></span>
+                <a href="<?= $e($href) ?>" class="group flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition <?= ($activeNav ?? '') === $key ? 'bg-slate-950 text-white shadow-sm dark:bg-white dark:text-slate-950' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' ?>">
+                    <span class="grid h-6 w-6 place-items-center rounded-md text-[10px] font-black <?= ($activeNav ?? '') === $key ? 'bg-teal-500 text-white dark:bg-teal-600' : 'bg-slate-100 text-slate-500 group-hover:bg-white dark:bg-slate-800 dark:text-slate-400 dark:group-hover:bg-slate-700' ?>"><?= $e($icon) ?></span>
+                    <span class="truncate"><?= $e($label) ?></span>
                 </a>
             <?php endforeach; ?>
         </nav>
     </aside>
-    <main class="flex-grow-1">
-        <header class="border-bottom bg-body px-3 px-md-4 py-3">
-            <div class="container-fluid px-0 d-flex flex-wrap justify-content-between align-items-end gap-3">
+    <main class="min-w-0 flex-1">
+        <header class="border-b border-slate-200 bg-white/80 px-4 py-5 backdrop-blur dark:border-slate-800 dark:bg-slate-950/75 md:px-8">
+            <div class="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                    <div class="small text-uppercase text-secondary fw-semibold">Admin Management</div>
-                    <h1 class="h2 mb-0"><?= $e($title ?? 'Admin') ?></h1>
+                    <p class="text-xs font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300">Admin Management</p>
+                    <h2 class="mt-1 text-3xl font-black tracking-tight text-slate-950 dark:text-white"><?= $e($title ?? 'Admin') ?></h2>
                 </div>
-                <div class="d-flex gap-2">
-                    <button id="theme-toggle" type="button" class="btn btn-outline-secondary">Dark mode</button>
-                    <a href="/" class="btn btn-outline-secondary">View site</a>
+                <div class="flex flex-wrap gap-2">
+                    <button id="theme-toggle" type="button" class="inline-flex h-10 items-center rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 shadow-sm transition hover:border-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-slate-500">Dark mode</button>
+                    <a href="/" class="inline-flex h-10 items-center rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 shadow-sm transition hover:border-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-slate-500">View site</a>
                     <?php if (isset($_SESSION['admin_user_id'])): ?>
-                        <form method="post" action="/admin/logout"><button class="btn btn-primary">Logout</button></form>
+                        <form method="post" action="/admin/logout"><button class="inline-flex h-10 items-center rounded-lg bg-slate-950 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">Logout</button></form>
                     <?php endif; ?>
                 </div>
             </div>
         </header>
         <?php if ($flash): ?>
-            <div class="container-fluid p-3 p-md-4 pb-0">
-                <div class="alert <?= $flash['type'] === 'success' ? 'alert-success' : 'alert-danger' ?> mb-0">
+            <div class="mx-auto mt-5 max-w-7xl px-4 md:px-8">
+                <div class="rounded-lg border px-4 py-3 text-sm font-semibold shadow-sm <?= $flash['type'] === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300' : 'border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300' ?>">
                     <?= $e($flash['message']) ?>
                 </div>
             </div>
         <?php endif; ?>
-        <section class="container-fluid p-3 p-md-4">
+        <section class="mx-auto max-w-7xl p-4 md:p-8">
             <?= $content ?>
         </section>
     </main>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     (function () {
         var key = 'admin-theme';
         var button = document.getElementById('theme-toggle');
         if (!button) return;
-        function currentTheme() { return document.documentElement.getAttribute('data-bs-theme') || 'light'; }
-        function syncLabel() { button.textContent = currentTheme() === 'dark' ? 'Light mode' : 'Dark mode'; }
+        function isDark() { return document.documentElement.classList.contains('dark'); }
+        function syncLabel() { button.textContent = isDark() ? 'Light mode' : 'Dark mode'; }
         syncLabel();
         button.addEventListener('click', function () {
-            var next = currentTheme() === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-bs-theme', next);
-            localStorage.setItem(key, next);
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem(key, isDark() ? 'dark' : 'light');
             syncLabel();
         });
     })();
