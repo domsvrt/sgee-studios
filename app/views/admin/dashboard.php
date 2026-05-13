@@ -8,88 +8,92 @@ $metricLabels = [
     'completedBookings' => ['Completed', 'Finished bookings'],
 ];
 ?>
-<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+<div class="row g-3">
     <?php foreach ($metrics as $label => $value): ?>
         <?php [$heading, $caption] = $metricLabels[$label] ?? [$label, '']; ?>
-        <div class="overflow-hidden rounded-md border border-stone-200 bg-white shadow-soft">
-            <div class="h-1 bg-gradient-to-r from-clay via-moss to-ink"></div>
-            <div class="p-5">
-                <div class="flex items-start justify-between gap-4">
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start gap-3">
                     <div>
-                        <p class="text-xs font-black uppercase text-stone-500"><?= $e($heading) ?></p>
-                        <p class="mt-1 text-sm text-stone-500"><?= $e($caption) ?></p>
+                            <div class="small text-uppercase text-secondary fw-semibold"><?= $e($heading) ?></div>
+                            <div class="small text-secondary"><?= $e($caption) ?></div>
+                        </div>
+                        <span class="badge text-bg-light border">Live</span>
                     </div>
-                    <span class="rounded-md bg-stone-100 px-2 py-1 text-xs font-bold text-stone-600">Live</span>
+                    <div class="display-5 fw-semibold mt-4"><?= $e($value) ?></div>
                 </div>
-                <p class="mt-5 text-5xl font-black tracking-tight"><?= $e($value) ?></p>
             </div>
         </div>
     <?php endforeach; ?>
 </div>
 
-<div class="mt-6 grid gap-5 xl:grid-cols-[1.25fr_0.9fr]">
-    <section class="overflow-hidden rounded-md border border-stone-200 bg-white shadow-soft">
-        <div class="flex items-center justify-between border-b border-stone-200 px-5 py-4">
+<div class="row g-3 mt-1">
+    <section class="col-xl-8">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
             <div>
-                <h3 class="text-lg font-black">Upcoming Bookings</h3>
-                <p class="mt-1 text-sm text-stone-500">Next sessions ordered by schedule.</p>
+                    <h3 class="h5 mb-1">Upcoming Bookings</h3>
+                    <p class="small text-secondary mb-0">Next sessions ordered by schedule.</p>
+                </div>
+                <a href="/admin/bookings" class="btn btn-sm btn-outline-secondary">Manage</a>
             </div>
-            <a href="/admin/bookings" class="rounded-md border border-stone-300 px-3 py-2 text-xs font-bold hover:border-ink">Manage</a>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full min-w-[640px] text-left text-sm">
-                <thead class="bg-stone-50 text-xs uppercase text-stone-500">
-                    <tr><th class="px-5 py-3">Code</th><th class="px-5 py-3">User</th><th class="px-5 py-3">Date</th><th class="px-5 py-3">Status</th></tr>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr><th>Code</th><th>User</th><th>Date</th><th>Status</th></tr>
                 </thead>
-                <tbody class="divide-y divide-stone-100">
+                <tbody>
                     <?php foreach ($upcoming as $booking): ?>
-                        <tr class="hover:bg-stone-50">
-                            <td class="px-5 py-3 font-black"><?= $e($booking['booking_code']) ?></td>
-                            <td class="px-5 py-3"><?= $e($booking['user_name']) ?></td>
-                            <td class="px-5 py-3"><?= $e($booking['booking_date']) ?> <?= $e(substr($booking['booking_time'], 0, 5)) ?></td>
-                            <td class="px-5 py-3"><span class="rounded-md bg-stone-100 px-2.5 py-1 text-xs font-bold text-stone-700"><?= $e($booking['status']) ?></span></td>
+                        <tr>
+                            <td class="fw-semibold"><?= $e($booking['booking_code']) ?></td>
+                            <td><?= $e($booking['user_name']) ?></td>
+                            <td><?= $e($booking['booking_date']) ?> <?= $e(substr($booking['booking_time'], 0, 5)) ?></td>
+                            <td><span class="badge text-bg-secondary"><?= $e($booking['status']) ?></span></td>
                         </tr>
                     <?php endforeach; ?>
                     <?php if (!$upcoming): ?>
-                        <tr><td class="px-5 py-12 text-center text-stone-500" colspan="4">No upcoming bookings yet.</td></tr>
+                        <tr><td class="py-4 text-center text-secondary" colspan="4">No upcoming bookings yet.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
-    </section>
+        </div></section>
 
-    <section class="overflow-hidden rounded-md border border-stone-200 bg-white shadow-soft">
-        <div class="border-b border-stone-200 px-5 py-4">
-            <h3 class="text-lg font-black">Recent Status Changes</h3>
-            <p class="mt-1 text-sm text-stone-500">Audit trail activity from bookings.</p>
-        </div>
-        <div class="divide-y divide-stone-100">
-            <?php foreach ($recentLogs as $log): ?>
-                <div class="px-5 py-4 text-sm hover:bg-stone-50">
-                    <p class="font-black"><?= $e($log['booking_code']) ?> <span class="font-medium text-stone-500">changed to</span> <?= $e($log['new_status']) ?></p>
-                    <p class="mt-1 text-stone-500"><?= $e($log['change_note'] ?: 'No note') ?> · <?= $e($log['created_at']) ?></p>
-                </div>
-            <?php endforeach; ?>
-            <?php if (!$recentLogs): ?>
-                <p class="px-5 py-12 text-center text-sm text-stone-500">No status changes yet.</p>
-            <?php endif; ?>
+    <section class="col-xl-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="h5 mb-1">Recent Status Changes</h3>
+                <p class="small text-secondary mb-0">Audit trail activity from bookings.</p>
+            </div>
+            <div class="list-group list-group-flush">
+                <?php foreach ($recentLogs as $log): ?>
+                    <div class="list-group-item">
+                        <p class="mb-1"><strong><?= $e($log['booking_code']) ?></strong> <span class="text-secondary">changed to</span> <?= $e($log['new_status']) ?></p>
+                        <p class="mb-0 small text-secondary"><?= $e($log['change_note'] ?: 'No note') ?> · <?= $e($log['created_at']) ?></p>
+                    </div>
+                <?php endforeach; ?>
+                <?php if (!$recentLogs): ?>
+                    <p class="list-group-item text-center text-secondary py-4 mb-0">No status changes yet.</p>
+                <?php endif; ?>
+            </div>
         </div>
     </section>
 </div>
 
-<section class="mt-5 rounded-md border border-stone-200 bg-white p-5 shadow-soft">
-    <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-            <h3 class="text-lg font-black">Booking Status Mix</h3>
-            <p class="text-sm text-stone-500">At-a-glance distribution by workflow state.</p>
+<section class="card mt-3">
+    <div class="card-body">
+        <div class="mb-3">
+            <h3 class="h5 mb-1">Booking Status Mix</h3>
+            <p class="small text-secondary mb-0">At-a-glance distribution by workflow state.</p>
         </div>
-    </div>
-    <div class="mt-4 flex flex-wrap gap-2">
+        <div class="d-flex flex-wrap gap-2">
         <?php foreach ($statusCounts as $row): ?>
-            <span class="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm font-bold text-ink"><?= $e(ucfirst($row['status'])) ?>: <?= $e($row['total']) ?></span>
+                <span class="badge text-bg-light border px-3 py-2"><?= $e(ucfirst($row['status'])) ?>: <?= $e($row['total']) ?></span>
         <?php endforeach; ?>
         <?php if (!$statusCounts): ?>
-            <span class="text-sm text-stone-500">No bookings yet.</span>
+                <span class="small text-secondary">No bookings yet.</span>
         <?php endif; ?>
+        </div>
     </div>
 </section>

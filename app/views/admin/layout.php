@@ -5,86 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $e($title ?? 'Admin') ?> | SGee Studios</title>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        ink: '#111111',
-                        shell: '#f6f3ee',
-                        clay: '#b86f4b',
-                        moss: '#3f5c4a'
-                    },
-                    boxShadow: {
-                        soft: '0 18px 60px rgba(17, 17, 17, 0.08)'
-                    }
-                }
-            }
-        }
+        (function () {
+            var theme = localStorage.getItem('admin-theme');
+            var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-bs-theme', theme || (prefersDark ? 'dark' : 'light'));
+        })();
     </script>
-    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background: var(--bs-body-bg); }
+        .admin-shell { min-height: 100vh; }
+        .admin-sidebar { width: 250px; }
+        .admin-nav .nav-link { color: var(--bs-secondary-color); border-radius: .5rem; font-weight: 500; }
+        .admin-nav .nav-link:hover { background: rgba(var(--bs-emphasis-color-rgb), .06); color: var(--bs-emphasis-color); }
+        .admin-nav .nav-link.active { background: var(--bs-primary); color: #fff; }
+        @media (max-width: 991.98px) { .admin-sidebar { width: 100%; } }
+    </style>
 </head>
-<body class="min-h-screen bg-shell text-ink antialiased">
-    <?php
-    $nav = [
-        'dashboard' => ['/admin', 'Dashboard', 'DB'],
-        'users' => ['/admin/users', 'Users', 'US'],
-        'categories' => ['/admin/categories', 'Categories', 'CT'],
-        'services' => ['/admin/services', 'Services', 'SV'],
-        'bookings' => ['/admin/bookings', 'Bookings', 'BK'],
-        'logs' => ['/admin/logs', 'Status Logs', 'LG'],
-    ];
-    ?>
-    <div class="min-h-screen lg:flex">
-        <aside class="relative overflow-hidden bg-ink px-4 py-5 text-white lg:min-h-screen lg:w-80 lg:px-5">
-            <div class="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-clay/25 to-transparent"></div>
-            <div class="relative">
-                <div class="flex items-center gap-3 rounded-md border border-white/10 bg-white/5 p-3">
-                    <div class="flex h-11 w-11 items-center justify-center rounded-md bg-clay text-sm font-black text-white shadow-soft">SG</div>
-                    <div>
-                        <p class="text-xs font-semibold uppercase text-clay">SGee Studios</p>
-                        <h1 class="text-lg font-semibold">Operations Admin</h1>
-                    </div>
+<body>
+<?php
+$nav = [
+    'dashboard' => ['/admin', 'Dashboard', 'bi-speedometer2'],
+    'users' => ['/admin/users', 'Users', 'bi-people'],
+    'categories' => ['/admin/categories', 'Categories', 'bi-grid'],
+    'services' => ['/admin/services', 'Services', 'bi-tools'],
+    'bookings' => ['/admin/bookings', 'Bookings', 'bi-calendar-check'],
+    'logs' => ['/admin/logs', 'Status Logs', 'bi-journal-text'],
+];
+?>
+<div class="admin-shell d-flex">
+    <aside class="admin-sidebar border-end bg-body-tertiary p-3">
+        <div class="d-flex align-items-center gap-2 border rounded p-2 mb-3">
+            <div class="bg-primary text-white rounded d-flex align-items-center justify-content-center fw-bold" style="width:32px;height:32px;">SG</div>
+            <div>
+                <div class="small text-uppercase text-secondary fw-semibold">SGee Studios</div>
+                <div class="fw-semibold">Operations Admin</div>
+            </div>
+        </div>
+        <div class="small text-secondary border rounded p-2 mb-3">Manage bookings, services, categories, and users.</div>
+        <nav class="nav admin-nav flex-column gap-1">
+            <?php foreach ($nav as $key => [$href, $label, $icon]): ?>
+                <a href="<?= $e($href) ?>" class="nav-link d-flex align-items-center gap-2 <?= ($activeNav ?? '') === $key ? 'active' : '' ?>">
+                    <i class="bi <?= $e($icon) ?>"></i><span><?= $e($label) ?></span>
+                </a>
+            <?php endforeach; ?>
+        </nav>
+    </aside>
+    <main class="flex-grow-1">
+        <header class="border-bottom bg-body px-3 px-md-4 py-3">
+            <div class="container-fluid px-0 d-flex flex-wrap justify-content-between align-items-end gap-3">
+                <div>
+                    <div class="small text-uppercase text-secondary fw-semibold">Admin Management</div>
+                    <h1 class="h2 mb-0"><?= $e($title ?? 'Admin') ?></h1>
                 </div>
-                <div class="mt-6 rounded-md border border-white/10 bg-white/[0.03] p-3">
-                    <p class="text-xs font-semibold uppercase text-zinc-500">Workspace</p>
-                    <p class="mt-1 text-sm text-zinc-300">Bookings, services, categories, and users are managed from this console.</p>
+                <div class="d-flex gap-2">
+                    <button id="theme-toggle" type="button" class="btn btn-outline-secondary">Dark mode</button>
+                    <a href="/" class="btn btn-outline-secondary">View site</a>
+                    <?php if (isset($_SESSION['admin_user_id'])): ?>
+                        <form method="post" action="/admin/logout"><button class="btn btn-primary">Logout</button></form>
+                    <?php endif; ?>
                 </div>
             </div>
-            <nav class="relative mt-6 grid gap-1.5">
-                <?php foreach ($nav as $key => [$href, $label, $abbr]): ?>
-                    <a href="<?= $e($href) ?>" class="group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold transition <?= ($activeNav ?? '') === $key ? 'bg-white text-ink shadow-soft' : 'text-zinc-300 hover:bg-white/10 hover:text-white' ?>">
-                        <span class="flex h-8 w-8 items-center justify-center rounded-md text-[11px] font-black <?= ($activeNav ?? '') === $key ? 'bg-clay text-white' : 'bg-white/10 text-zinc-300 group-hover:bg-white/15' ?>"><?= $e($abbr) ?></span>
-                        <span><?= $e($label) ?></span>
-                    </a>
-                <?php endforeach; ?>
-            </nav>
-        </aside>
-        <main class="min-w-0 flex-1">
-            <header class="border-b border-stone-200/80 bg-white/85 px-4 py-5 shadow-sm backdrop-blur md:px-8">
-                <div class="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                        <p class="text-xs font-bold uppercase text-clay">Admin Management</p>
-                        <h2 class="mt-1 text-3xl font-black tracking-tight md:text-4xl"><?= $e($title ?? 'Admin') ?></h2>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <a href="/" class="inline-flex items-center rounded-md border border-stone-300 bg-white px-4 py-2 text-sm font-bold text-ink shadow-sm transition hover:border-ink">View site</a>
-                        <?php if (isset($_SESSION['admin_user_id'])): ?>
-                            <form method="post" action="/admin/logout"><button class="rounded-md bg-ink px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-zinc-800">Logout</button></form>
-                        <?php endif; ?>
-                    </div>
+        </header>
+        <?php if ($flash): ?>
+            <div class="container-fluid p-3 p-md-4 pb-0">
+                <div class="alert <?= $flash['type'] === 'success' ? 'alert-success' : 'alert-danger' ?> mb-0">
+                    <?= $e($flash['message']) ?>
                 </div>
-            </header>
-            <?php if ($flash): ?>
-                <div class="mx-auto mt-5 max-w-7xl px-4 md:px-8">
-                    <div class="rounded-md border px-4 py-3 text-sm font-semibold shadow-sm <?= $flash['type'] === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-red-200 bg-red-50 text-red-800' ?>">
-                        <?= $e($flash['message']) ?>
-                    </div>
-                </div>
-            <?php endif; ?>
-            <section class="mx-auto max-w-7xl p-4 md:p-8">
-                <?= $content ?>
-            </section>
-        </main>
-    </div>
+            </div>
+        <?php endif; ?>
+        <section class="container-fluid p-3 p-md-4">
+            <?= $content ?>
+        </section>
+    </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    (function () {
+        var key = 'admin-theme';
+        var button = document.getElementById('theme-toggle');
+        if (!button) return;
+        function currentTheme() { return document.documentElement.getAttribute('data-bs-theme') || 'light'; }
+        function syncLabel() { button.textContent = currentTheme() === 'dark' ? 'Light mode' : 'Dark mode'; }
+        syncLabel();
+        button.addEventListener('click', function () {
+            var next = currentTheme() === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-bs-theme', next);
+            localStorage.setItem(key, next);
+            syncLabel();
+        });
+    })();
+</script>
 </body>
 </html>
