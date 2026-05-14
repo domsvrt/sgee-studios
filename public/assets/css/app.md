@@ -8,15 +8,13 @@
   input.css (or related source files) and run the build step again so the
   output file is regenerated.
 
-- From the project root (/home/domsvrt/DevelopmentProjects/Projects/sgee-
-  studios), run:
+# From the project root (/home/domsvrt/DevelopmentProjects/Projects/sgee-studios), run:
 
-  ./bin/build-tailwind
+    ./bin/build-tailwind
 
-  That command compiles resources/css/input.css into public/assets/css/
-  app.css with minification.
-  If you get a permission error, run once:
+    That command compiles resources/css/input.css into public/assets/css/app.css with minification.
+    If you get a permission error, run once:
 
-  chmod +x bin/build-tailwind bin/tailwindcss
+    chmod +x bin/build-tailwind bin/tailwindcss
 
-  then run ./bin/build-tailwind again.
+    then run ./bin/build-tailwind again.
