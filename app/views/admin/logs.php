@@ -1,3 +1,9 @@
+<?php
+/** @var array<int, array<string, mixed>> $logs */
+$logs = $logs ?? [];
+/** @var callable $e */
+$e = $e ?? static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+?>
 <section class="admin-panel">
     <div class="admin-panel-header"><h3 class="admin-panel-title">Booking Status Logs</h3><p class="admin-panel-subtitle">Read-only booking status audit trail.</p></div>
     <div class="overflow-x-auto">
