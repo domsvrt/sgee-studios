@@ -178,6 +178,115 @@ $navIcon = static function (string $key): string {
             if (submit) submit.classList.toggle('hidden', hidden);
         });
 
+        function buildSortForm(form, table) {
+            if (!form || !table) return;
+            form.innerHTML = '';
+            var rows = Array.from(table.querySelectorAll('tbody tr[data-sort-id]'));
+            rows.forEach(function (row, index) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'ordered_ids[]';
+                input.value = row.getAttribute('data-sort-id');
+                form.appendChild(input);
+                var sortInput = row.querySelector('input[name="sort_order"]');
+                if (sortInput) sortInput.value = String(index + 1);
+                var sortDisplay = row.querySelector('[data-sort-order-display]');
+                if (sortDisplay) sortDisplay.textContent = String(index + 1);
+            });
+        }
+
+        function setSortMode(toggle, enabled) {
+            var tableId = toggle.getAttribute('data-table-id');
+            var table = tableId ? document.getElementById(tableId) : null;
+            if (!table) return;
+            var body = table.querySelector('tbody');
+            if (!body) return;
+            var formId = toggle.getAttribute('data-target');
+            var form = formId ? document.getElementById(formId) : null;
+            var saveButton = toggle.parentElement ? toggle.parentElement.querySelector('[data-sort-save]') : null;
+            var search = table.closest('.admin-panel') ? table.closest('.admin-panel').querySelector('.table-tools input[type="search"]') : null;
+            var pageSize = table.closest('.admin-panel') ? table.closest('.admin-panel').querySelector('.table-tools [data-page-size]') : null;
+
+            if (enabled) {
+                if (search) {
+                    search.value = '';
+                    search.dispatchEvent(new Event('input', {bubbles: true}));
+                }
+                if (pageSize) {
+                    pageSize.value = 'all';
+                    pageSize.dispatchEvent(new Event('change', {bubbles: true}));
+                }
+            }
+
+            table.dataset.sortMode = enabled ? '1' : '';
+            toggle.textContent = enabled ? 'Done sorting' : 'Sort mode';
+            if (saveButton) saveButton.classList.toggle('hidden', !enabled);
+            body.querySelectorAll('tr[data-sort-id]').forEach(function (row) {
+                row.draggable = enabled;
+                row.style.cursor = enabled ? 'grab' : '';
+            });
+            if (enabled && form) buildSortForm(form, table);
+        }
+
+        document.addEventListener('click', function (event) {
+            var toggle = event.target.closest('[data-sort-toggle]');
+            if (!toggle) return;
+            event.preventDefault();
+            var tableId = toggle.getAttribute('data-table-id');
+            var table = tableId ? document.getElementById(tableId) : null;
+            if (!table) return;
+            setSortMode(toggle, table.dataset.sortMode !== '1');
+        });
+
+        document.addEventListener('dragstart', function (event) {
+            var row = event.target.closest('tr[data-sort-id]');
+            if (!row) return;
+            var table = row.closest('table[data-sortable-table]');
+            if (!table || table.dataset.sortMode !== '1') return;
+            row.classList.add('opacity-60');
+            event.dataTransfer.effectAllowed = 'move';
+            table.dataset.draggingId = row.getAttribute('data-sort-id') || '';
+        });
+
+        document.addEventListener('dragend', function (event) {
+            var row = event.target.closest('tr[data-sort-id]');
+            if (!row) return;
+            row.classList.remove('opacity-60');
+            row.style.cursor = 'grab';
+        });
+
+        document.addEventListener('dragover', function (event) {
+            var table = event.target.closest('table[data-sortable-table]');
+            if (!table || table.dataset.sortMode !== '1') return;
+            var body = table.querySelector('tbody');
+            if (!body) return;
+            event.preventDefault();
+            var dragging = table.dataset.draggingId ? body.querySelector('tr[data-sort-id="' + table.dataset.draggingId + '"]') : null;
+            if (!dragging) return;
+            var target = event.target.closest('tr[data-sort-id]');
+            if (!target || target === dragging) return;
+            var rect = target.getBoundingClientRect();
+            var before = event.clientY < rect.top + (rect.height / 2);
+            body.insertBefore(dragging, before ? target : target.nextSibling);
+        });
+
+        document.addEventListener('drop', function (event) {
+            var table = event.target.closest('table[data-sortable-table]');
+            if (!table || table.dataset.sortMode !== '1') return;
+            event.preventDefault();
+            var panel = table.closest('[data-sort-panel]');
+            var form = panel ? panel.querySelector('[data-sort-form]') : null;
+            buildSortForm(form, table);
+        });
+
+        document.addEventListener('submit', function (event) {
+            var form = event.target;
+            if (!form.matches('[data-sort-form]')) return;
+            var panel = form.closest('[data-sort-panel]');
+            var table = panel ? panel.querySelector('table[data-sortable-table]') : null;
+            buildSortForm(form, table);
+        });
+
         function cellText(row, index) {
             var cell = row.children[index];
             if (!cell) return '';

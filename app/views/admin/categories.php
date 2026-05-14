@@ -18,25 +18,36 @@ $fieldSm = 'field field-sm w-full min-w-28';
     <form id="create-category-form" method="post" action="/admin/categories/create" class="hidden grid gap-3 p-5 md:grid-cols-4">
         <input required name="name" placeholder="Name" class="<?= $field ?>">
         <input name="description" placeholder="Description" class="<?= $field ?> md:col-span-2">
-        <input type="number" name="sort_order" value="0" class="<?= $field ?>">
         <label class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-200"><input type="checkbox" name="is_active" checked class="h-4 w-4 rounded border-slate-300 text-teal-600"> Active</label>
     </form>
 </section>
 
-<section class="admin-panel mt-5">
-    <div class="admin-panel-header"><h3 class="admin-panel-title">Categories</h3><p class="admin-panel-subtitle"><?= $e(count($categories)) ?> service groups</p></div>
+<section class="admin-panel mt-5" data-sort-panel>
+    <div class="admin-panel-header">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h3 class="admin-panel-title">Categories</h3>
+                <p class="admin-panel-subtitle"><?= $e(count($categories)) ?> service groups</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" class="btn-secondary" data-sort-toggle data-target="categories-sort-form" data-table-id="categories-table">Sort mode</button>
+                <button type="submit" form="categories-sort-form" class="btn-primary hidden" data-sort-save>Save order</button>
+            </div>
+        </div>
+        <form id="categories-sort-form" method="post" action="/admin/categories/reorder" class="hidden" data-sort-form></form>
+    </div>
     <div class="overflow-x-auto">
-        <table class="admin-table min-w-[900px]">
+        <table id="categories-table" class="admin-table min-w-[900px]" data-sortable-table>
             <thead>
                 <tr><th class="px-4 py-3">ID</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Description</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Active</th><th class="px-4 py-3">Actions</th></tr>
             </thead>
-            <tbody>
+            <tbody data-sort-body>
                 <?php foreach ($categories as $category): ?>
-                    <tr>
+                    <tr data-sort-id="<?= $e($category['id']) ?>">
                         <td class="px-4 py-3 font-black"><?= $e($category['id']) ?></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="category-<?= $e($category['id']) ?>" name="name" value="<?= $e($category['name']) ?>" class="<?= $fieldSm ?>"></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="category-<?= $e($category['id']) ?>" name="description" value="<?= $e($category['description'] ?? '') ?>" class="<?= $fieldSm ?> min-w-72"></td>
-                        <td class="px-4 py-3"><input data-edit-field disabled form="category-<?= $e($category['id']) ?>" type="number" name="sort_order" value="<?= $e($category['sort_order']) ?>" class="<?= $fieldSm ?> max-w-24"></td>
+                        <td class="px-4 py-3"><span class="font-black" data-sort-order-display><?= $e($category['sort_order']) ?></span></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="category-<?= $e($category['id']) ?>" class="h-4 w-4 rounded border-slate-300 text-slate-950 dark:text-white" type="checkbox" name="is_active" <?= (int) $category['is_active'] === 1 ? 'checked' : '' ?>><span class="status-badge status-<?= (int) $category['is_active'] === 1 ? 'active' : 'inactive' ?> hidden"><?= (int) $category['is_active'] === 1 ? 'active' : 'inactive' ?></span></td>
                         <td class="px-4 py-3"><div class="flex gap-2">
                             <button type="button" data-edit-button class="btn-secondary min-h-8 px-3 py-1.5 text-xs">Edit</button>

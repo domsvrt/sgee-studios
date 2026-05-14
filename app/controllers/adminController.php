@@ -142,6 +142,17 @@ class AdminController
         $this->handle(fn () => $this->categories->delete($this->requiredId()), '/admin/categories', 'Category deleted.');
     }
 
+    public function reorderCategories(): void
+    {
+        $this->handle(function (): void {
+            $ids = $_POST['ordered_ids'] ?? [];
+            if (!is_array($ids) || !$ids) {
+                throw new \InvalidArgumentException('No category order was provided.');
+            }
+            $this->categories->reorder($ids);
+        }, '/admin/categories', 'Category order updated.');
+    }
+
     public function createService(): void
     {
         $this->handle(fn () => $this->services->create($this->servicePayload()), '/admin/services', 'Service created.');
@@ -155,6 +166,17 @@ class AdminController
     public function deleteService(): void
     {
         $this->handle(fn () => $this->services->delete($this->requiredId()), '/admin/services', 'Service deleted.');
+    }
+
+    public function reorderServices(): void
+    {
+        $this->handle(function (): void {
+            $ids = $_POST['ordered_ids'] ?? [];
+            if (!is_array($ids) || !$ids) {
+                throw new \InvalidArgumentException('No service order was provided.');
+            }
+            $this->services->reorder($ids);
+        }, '/admin/services', 'Service order updated.');
     }
 
     public function createBooking(): void
@@ -260,7 +282,6 @@ class AdminController
             'name' => $this->requiredString('name'),
             'description' => trim($_POST['description'] ?? '') ?: null,
             'is_active' => isset($_POST['is_active']) ? 1 : 0,
-            'sort_order' => (int) ($_POST['sort_order'] ?? 0),
         ];
     }
 
@@ -280,7 +301,6 @@ class AdminController
             'unit_label' => trim($_POST['unit_label'] ?? '') ?: null,
             'selection_type' => $this->enum($_POST['selection_type'] ?? 'multiple', ['single', 'multiple', 'quantity'], 'selection type'),
             'is_active' => isset($_POST['is_active']) ? 1 : 0,
-            'sort_order' => (int) ($_POST['sort_order'] ?? 0),
         ];
     }
 

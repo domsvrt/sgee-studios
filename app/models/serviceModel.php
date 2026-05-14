@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use InvalidArgumentException;
+use PDOException;
+
 class ServiceModel extends BaseModel
 {
     public function all(): array
@@ -23,6 +26,8 @@ class ServiceModel extends BaseModel
 
     public function create(array $data): void
     {
+        $nextOrder = (int) $this->db->query('SELECT COALESCE(MAX(sort_order), 0) + 1 FROM services')->fetchColumn();
+        $data['sort_order'] = $nextOrder;
         $stmt = $this->db->prepare(
             'INSERT INTO services (category_id, code, name, description, price, unit_label, selection_type, is_active, sort_order)
              VALUES (:category_id, :code, :name, :description, :price, :unit_label, :selection_type, :is_active, :sort_order)'
@@ -36,7 +41,7 @@ class ServiceModel extends BaseModel
             'UPDATE services
              SET category_id = :category_id, code = :code, name = :name, description = :description,
                  price = :price, unit_label = :unit_label, selection_type = :selection_type,
-                 is_active = :is_active, sort_order = :sort_order
+                 is_active = :is_active
              WHERE id = :id'
         );
         $data['id'] = $id;
@@ -45,8 +50,15 @@ class ServiceModel extends BaseModel
 
     public function delete(int $id): void
     {
-        $stmt = $this->db->prepare('DELETE FROM services WHERE id = :id');
-        $stmt->execute(['id' => $id]);
+        try {
+            $stmt = $this->db->prepare('DELETE FROM services WHERE id = :id');
+            $stmt->execute(['id' => $id]);
+        } catch (PDOException $exception) {
+            if (($exception->errorInfo[1] ?? null) === 1451) {
+                throw new InvalidArgumentException('Cannot delete this service because it is already used in bookings. Set it to inactive instead.');
+            }
+            throw $exception;
+        }
     }
 
     public function find(int $id): ?array
@@ -55,5 +67,16 @@ class ServiceModel extends BaseModel
         $stmt->execute(['id' => $id]);
         $service = $stmt->fetch();
         return $service ?: null;
+    }
+
+    public function reorder(array $ids): void
+    {
+        $stmt = $this->db->prepare('UPDATE services SET sort_order = :sort_order WHERE id = :id');
+        foreach (array_values($ids) as $index => $id) {
+            $stmt->execute([
+                'id' => (int) $id,
+                'sort_order' => $index + 1,
+            ]);
+        }
     }
 }
