@@ -1,4 +1,15 @@
 <?php
+/** @var callable $e */
+$e = $e ?? static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+/** @var array<string, mixed> $metrics */
+$metrics = $metrics ?? [];
+/** @var array<int, array<string, mixed>> $upcoming */
+$upcoming = $upcoming ?? [];
+/** @var array<int, array<string, mixed>> $recentLogs */
+$recentLogs = $recentLogs ?? [];
+/** @var array<int, array<string, mixed>> $statusCounts */
+$statusCounts = $statusCounts ?? [];
+
 $metricLabels = [
     'users' => ['Total Users', 'Registered accounts'],
     'admins' => ['Admin Users', 'Managers and owners with dashboard access'],

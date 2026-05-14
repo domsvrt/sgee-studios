@@ -1,4 +1,17 @@
 <?php
+/** @var callable $e */
+$e = $e ?? static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+/** @var array<int, array<string, mixed>> $bookings */
+$bookings = $bookings ?? [];
+/** @var array<int, array<string, mixed>> $users */
+$users = $users ?? [];
+/** @var array<int, array<string, mixed>> $categories */
+$categories = $categories ?? [];
+/** @var array<int, array<string, mixed>> $services */
+$services = $services ?? [];
+/** @var array<int, array<int, array<string, mixed>>> $bookingItems */
+$bookingItems = $bookingItems ?? [];
+
 $field = 'field';
 $fieldSm = 'field field-sm w-full min-w-32';
 ?>
