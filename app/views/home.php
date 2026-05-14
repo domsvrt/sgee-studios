@@ -31,9 +31,9 @@ $services = [
 ];
 
 $work = [
-    ['src' => 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=900&q=80', 'alt' => 'Bride and groom walking under sparklers'],
-    ['src' => 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=80', 'alt' => 'Camera prepared for a studio shoot'],
-    ['src' => 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=80', 'alt' => 'Wedding couple portrait at sunset'],
+    ['src' => '/assets/images/work-sparklers.jpg', 'alt' => 'Bride and groom walking under sparklers'],
+    ['src' => '/assets/images/work-studio-camera.jpg', 'alt' => 'Camera prepared for a studio shoot'],
+    ['src' => '/assets/images/work-sunset-couple.jpg', 'alt' => 'Wedding couple portrait at sunset'],
 ];
 ?>
 <!doctype html>
@@ -111,9 +111,9 @@ $work = [
                     </div>
                 </div>
                 <div class="grid gap-4 sm:grid-cols-5">
-                    <img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=900&q=80" alt="Wedding couple photographed by a lake" class="h-[34rem] w-full rounded-lg object-cover shadow-2xl sm:col-span-3">
+                    <img src="/assets/images/hero-lake-couple.jpg" alt="Wedding couple photographed by a lake" class="h-[34rem] w-full rounded-lg object-cover shadow-2xl sm:col-span-3">
                     <div class="grid gap-4 sm:col-span-2">
-                        <img src="https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=700&q=80" alt="Bride holding a bouquet" class="h-64 w-full rounded-lg object-cover shadow-lg">
+                        <img src="/assets/images/hero-bride-bouquet.jpg" alt="Bride holding a bouquet" class="h-64 w-full rounded-lg object-cover shadow-lg">
                         <div class="rounded-lg bg-[#253d5b] p-5 text-white shadow-lg">
                             <p class="text-sm font-black uppercase tracking-[0.22em] text-[#ffd166]">Next dates</p>
                             <p class="mt-3 text-2xl font-black leading-tight">Weekend slots fill fast. Start with a soft reservation.</p>
@@ -168,7 +168,7 @@ $work = [
                         </div>
                     </div>
                 </div>
-                <img src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1000&q=80" alt="Videographer filming a scene with a professional camera" class="h-full min-h-[28rem] w-full rounded-lg object-cover shadow-2xl">
+                <img src="/assets/images/about-videographer.jpg" alt="Videographer filming a scene with a professional camera" class="h-full min-h-[28rem] w-full rounded-lg object-cover shadow-2xl">
             </section>
         <?php elseif ($page === 'contact'): ?>
             <section class="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
@@ -197,7 +197,7 @@ $work = [
                     <p class="text-sm font-black uppercase tracking-[0.24em] text-[#c84c3a]">Book now</p>
                     <h1 class="mt-4 text-5xl font-black leading-tight">Reserve your shoot date.</h1>
                     <p class="mt-6 text-lg leading-8 text-slate-600">Share the essentials and SGee Studios will confirm availability, package fit, and the next steps for securing the schedule.</p>
-                    <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=900&q=80" alt="Styled wedding table with flowers and candles" class="mt-8 h-72 w-full rounded-lg object-cover shadow-lg">
+                    <img src="/assets/images/book-wedding-table.jpg" alt="Styled wedding table with flowers and candles" class="mt-8 h-72 w-full rounded-lg object-cover shadow-lg">
                 </div>
                 <form class="rounded-lg bg-white p-6 shadow-xl ring-1 ring-slate-200">
                     <div class="grid gap-4 sm:grid-cols-2">
@@ -214,7 +214,7 @@ $work = [
             <?php $creating = $page === 'sign-up'; ?>
             <section class="mx-auto grid min-h-[calc(100vh-4.5rem)] max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8">
                 <div class="hidden lg:block">
-                    <img src="https://images.unsplash.com/photo-1606216794074-735e91aa2c92?auto=format&fit=crop&w=900&q=80" alt="Wedding detail photographed in warm light" class="h-[38rem] w-full rounded-lg object-cover shadow-2xl">
+                    <img src="/assets/images/auth-wedding-detail.jpg" alt="Wedding detail photographed in warm light" class="h-[38rem] w-full rounded-lg object-cover shadow-2xl">
                 </div>
                 <form class="rounded-lg bg-white p-6 shadow-xl ring-1 ring-slate-200">
                     <p class="text-sm font-black uppercase tracking-[0.24em] text-[#c84c3a]"><?= $creating ? 'Create account' : 'Welcome back' ?></p>
