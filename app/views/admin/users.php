@@ -48,7 +48,7 @@ $dangerBtn = 'btn-danger';
                         <td class="px-4 py-3"><select data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="status" class="<?= $fieldSm ?>"><option value="active" <?= $user['status'] === 'active' ? 'selected' : '' ?>>Active</option><option value="inactive" <?= $user['status'] === 'inactive' ? 'selected' : '' ?>>Inactive</option><option value="banned" <?= $user['status'] === 'banned' ? 'selected' : '' ?>>Banned</option></select><span class="status-badge status-<?= $e($user['status']) ?> hidden"><?= $e($user['status']) ?></span></td>
                         <td class="px-4 py-3">
                             <div class="flex gap-2">
-                                <input data-edit-field disabled form="user-<?= $e($user['id']) ?>" type="password" name="password" value="<?= $e($user['visible_password'] ?? '') ?>" placeholder="Not available" class="<?= $fieldSm ?>" data-password-input>
+                                <input data-edit-field disabled form="user-<?= $e($user['id']) ?>" type="password" name="password" value="" placeholder="Enter new password" class="<?= $fieldSm ?>" data-password-input>
                                 <button type="button" class="btn-secondary min-h-8 px-3 py-1.5 text-xs" data-password-toggle>Show</button>
                             </div>
                         </td>

@@ -249,7 +249,6 @@ class AdminController
 
         if ($password !== null) {
             $payload['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
-            $payload['visible_password'] = $password;
         }
 
         return $payload;

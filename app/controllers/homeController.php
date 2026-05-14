@@ -107,7 +107,6 @@ class HomeController
             'role' => 'user',
             'status' => 'active',
             'password_hash' => password_hash($password, PASSWORD_DEFAULT),
-            'visible_password' => $password,
         ]);
 
         $_SESSION['user_id'] = $id;
