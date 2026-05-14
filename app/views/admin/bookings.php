@@ -9,7 +9,10 @@ $fieldSm = 'field field-sm w-full min-w-32';
                 <h3 class="admin-panel-title">Create Booking</h3>
                 <p class="admin-panel-subtitle">Book a registered user into a required date and time slot.</p>
             </div>
-            <button type="button" class="btn-secondary" data-create-toggle data-target="create-booking-form" data-show-label="Create booking" data-hide-label="Hide form">Create booking</button>
+            <div class="flex items-center gap-2">
+                <button type="button" class="btn-secondary" data-create-toggle data-target="create-booking-form" data-show-label="Create booking" data-hide-label="Hide form">Create booking</button>
+                <button type="submit" form="create-booking-form" class="btn-primary hidden" data-create-submit="create-booking-form">Create booking</button>
+            </div>
         </div>
     </div>
     <form id="create-booking-form" method="post" action="/admin/bookings/create" class="hidden grid gap-3 p-5 lg:grid-cols-4">
@@ -44,7 +47,6 @@ $fieldSm = 'field field-sm w-full min-w-32';
                 <?php endif; ?>
             </div>
         </div>
-        <button class="btn-primary">Create booking</button>
     </form>
 </section>
 

@@ -174,6 +174,8 @@ $navIcon = static function (string $key): string {
             var showLabel = toggle.getAttribute('data-show-label') || 'Create';
             var hideLabel = toggle.getAttribute('data-hide-label') || 'Hide';
             toggle.textContent = hidden ? showLabel : hideLabel;
+            var submit = document.querySelector('[data-create-submit="' + targetId + '"]');
+            if (submit) submit.classList.toggle('hidden', hidden);
         });
 
         function cellText(row, index) {

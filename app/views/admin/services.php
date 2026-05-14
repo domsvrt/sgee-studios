@@ -9,7 +9,10 @@ $fieldSm = 'field field-sm w-full min-w-28';
                 <h3 class="admin-panel-title">Create Service</h3>
                 <p class="admin-panel-subtitle">Add a priced option that can be attached to bookings.</p>
             </div>
-            <button type="button" class="btn-secondary" data-create-toggle data-target="create-service-form" data-show-label="Create service" data-hide-label="Hide form">Create service</button>
+            <div class="flex items-center gap-2">
+                <button type="button" class="btn-secondary" data-create-toggle data-target="create-service-form" data-show-label="Create service" data-hide-label="Hide form">Create service</button>
+                <button type="submit" form="create-service-form" class="btn-primary hidden" data-create-submit="create-service-form">Create service</button>
+            </div>
         </div>
     </div>
     <form id="create-service-form" method="post" action="/admin/services/create" class="hidden grid gap-3 p-5 md:grid-cols-4">
@@ -24,7 +27,6 @@ $fieldSm = 'field field-sm w-full min-w-28';
         <select name="selection_type" class="<?= $field ?>"><option value="multiple">Multiple</option><option value="single">Single</option><option value="quantity">Quantity</option></select>
         <input type="number" name="sort_order" value="0" class="<?= $field ?>">
         <label class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-200"><input type="checkbox" name="is_active" checked class="h-4 w-4 rounded border-slate-300 text-teal-600"> Active</label>
-        <button class="btn-primary md:col-span-2">Create service</button>
     </form>
 </section>
 

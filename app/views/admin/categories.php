@@ -9,7 +9,10 @@ $fieldSm = 'field field-sm w-full min-w-28';
                 <h3 class="admin-panel-title">Create Category</h3>
                 <p class="admin-panel-subtitle">Organize services into booking groups.</p>
             </div>
-            <button type="button" class="btn-secondary" data-create-toggle data-target="create-category-form" data-show-label="Create category" data-hide-label="Hide form">Create category</button>
+            <div class="flex items-center gap-2">
+                <button type="button" class="btn-secondary" data-create-toggle data-target="create-category-form" data-show-label="Create category" data-hide-label="Hide form">Create category</button>
+                <button type="submit" form="create-category-form" class="btn-primary hidden" data-create-submit="create-category-form">Create category</button>
+            </div>
         </div>
     </div>
     <form id="create-category-form" method="post" action="/admin/categories/create" class="hidden grid gap-3 p-5 md:grid-cols-4">
@@ -17,7 +20,6 @@ $fieldSm = 'field field-sm w-full min-w-28';
         <input name="description" placeholder="Description" class="<?= $field ?> md:col-span-2">
         <input type="number" name="sort_order" value="0" class="<?= $field ?>">
         <label class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-200"><input type="checkbox" name="is_active" checked class="h-4 w-4 rounded border-slate-300 text-teal-600"> Active</label>
-        <button class="btn-primary md:col-span-3">Create category</button>
     </form>
 </section>
 
