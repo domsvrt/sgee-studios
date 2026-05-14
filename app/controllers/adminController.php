@@ -258,7 +258,6 @@ class AdminController
     private function categoryPayload(): array
     {
         return [
-            'slug' => $this->slug($this->requiredString('slug')),
             'name' => $this->requiredString('name'),
             'description' => trim($_POST['description'] ?? '') ?: null,
             'is_active' => isset($_POST['is_active']) ? 1 : 0,

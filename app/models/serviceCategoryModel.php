@@ -14,8 +14,8 @@ class ServiceCategoryModel extends BaseModel
     public function create(array $data): void
     {
         $stmt = $this->db->prepare(
-            'INSERT INTO service_categories (slug, name, description, is_active, sort_order)
-             VALUES (:slug, :name, :description, :is_active, :sort_order)'
+            'INSERT INTO service_categories (name, description, is_active, sort_order)
+             VALUES (:name, :description, :is_active, :sort_order)'
         );
         $stmt->execute($data);
     }
@@ -24,7 +24,7 @@ class ServiceCategoryModel extends BaseModel
     {
         $stmt = $this->db->prepare(
             'UPDATE service_categories
-             SET slug = :slug, name = :name, description = :description, is_active = :is_active, sort_order = :sort_order
+             SET name = :name, description = :description, is_active = :is_active, sort_order = :sort_order
              WHERE id = :id'
         );
         $data['id'] = $id;

@@ -24,12 +24,6 @@ $isActive = static fn (string $key): string => $page === $key
     ? 'bg-slate-950 text-white'
     : 'text-slate-700 hover:bg-white hover:text-slate-950';
 
-$services = [
-    ['title' => 'Wedding Films', 'copy' => 'Full-day story coverage, highlight films, and heirloom-ready galleries.'],
-    ['title' => 'Portrait Sessions', 'copy' => 'Editorial, family, maternity, graduation, and personal branding portraits.'],
-    ['title' => 'Events & Launches', 'copy' => 'Clean photo and video coverage for milestones, brands, and live programs.'],
-];
-
 $work = [
     ['src' => '/assets/images/work-sparklers.jpg', 'alt' => 'Bride and groom walking under sparklers'],
     ['src' => '/assets/images/work-studio-camera.jpg', 'alt' => 'Camera prepared for a studio shoot'],
@@ -132,12 +126,19 @@ $work = [
                         <a href="/book-now" class="inline-flex min-h-11 items-center justify-center rounded-lg bg-slate-950 px-5 text-sm font-black text-white">Book a package</a>
                     </div>
                     <div class="mt-8 grid gap-4 md:grid-cols-3">
-                        <?php foreach ($services as $service): ?>
-                            <article class="rounded-lg border border-slate-200 bg-[#f6f3ee] p-6 shadow-sm">
-                                <h3 class="text-xl font-black"><?= htmlspecialchars($service['title'], ENT_QUOTES, 'UTF-8') ?></h3>
-                                <p class="mt-3 text-sm leading-6 text-slate-600"><?= htmlspecialchars($service['copy'], ENT_QUOTES, 'UTF-8') ?></p>
+                        <?php if (!empty($categories)): ?>
+                            <?php foreach ($categories as $category): ?>
+                                <article class="rounded-lg border border-slate-200 bg-[#f6f3ee] p-6 shadow-sm">
+                                    <h3 class="text-xl font-black"><?= htmlspecialchars((string) ($category['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></h3>
+                                    <p class="mt-3 text-sm leading-6 text-slate-600"><?= htmlspecialchars((string) ($category['description'] ?: 'Explore this category for available services and booking options.'), ENT_QUOTES, 'UTF-8') ?></p>
+                                </article>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <article class="rounded-lg border border-slate-200 bg-[#f6f3ee] p-6 shadow-sm md:col-span-3">
+                                <h3 class="text-xl font-black">Service Categories</h3>
+                                <p class="mt-3 text-sm leading-6 text-slate-600">No active categories available yet.</p>
                             </article>
-                        <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
             </section>

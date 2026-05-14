@@ -16,14 +16,12 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS service_categories (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  slug VARCHAR(60) NOT NULL,
   name VARCHAR(100) NOT NULL,
   description VARCHAR(255) NULL,
   is_active TINYINT(1) NOT NULL DEFAULT 1,
   sort_order INT NOT NULL DEFAULT 0,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  UNIQUE KEY uq_service_categories_slug (slug)
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS services (
@@ -121,14 +119,13 @@ CREATE TABLE IF NOT EXISTS booking_status_logs (
     ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO service_categories (slug, name, description, is_active, sort_order)
+INSERT INTO service_categories (name, description, is_active, sort_order)
 VALUES
-  ('real_estate', 'Real Estate', 'Listings, aerials, virtual staging and more', 1, 1),
-  ('branding', 'Branding Sessions', 'Personal branding and headshots', 1, 2),
-  ('events', 'Event Coverage', 'Birthdays, corporate and special events', 1, 3),
-  ('weddings', 'Weddings', 'Wedding photo and video coverage', 1, 4)
+  ('Real Estate', 'Listings, aerials, virtual staging and more', 1, 1),
+  ('Branding Sessions', 'Personal branding and headshots', 1, 2),
+  ('Event Coverage', 'Birthdays, corporate and special events', 1, 3),
+  ('Weddings', 'Wedding photo and video coverage', 1, 4)
 ON DUPLICATE KEY UPDATE
-  name = VALUES(name),
   description = VALUES(description),
   is_active = VALUES(is_active),
   sort_order = VALUES(sort_order);

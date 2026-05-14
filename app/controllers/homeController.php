@@ -4,20 +4,27 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Models\ServiceCategoryModel;
 use App\Models\UserModel;
 
 class HomeController
 {
     private UserModel $users;
+    private ServiceCategoryModel $categories;
 
     public function __construct()
     {
         $this->users = new UserModel();
+        $this->categories = new ServiceCategoryModel();
     }
 
     public function index(): void
     {
         $page = 'home';
+        $categories = array_values(array_filter(
+            $this->categories->all(),
+            static fn (array $category): bool => (int) ($category['is_active'] ?? 0) === 1
+        ));
         require __DIR__ . '/../views/home.php';
     }
 
