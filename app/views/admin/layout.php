@@ -199,17 +199,45 @@ $navIcon = static function (string $key): string {
             });
             if (!filterValues.length) filter.parentElement.removeChild(filter);
 
+            var sortableHeaders = [];
             table.querySelectorAll('thead th').forEach(function (th, index) {
                 if (/actions/i.test(th.textContent)) return;
                 th.tabIndex = 0;
                 th.classList.add('cursor-pointer', 'select-none');
+                th.setAttribute('role', 'button');
+                th.setAttribute('aria-sort', 'none');
+                var indicator = document.createElement('span');
+                indicator.className = 'ml-1 font-bold leading-none text-slate-500 dark:text-slate-300';
+                indicator.style.fontSize = '1.25rem';
+                indicator.setAttribute('aria-hidden', 'true');
+                indicator.textContent = '↕';
+                th.appendChild(indicator);
+                sortableHeaders.push({th: th, index: index, indicator: indicator});
                 th.addEventListener('click', function () {
                     sortDir = sortIndex === index ? sortDir * -1 : 1;
                     sortIndex = index;
                     page = 1;
                     render();
                 });
+                th.addEventListener('keydown', function (event) {
+                    if (event.key !== 'Enter' && event.key !== ' ') return;
+                    event.preventDefault();
+                    th.click();
+                });
             });
+
+            function syncSortIndicators() {
+                sortableHeaders.forEach(function (header) {
+                    var isActive = sortIndex === header.index;
+                    if (!isActive) {
+                        header.indicator.textContent = '↕';
+                        header.th.setAttribute('aria-sort', 'none');
+                        return;
+                    }
+                    header.indicator.textContent = sortDir === 1 ? '↑' : '↓';
+                    header.th.setAttribute('aria-sort', sortDir === 1 ? 'ascending' : 'descending');
+                });
+            }
 
             function matches(row) {
                 var query = search.value.trim().toLowerCase();
@@ -241,6 +269,7 @@ $navIcon = static function (string $key): string {
                 info.textContent = visible.length ? 'Page ' + page + ' of ' + pages + ' · ' + visible.length + ' records' : 'No matching records';
                 prev.disabled = page <= 1;
                 next.disabled = page >= pages;
+                syncSortIndicators();
             }
 
             search.addEventListener('input', function () { page = 1; render(); });
