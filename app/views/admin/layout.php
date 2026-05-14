@@ -67,12 +67,12 @@ $navIcon = static function (string $key): string {
                 </div>
                 <div class="flex flex-wrap gap-2">
                     <button id="theme-toggle" type="button" class="btn-secondary">Dark mode</button>
-                    <button type="button" class="btn-primary" onclick="var p=document.getElementById('logout-confirm-inline');if(p){p.classList.toggle('hidden');}">Logout</button>
+                    <button id="logout-toggle-btn" type="button" class="btn-primary" onclick="var p=document.getElementById('logout-confirm-inline');var b=document.getElementById('logout-toggle-btn');if(p&&b){p.classList.remove('hidden');b.classList.add('hidden');}">Logout</button>
                     <div id="logout-confirm-inline" class="hidden flex items-center gap-2">
                         <form method="post" action="/logout">
                             <button class="btn-primary" style="background-color:#dc2626;border-color:#dc2626;">Yes, logout</button>
                         </form>
-                        <button type="button" class="btn-secondary" onclick="var p=document.getElementById('logout-confirm-inline');if(p){p.classList.add('hidden');}">Cancel</button>
+                        <button type="button" class="btn-secondary" onclick="var p=document.getElementById('logout-confirm-inline');var b=document.getElementById('logout-toggle-btn');if(p&&b){p.classList.add('hidden');b.classList.remove('hidden');}">Cancel</button>
                     </div>
                 </div>
             </div>

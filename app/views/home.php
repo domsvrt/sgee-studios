@@ -97,7 +97,7 @@ $work = [
                     </div>
                     <div class="mt-10 grid max-w-2xl grid-cols-3 gap-3">
                         <div class="rounded-lg bg-white/80 p-4 shadow-sm ring-1 ring-slate-200">
-                            <strong class="block text-2xl font-black">8+</strong>
+                            <strong class="block text-2xl font-black">10+</strong>
                             <span class="text-xs font-bold text-slate-500">Years shooting</span>
                         </div>
                         <div class="rounded-lg bg-white/80 p-4 shadow-sm ring-1 ring-slate-200">
@@ -228,7 +228,15 @@ $work = [
                         <label class="mt-6 block text-sm font-black">Name<input required name="full_name" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="text"></label>
                     <?php endif; ?>
                     <label class="mt-4 block text-sm font-black">Email<input required name="email" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="email"></label>
-                    <label class="mt-4 block text-sm font-black">Password<input required name="password" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="password"></label>
+                    <label class="mt-4 block text-sm font-black">Password
+                        <span class="mt-2 flex items-center gap-2">
+                            <input required name="password" class="w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="password" data-auth-password-input>
+                            <button type="button" class="grid h-11 w-11 place-items-center rounded-lg border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-50" data-auth-password-toggle aria-label="Show password">
+                                <svg data-eye-open xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.06 12a10.94 10.94 0 0 1 19.88 0 10.94 10.94 0 0 1-19.88 0Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                <svg data-eye-closed xmlns="http://www.w3.org/2000/svg" class="hidden h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 3 18 18"></path><path d="M10.58 10.58a2 2 0 1 0 2.83 2.83"></path><path d="M9.88 5.09A10.94 10.94 0 0 1 12 5c5 0 9.27 3.11 10.94 7a10.49 10.49 0 0 1-4.35 5.09"></path><path d="M6.61 6.61A10.49 10.49 0 0 0 1.06 12 10.94 10.94 0 0 0 12 19c1.86 0 3.62-.44 5.18-1.21"></path></svg>
+                            </button>
+                        </span>
+                    </label>
                     <button class="mt-5 min-h-12 w-full rounded-lg bg-slate-950 px-5 text-sm font-black text-white" type="submit"><?= $creating ? 'Create account' : 'Sign in' ?></button>
                     <p class="mt-5 text-center text-sm text-slate-600">
                         <?= $creating ? 'Already have an account?' : 'New to SGee Studios?' ?>
@@ -245,5 +253,24 @@ $work = [
             <p class="text-slate-300">Photography, videography, bookings, and creative coverage.</p>
         </div>
     </footer>
+    <script>
+        (function () {
+            document.addEventListener('click', function (event) {
+                var toggle = event.target.closest('[data-auth-password-toggle]');
+                if (!toggle) return;
+                var wrap = toggle.parentElement;
+                if (!wrap) return;
+                var input = wrap.querySelector('[data-auth-password-input]');
+                if (!input) return;
+                var show = input.type === 'password';
+                input.type = show ? 'text' : 'password';
+                toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+                var eyeOpen = toggle.querySelector('[data-eye-open]');
+                var eyeClosed = toggle.querySelector('[data-eye-closed]');
+                if (eyeOpen) eyeOpen.classList.toggle('hidden', show);
+                if (eyeClosed) eyeClosed.classList.toggle('hidden', !show);
+            });
+        })();
+    </script>
 </body>
 </html>

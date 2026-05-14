@@ -18,7 +18,10 @@ $dangerBtn = 'btn-danger';
         <input required name="full_name" placeholder="Full name" class="<?= $field ?>">
         <input required type="email" name="email" placeholder="Email address" class="<?= $field ?>">
         <input name="phone" placeholder="Phone" class="<?= $field ?>">
-        <input required type="text" name="password" placeholder="Temporary password" class="<?= $field ?>">
+        <div class="flex gap-2">
+            <input required type="password" name="password" placeholder="Temporary password" class="<?= $field ?>" data-password-input>
+            <button type="button" class="btn-secondary min-h-11 px-3" data-password-toggle>Show</button>
+        </div>
         <select name="role" class="<?= $field ?>"><option value="user">User</option><option value="manager">Manager</option><option value="admin">Admin</option></select>
         <select name="status" class="<?= $field ?>"><option value="active">Active</option><option value="inactive">Inactive</option><option value="banned">Banned</option></select>
         <button class="<?= $primaryBtn ?>">Create user</button>
@@ -43,7 +46,12 @@ $dangerBtn = 'btn-danger';
                         <td class="px-4 py-3"><input data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="phone" value="<?= $e($user['phone'] ?? '') ?>" class="<?= $fieldSm ?>"></td>
                         <td class="px-4 py-3"><select data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="role" class="<?= $fieldSm ?>"><option value="user" <?= $user['role'] === 'user' ? 'selected' : '' ?>>User</option><option value="manager" <?= $user['role'] === 'manager' ? 'selected' : '' ?>>Manager</option><option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option></select></td>
                         <td class="px-4 py-3"><select data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="status" class="<?= $fieldSm ?>"><option value="active" <?= $user['status'] === 'active' ? 'selected' : '' ?>>Active</option><option value="inactive" <?= $user['status'] === 'inactive' ? 'selected' : '' ?>>Inactive</option><option value="banned" <?= $user['status'] === 'banned' ? 'selected' : '' ?>>Banned</option></select><span class="status-badge status-<?= $e($user['status']) ?> hidden"><?= $e($user['status']) ?></span></td>
-                        <td class="px-4 py-3"><input data-edit-field disabled form="user-<?= $e($user['id']) ?>" type="text" name="password" value="<?= $e($user['visible_password'] ?? '') ?>" placeholder="Not available" class="<?= $fieldSm ?>"></td>
+                        <td class="px-4 py-3">
+                            <div class="flex gap-2">
+                                <input data-edit-field disabled form="user-<?= $e($user['id']) ?>" type="password" name="password" value="<?= $e($user['visible_password'] ?? '') ?>" placeholder="Not available" class="<?= $fieldSm ?>" data-password-input>
+                                <button type="button" class="btn-secondary min-h-8 px-3 py-1.5 text-xs" data-password-toggle>Show</button>
+                            </div>
+                        </td>
                         <td class="px-4 py-3">
                             <div class="flex gap-2">
                                 <button type="button" data-edit-button class="btn-secondary min-h-8 px-3 py-1.5 text-xs">Edit</button>
@@ -60,3 +68,19 @@ $dangerBtn = 'btn-danger';
         </table>
     </div>
 </section>
+
+<script>
+    (function () {
+        document.addEventListener('click', function (event) {
+            var toggle = event.target.closest('[data-password-toggle]');
+            if (!toggle) return;
+            var wrap = toggle.parentElement;
+            if (!wrap) return;
+            var input = wrap.querySelector('[data-password-input]');
+            if (!input) return;
+            var reveal = input.type === 'password';
+            input.type = reveal ? 'text' : 'password';
+            toggle.textContent = reveal ? 'Hide' : 'Show';
+        });
+    })();
+</script>
