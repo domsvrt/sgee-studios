@@ -4,10 +4,15 @@ $fieldSm = 'field field-sm w-full min-w-28';
 ?>
 <section class="admin-panel">
     <div class="admin-panel-header">
-        <h3 class="admin-panel-title">Create Service</h3>
-        <p class="admin-panel-subtitle">Add a priced option that can be attached to bookings.</p>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h3 class="admin-panel-title">Create Service</h3>
+                <p class="admin-panel-subtitle">Add a priced option that can be attached to bookings.</p>
+            </div>
+            <button type="button" class="btn-secondary" data-create-toggle data-target="create-service-form" data-show-label="Create service" data-hide-label="Hide form">Create service</button>
+        </div>
     </div>
-    <form method="post" action="/admin/services/create" class="grid gap-3 p-5 md:grid-cols-4">
+    <form id="create-service-form" method="post" action="/admin/services/create" class="hidden grid gap-3 p-5 md:grid-cols-4">
         <select required name="category_id" class="<?= $field ?>">
             <?php foreach ($categories as $category): ?><option value="<?= $e($category['id']) ?>"><?= $e($category['name']) ?></option><?php endforeach; ?>
         </select>

@@ -4,10 +4,15 @@ $fieldSm = 'field field-sm w-full min-w-28';
 ?>
 <section class="admin-panel">
     <div class="admin-panel-header">
-        <h3 class="admin-panel-title">Create Category</h3>
-        <p class="admin-panel-subtitle">Organize services into booking groups.</p>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h3 class="admin-panel-title">Create Category</h3>
+                <p class="admin-panel-subtitle">Organize services into booking groups.</p>
+            </div>
+            <button type="button" class="btn-secondary" data-create-toggle data-target="create-category-form" data-show-label="Create category" data-hide-label="Hide form">Create category</button>
+        </div>
     </div>
-    <form method="post" action="/admin/categories/create" class="grid gap-3 p-5 md:grid-cols-5">
+    <form id="create-category-form" method="post" action="/admin/categories/create" class="hidden grid gap-3 p-5 md:grid-cols-5">
         <input required name="slug" placeholder="slug" class="<?= $field ?>">
         <input required name="name" placeholder="Name" class="<?= $field ?>">
         <input name="description" placeholder="Description" class="<?= $field ?> md:col-span-2">

@@ -142,6 +142,19 @@ $navIcon = static function (string $key): string {
             });
         }, true);
 
+        document.addEventListener('click', function (event) {
+            var toggle = event.target.closest('[data-create-toggle]');
+            if (!toggle) return;
+            var targetId = toggle.getAttribute('data-target');
+            if (!targetId) return;
+            var form = document.getElementById(targetId);
+            if (!form) return;
+            var hidden = form.classList.toggle('hidden');
+            var showLabel = toggle.getAttribute('data-show-label') || 'Create';
+            var hideLabel = toggle.getAttribute('data-hide-label') || 'Hide';
+            toggle.textContent = hidden ? showLabel : hideLabel;
+        });
+
         function cellText(row, index) {
             var cell = row.children[index];
             if (!cell) return '';

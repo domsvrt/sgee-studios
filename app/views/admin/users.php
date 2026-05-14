@@ -6,10 +6,15 @@ $dangerBtn = 'btn-danger';
 ?>
 <section class="admin-panel">
     <div class="admin-panel-header">
-        <h3 class="admin-panel-title">Create User</h3>
-        <p class="admin-panel-subtitle">Add an admin or a booking customer account.</p>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h3 class="admin-panel-title">Create User</h3>
+                <p class="admin-panel-subtitle">Add an admin or a booking customer account.</p>
+            </div>
+            <button type="button" class="btn-secondary" data-create-toggle data-target="create-user-form" data-show-label="Create user" data-hide-label="Hide form">Create user</button>
+        </div>
     </div>
-    <form method="post" action="/admin/users/create" class="grid gap-3 p-5 md:grid-cols-2 xl:grid-cols-4">
+    <form id="create-user-form" method="post" action="/admin/users/create" class="hidden grid gap-3 p-5 md:grid-cols-2 xl:grid-cols-4">
         <input required name="full_name" placeholder="Full name" class="<?= $field ?>">
         <input required type="email" name="email" placeholder="Email address" class="<?= $field ?>">
         <input name="phone" placeholder="Phone" class="<?= $field ?>">
