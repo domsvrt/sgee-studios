@@ -1,4 +1,9 @@
 <?php
+/** @var callable $e */
+$e = $e ?? static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+/** @var array<int, array<string, mixed>> $users */
+$users = $users ?? [];
+
 $field = 'field';
 $fieldSm = 'field field-sm w-full min-w-36';
 $primaryBtn = 'btn-primary';

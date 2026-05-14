@@ -1,3 +1,11 @@
+<?php
+/** @var callable $e */
+$e = $e ?? static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+/** @var array{type?: string, message?: string}|null $flash */
+$flash = $flash ?? null;
+/** @var string $content */
+$content = $content ?? '';
+?>
 <!doctype html>
 <html lang="en" class="h-full">
 <head>

@@ -10,7 +10,7 @@
 
 # From the project root (/home/domsvrt/DevelopmentProjects/Projects/sgee-studios), run:
 
-    ./bin/build-tailwind
+    - ./bin/build-tailwind
 
     That command compiles resources/css/input.css into public/assets/css/app.css with minification.
     If you get a permission error, run once:
