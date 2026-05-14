@@ -3,11 +3,12 @@
     <div class="overflow-x-auto">
         <table class="admin-table min-w-[900px]">
             <thead>
-                <tr><th class="px-5 py-3">Booking</th><th class="px-5 py-3">Old</th><th class="px-5 py-3">New</th><th class="px-5 py-3">Changed By</th><th class="px-5 py-3">Note</th><th class="px-5 py-3">Created</th></tr>
+                <tr><th class="px-5 py-3">ID</th><th class="px-5 py-3">Booking</th><th class="px-5 py-3">Old</th><th class="px-5 py-3">New</th><th class="px-5 py-3">Changed By</th><th class="px-5 py-3">Note</th><th class="px-5 py-3">Created</th></tr>
             </thead>
             <tbody>
                 <?php foreach ($logs as $log): ?>
                     <tr>
+                        <td class="px-5 py-3 font-black"><?= $e($log['id']) ?></td>
                         <td class="px-5 py-3 font-black"><?= $e($log['booking_code']) ?></td>
                         <td class="px-5 py-3"><span class="status-badge status-<?= $e($log['old_status'] ?? 'pending') ?>"><?= $e($log['old_status'] ?? 'none') ?></span></td>
                         <td class="px-5 py-3"><span class="status-badge status-<?= $e($log['new_status']) ?>"><?= $e($log['new_status']) ?></span></td>
@@ -17,7 +18,7 @@
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$logs): ?>
-                    <tr><td colspan="6" class="px-5 py-12 text-center text-slate-500 dark:text-slate-400">No status logs yet.</td></tr>
+                    <tr><td colspan="7" class="px-5 py-12 text-center text-slate-500 dark:text-slate-400">No status logs yet.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>

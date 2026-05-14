@@ -35,11 +35,12 @@ $fieldSm = 'field field-sm w-full min-w-28';
     <div class="overflow-x-auto">
         <table class="admin-table min-w-[1200px]">
             <thead>
-                <tr><th class="px-4 py-3">Category</th><th class="px-4 py-3">Code</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Price</th><th class="px-4 py-3">Type</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Active</th><th class="px-4 py-3">Actions</th></tr>
+                <tr><th class="px-4 py-3">ID</th><th class="px-4 py-3">Category</th><th class="px-4 py-3">Code</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Price</th><th class="px-4 py-3">Type</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Active</th><th class="px-4 py-3">Actions</th></tr>
             </thead>
             <tbody>
                 <?php foreach ($services as $service): ?>
                     <tr>
+                        <td class="px-4 py-3 font-black"><?= $e($service['id']) ?></td>
                         <td class="px-4 py-3"><select data-edit-field disabled form="service-<?= $e($service['id']) ?>" name="category_id" class="<?= $fieldSm ?> min-w-44"><?php foreach ($categories as $category): ?><option value="<?= $e($category['id']) ?>" <?= (int) $service['category_id'] === (int) $category['id'] ? 'selected' : '' ?>><?= $e($category['name']) ?></option><?php endforeach; ?></select></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="service-<?= $e($service['id']) ?>" name="code" value="<?= $e($service['code']) ?>" class="<?= $fieldSm ?>"></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="service-<?= $e($service['id']) ?>" name="name" value="<?= $e($service['name']) ?>" class="<?= $fieldSm ?> min-w-56"><input form="service-<?= $e($service['id']) ?>" type="hidden" name="description" value="<?= $e($service['description'] ?? '') ?>"><input form="service-<?= $e($service['id']) ?>" type="hidden" name="unit_label" value="<?= $e($service['unit_label'] ?? '') ?>"></td>
@@ -56,7 +57,7 @@ $fieldSm = 'field field-sm w-full min-w-28';
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$services): ?>
-                    <tr><td colspan="8" class="px-5 py-12 text-center text-slate-500 dark:text-slate-400">No services yet.</td></tr>
+                    <tr><td colspan="9" class="px-5 py-12 text-center text-slate-500 dark:text-slate-400">No services yet.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>

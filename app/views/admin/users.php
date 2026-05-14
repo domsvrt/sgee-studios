@@ -38,11 +38,12 @@ $dangerBtn = 'btn-danger';
     <div class="overflow-x-auto">
         <table class="admin-table min-w-[1120px]">
             <thead>
-                <tr><th class="px-4 py-3">Name</th><th class="px-4 py-3">Email</th><th class="px-4 py-3">Phone</th><th class="px-4 py-3">Role</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Password</th><th class="px-4 py-3">Actions</th></tr>
+                <tr><th class="px-4 py-3">ID</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Email</th><th class="px-4 py-3">Phone</th><th class="px-4 py-3">Role</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Password</th><th class="px-4 py-3">Actions</th></tr>
             </thead>
             <tbody>
                 <?php foreach ($users as $user): ?>
                     <tr>
+                        <td class="px-4 py-3 font-black"><?= $e($user['id']) ?></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="full_name" value="<?= $e($user['full_name']) ?>" class="<?= $fieldSm ?>"></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="email" value="<?= $e($user['email']) ?>" class="<?= $fieldSm ?> min-w-52"></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="phone" value="<?= $e($user['phone'] ?? '') ?>" class="<?= $fieldSm ?>"></td>
@@ -64,7 +65,7 @@ $dangerBtn = 'btn-danger';
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$users): ?>
-                    <tr><td colspan="7" class="px-5 py-12 text-center text-slate-500 dark:text-slate-400">No users yet. Create the first admin account above.</td></tr>
+                    <tr><td colspan="8" class="px-5 py-12 text-center text-slate-500 dark:text-slate-400">No users yet. Create the first admin account above.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>

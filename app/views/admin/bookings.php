@@ -55,12 +55,13 @@ $fieldSm = 'field field-sm w-full min-w-32';
     <div class="overflow-x-auto">
         <table class="admin-table min-w-[1500px]">
             <thead>
-                <tr><th class="px-4 py-3">Code</th><th class="px-4 py-3">User</th><th class="px-4 py-3">Category</th><th class="px-4 py-3">Date</th><th class="px-4 py-3">Time</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Services</th><th class="px-4 py-3">Total</th><th class="px-4 py-3">Actions</th></tr>
+                <tr><th class="px-4 py-3">ID</th><th class="px-4 py-3">Code</th><th class="px-4 py-3">User</th><th class="px-4 py-3">Category</th><th class="px-4 py-3">Date</th><th class="px-4 py-3">Time</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Services</th><th class="px-4 py-3">Total</th><th class="px-4 py-3">Actions</th></tr>
             </thead>
             <tbody>
                 <?php foreach ($bookings as $booking): ?>
                     <?php $itemRows = $bookingItems[(int) $booking['id']] ?? []; ?>
                     <tr class="align-top">
+                        <td class="px-4 py-3 font-black"><?= $e($booking['id']) ?></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="booking-<?= $e($booking['id']) ?>" name="booking_code" value="<?= $e($booking['booking_code']) ?>" class="<?= $fieldSm ?>"></td>
                         <td class="px-4 py-3"><select data-edit-field disabled form="booking-<?= $e($booking['id']) ?>" name="user_id" class="<?= $fieldSm ?> min-w-48"><?php foreach ($users as $user): ?><option value="<?= $e($user['id']) ?>" <?= (int) $booking['user_id'] === (int) $user['id'] ? 'selected' : '' ?>><?= $e($user['full_name']) ?></option><?php endforeach; ?></select></td>
                         <td class="px-4 py-3"><select data-edit-field disabled form="booking-<?= $e($booking['id']) ?>" name="category_id" class="<?= $fieldSm ?> min-w-44"><option value="">No category</option><?php foreach ($categories as $category): ?><option value="<?= $e($category['id']) ?>" <?= (int) ($booking['category_id'] ?? 0) === (int) $category['id'] ? 'selected' : '' ?>><?= $e($category['name']) ?></option><?php endforeach; ?></select></td>
@@ -88,7 +89,7 @@ $fieldSm = 'field field-sm w-full min-w-32';
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$bookings): ?>
-                    <tr><td colspan="9" class="px-5 py-12 text-center text-slate-500 dark:text-slate-400">No bookings yet.</td></tr>
+                    <tr><td colspan="10" class="px-5 py-12 text-center text-slate-500 dark:text-slate-400">No bookings yet.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>

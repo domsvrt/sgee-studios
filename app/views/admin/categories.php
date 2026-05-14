@@ -28,11 +28,12 @@ $fieldSm = 'field field-sm w-full min-w-28';
     <div class="overflow-x-auto">
         <table class="admin-table min-w-[900px]">
             <thead>
-                <tr><th class="px-4 py-3">Name</th><th class="px-4 py-3">Description</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Active</th><th class="px-4 py-3">Actions</th></tr>
+                <tr><th class="px-4 py-3">ID</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Description</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Active</th><th class="px-4 py-3">Actions</th></tr>
             </thead>
             <tbody>
                 <?php foreach ($categories as $category): ?>
                     <tr>
+                        <td class="px-4 py-3 font-black"><?= $e($category['id']) ?></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="category-<?= $e($category['id']) ?>" name="name" value="<?= $e($category['name']) ?>" class="<?= $fieldSm ?>"></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="category-<?= $e($category['id']) ?>" name="description" value="<?= $e($category['description'] ?? '') ?>" class="<?= $fieldSm ?> min-w-72"></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="category-<?= $e($category['id']) ?>" type="number" name="sort_order" value="<?= $e($category['sort_order']) ?>" class="<?= $fieldSm ?> max-w-24"></td>
@@ -46,7 +47,7 @@ $fieldSm = 'field field-sm w-full min-w-28';
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$categories): ?>
-                    <tr><td colspan="5" class="px-5 py-12 text-center text-slate-500 dark:text-slate-400">No categories yet.</td></tr>
+                    <tr><td colspan="6" class="px-5 py-12 text-center text-slate-500 dark:text-slate-400">No categories yet.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
