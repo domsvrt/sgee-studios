@@ -44,7 +44,7 @@ $work = [
     <title><?= htmlspecialchars($titles[$page] ?? $titles['home'], ENT_QUOTES, 'UTF-8') ?></title>
     <link href="/assets/css/app.css" rel="stylesheet">
 </head>
-<body class="bg-[#f6f3ee] text-slate-950 antialiased">
+<body class="flex min-h-screen flex-col bg-[#f6f3ee] text-slate-950 antialiased">
     <header class="sticky top-0 z-30 border-b border-slate-200/80 bg-[#f6f3ee]/90 backdrop-blur-xl">
         <nav class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
             <a href="/" class="flex items-center gap-3" aria-label="SGee Studios home">
@@ -84,7 +84,7 @@ $work = [
         </nav>
     </header>
 
-    <main>
+    <main class="flex-1">
         <?php if ($page === 'home'): ?>
             <section class="mx-auto grid min-h-[calc(100vh-4.5rem)] max-w-7xl items-center gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[1.02fr_0.98fr] lg:px-8">
                 <div class="max-w-3xl">
