@@ -60,7 +60,7 @@ $fieldSm = 'field field-sm w-full min-w-32';
             <tbody>
                 <?php foreach ($bookings as $booking): ?>
                     <?php $itemRows = $bookingItems[(int) $booking['id']] ?? []; ?>
-                    <tr class="align-top">
+                    <tr>
                         <td class="px-4 py-3 font-black"><?= $e($booking['id']) ?></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="booking-<?= $e($booking['id']) ?>" name="booking_code" value="<?= $e($booking['booking_code']) ?>" class="<?= $fieldSm ?>"></td>
                         <td class="px-4 py-3"><select data-edit-field disabled form="booking-<?= $e($booking['id']) ?>" name="user_id" class="<?= $fieldSm ?> min-w-48"><?php foreach ($users as $user): ?><option value="<?= $e($user['id']) ?>" <?= (int) $booking['user_id'] === (int) $user['id'] ? 'selected' : '' ?>><?= $e($user['full_name']) ?></option><?php endforeach; ?></select></td>

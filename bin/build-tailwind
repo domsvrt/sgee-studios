@@ -7,3 +7,7 @@ DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
   --input "$DIR/resources/css/input.css" \
   --output "$DIR/public/assets/css/app.css" \
   --minify
+
+# Remove Tailwind preflight's vertical-align on block media elements to avoid
+# "Property is ignored due to the display" diagnostics in strict CSS linters.
+sed -i 's/vertical-align:middle;display:block/display:block/g' "$DIR/public/assets/css/app.css"
