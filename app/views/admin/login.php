@@ -13,28 +13,13 @@
             }
         })();
     </script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        surface: '#f7f8fb'
-                    },
-                    boxShadow: {
-                        panel: '0 18px 50px rgba(15, 23, 42, 0.08)'
-                    }
-                }
-            }
-        }
-    </script>
-    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <link href="/assets/css/app.css" rel="stylesheet">
 </head>
-<body class="h-full bg-surface text-slate-950 antialiased dark:bg-slate-950 dark:text-slate-100">
+<body class="h-full admin-shell antialiased">
     <main class="grid min-h-screen place-items-center px-4 py-10">
-        <section class="w-full max-w-md overflow-hidden rounded-lg border border-slate-200 bg-white shadow-panel dark:border-slate-800 dark:bg-slate-900">
-            <div class="border-b border-slate-200 bg-slate-50/70 px-6 py-5 dark:border-slate-800 dark:bg-slate-950/40">
-                <div class="mb-4 grid h-11 w-11 place-items-center rounded-lg bg-slate-950 text-sm font-black text-white dark:bg-white dark:text-slate-950">SG</div>
+        <section class="admin-panel w-full max-w-md">
+            <div class="admin-panel-header px-6 py-6">
+                <div class="admin-logo mb-4">SG</div>
                 <p class="text-xs font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300">SGee Studios</p>
                 <h1 class="mt-2 text-3xl font-black tracking-tight text-slate-950 dark:text-white">Admin Login</h1>
                 <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Sign in to manage bookings, users, services, and categories.</p>
@@ -46,13 +31,13 @@
             <form method="post" action="/admin/login" class="grid gap-4">
                 <label class="grid gap-2 text-sm font-bold text-slate-700 dark:text-slate-200">
                     Email
-                    <input required type="email" name="email" class="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-slate-950 shadow-sm outline-none transition focus:border-teal-600 focus:ring-4 focus:ring-teal-600/10 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+                    <input required type="email" name="email" class="field py-2.5">
                 </label>
                 <label class="grid gap-2 text-sm font-bold text-slate-700 dark:text-slate-200">
                     Password
-                    <input required type="password" name="password" class="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-slate-950 shadow-sm outline-none transition focus:border-teal-600 focus:ring-4 focus:ring-teal-600/10 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+                    <input required type="password" name="password" class="field py-2.5">
                 </label>
-                <button class="rounded-lg bg-slate-950 px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">Sign in</button>
+                <button class="btn-primary py-3">Sign in</button>
             </form>
             </div>
         </section>

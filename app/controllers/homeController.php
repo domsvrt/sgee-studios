@@ -8,7 +8,37 @@ class HomeController
 {
     public function index(): void
     {
-        $message = 'SGee Studios MVC project';
+        $page = 'home';
+        require __DIR__ . '/../views/home.php';
+    }
+
+    public function about(): void
+    {
+        $page = 'about';
+        require __DIR__ . '/../views/home.php';
+    }
+
+    public function contact(): void
+    {
+        $page = 'contact';
+        require __DIR__ . '/../views/home.php';
+    }
+
+    public function bookNow(): void
+    {
+        $page = 'book-now';
+        require __DIR__ . '/../views/home.php';
+    }
+
+    public function signIn(): void
+    {
+        $page = 'sign-in';
+        require __DIR__ . '/../views/home.php';
+    }
+
+    public function signUp(): void
+    {
+        $page = 'sign-up';
         require __DIR__ . '/../views/home.php';
     }
 }

@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+set -eu
+
+DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+
+"$DIR/bin/tailwindcss" \
+  --input "$DIR/resources/css/input.css" \
+  --output "$DIR/public/assets/css/app.css" \
+  --minify

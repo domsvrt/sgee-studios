@@ -295,12 +295,13 @@ class AdminController
             'email' => $this->requiredString('email'),
             'phone' => trim($_POST['phone'] ?? '') ?: null,
             'role' => $role,
-            'admin_level' => $role === 'admin' ? $this->enum($_POST['admin_level'] ?? 'staff', ['owner', 'manager', 'staff'], 'admin level') : null,
+            'admin_level' => $role === 'admin' ? $this->enum($_POST['admin_level'] ?? 'manager', ['owner', 'manager'], 'admin level') : null,
             'status' => $this->enum($_POST['status'] ?? 'active', ['active', 'inactive', 'banned'], 'status'),
         ];
 
         if ($password !== null) {
             $payload['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
+            $payload['visible_password'] = $password;
         }
 
         return $payload;

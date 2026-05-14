@@ -29,8 +29,8 @@ class UserModel extends BaseModel
     public function create(array $data): int
     {
         $stmt = $this->db->prepare(
-            'INSERT INTO users (full_name, email, phone, role, admin_level, status, password_hash)
-             VALUES (:full_name, :email, :phone, :role, :admin_level, :status, :password_hash)'
+            'INSERT INTO users (full_name, email, phone, role, admin_level, status, password_hash, visible_password)
+             VALUES (:full_name, :email, :phone, :role, :admin_level, :status, :password_hash, :visible_password)'
         );
         $stmt->execute($data);
         return (int) $this->db->lastInsertId();
@@ -38,7 +38,7 @@ class UserModel extends BaseModel
 
     public function update(int $id, array $data): void
     {
-        $passwordSql = isset($data['password_hash']) ? ', password_hash = :password_hash' : '';
+        $passwordSql = isset($data['password_hash']) ? ', password_hash = :password_hash, visible_password = :visible_password' : '';
         $stmt = $this->db->prepare(
             "UPDATE users
              SET full_name = :full_name, email = :email, phone = :phone, role = :role,

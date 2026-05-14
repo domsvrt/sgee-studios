@@ -34,6 +34,11 @@ $path = rtrim($path, '/') ?: '/';
 $routes = [
     'GET' => [
         '/' => [new HomeController(), 'index'],
+        '/about' => [new HomeController(), 'about'],
+        '/contact' => [new HomeController(), 'contact'],
+        '/book-now' => [new HomeController(), 'bookNow'],
+        '/sign-in' => [new HomeController(), 'signIn'],
+        '/sign-up' => [new HomeController(), 'signUp'],
     ],
 ];
 
