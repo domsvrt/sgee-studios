@@ -18,7 +18,7 @@ class UserModel extends BaseModel
 
     public function adminCount(): int
     {
-        return (int) $this->db->query("SELECT COUNT(*) FROM users WHERE role = 'admin'")->fetchColumn();
+        return (int) $this->db->query("SELECT COUNT(*) FROM users WHERE role IN ('admin', 'manager')")->fetchColumn();
     }
 
     public function count(): int
@@ -29,8 +29,8 @@ class UserModel extends BaseModel
     public function create(array $data): int
     {
         $stmt = $this->db->prepare(
-            'INSERT INTO users (full_name, email, phone, role, admin_level, status, password_hash, visible_password)
-             VALUES (:full_name, :email, :phone, :role, :admin_level, :status, :password_hash, :visible_password)'
+            'INSERT INTO users (full_name, email, phone, role, status, password_hash, visible_password)
+             VALUES (:full_name, :email, :phone, :role, :status, :password_hash, :visible_password)'
         );
         $stmt->execute($data);
         return (int) $this->db->lastInsertId();
@@ -42,7 +42,7 @@ class UserModel extends BaseModel
         $stmt = $this->db->prepare(
             "UPDATE users
              SET full_name = :full_name, email = :email, phone = :phone, role = :role,
-                 admin_level = :admin_level, status = :status {$passwordSql}
+                 status = :status {$passwordSql}
              WHERE id = :id"
         );
         $data['id'] = $id;
@@ -57,7 +57,15 @@ class UserModel extends BaseModel
 
     public function findActiveAdminByEmail(string $email): ?array
     {
-        $stmt = $this->db->prepare("SELECT * FROM users WHERE email = :email AND role = 'admin' AND status = 'active'");
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE email = :email AND role IN ('admin', 'manager') AND status = 'active'");
+        $stmt->execute(['email' => $email]);
+        $user = $stmt->fetch();
+        return $user ?: null;
+    }
+
+    public function findByEmail(string $email): ?array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM users WHERE email = :email LIMIT 1');
         $stmt->execute(['email' => $email]);
         $user = $stmt->fetch();
         return $user ?: null;

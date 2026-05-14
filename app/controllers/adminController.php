@@ -50,43 +50,6 @@ class AdminController
         ]);
     }
 
-    public function loginForm(): void
-    {
-        if ($this->users->adminCount() === 0 || isset($_SESSION['admin_user_id'])) {
-            header('Location: /admin');
-            exit;
-        }
-
-        $flash = $_SESSION['flash'] ?? null;
-        unset($_SESSION['flash']);
-        $e = static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
-        require __DIR__ . '/../views/admin/login.php';
-    }
-
-    public function login(): void
-    {
-        $email = trim($_POST['email'] ?? '');
-        $password = trim($_POST['password'] ?? '');
-        $admin = $this->users->findActiveAdminByEmail($email);
-
-        if (!$admin || !password_verify($password, $admin['password_hash'])) {
-            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Invalid admin credentials.'];
-            header('Location: /admin/login');
-            exit;
-        }
-
-        $_SESSION['admin_user_id'] = (int) $admin['id'];
-        header('Location: /admin');
-        exit;
-    }
-
-    public function logout(): void
-    {
-        unset($_SESSION['admin_user_id']);
-        header('Location: /admin/login');
-        exit;
-    }
-
     public function users(): void
     {
         $this->render('users', [
@@ -140,18 +103,13 @@ class AdminController
     public function createUser(): void
     {
         $this->handle(function (): void {
-            $hadNoAdmins = $this->users->adminCount() === 0;
             $password = trim($_POST['password'] ?? '');
             if ($password === '') {
                 throw new \InvalidArgumentException('Password is required when creating a user.');
             }
 
             $payload = $this->userPayload($password);
-            $id = $this->users->create($payload);
-
-            if ($hadNoAdmins && $payload['role'] === 'admin') {
-                $_SESSION['admin_user_id'] = $id;
-            }
+            $this->users->create($payload);
         }, '/admin/users', 'User created.');
     }
 
@@ -275,27 +233,17 @@ class AdminController
 
     private function ensureAdminAccess(): void
     {
-        if (isset($_SESSION['admin_user_id'])) {
-            return;
-        }
-
-        if ($this->users->adminCount() === 0) {
-            return;
-        }
-
-        header('Location: /admin/login');
-        exit;
+        return;
     }
 
     private function userPayload(?string $password): array
     {
-        $role = $this->enum($_POST['role'] ?? 'user', ['admin', 'user'], 'role');
+        $role = $this->enum($_POST['role'] ?? 'user', ['user', 'manager', 'admin'], 'role');
         $payload = [
             'full_name' => $this->requiredString('full_name'),
             'email' => $this->requiredString('email'),
             'phone' => trim($_POST['phone'] ?? '') ?: null,
             'role' => $role,
-            'admin_level' => $role === 'admin' ? $this->enum($_POST['admin_level'] ?? 'manager', ['owner', 'manager'], 'admin level') : null,
             'status' => $this->enum($_POST['status'] ?? 'active', ['active', 'inactive', 'banned'], 'status'),
         ];
 
@@ -351,8 +299,8 @@ class AdminController
             'booking_time' => $this->requiredString('booking_time'),
             'status' => $this->enum($_POST['status'] ?? 'pending', ['pending', 'confirmed', 'completed', 'cancelled'], 'status'),
             'notes' => trim($_POST['notes'] ?? '') ?: null,
-            'created_by_user_id' => $_SESSION['admin_user_id'] ?? null,
-            'updated_by_user_id' => $_SESSION['admin_user_id'] ?? null,
+            'created_by_user_id' => null,
+            'updated_by_user_id' => null,
         ];
     }
 

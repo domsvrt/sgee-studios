@@ -41,16 +41,13 @@ $navIcon = static function (string $key): string {
 };
 ?>
 <div class="min-h-screen lg:flex">
-    <aside class="admin-sidebar">
+    <aside class="admin-sidebar flex flex-col">
         <div class="admin-brand">
             <div class="admin-logo">SG</div>
             <div class="min-w-0">
                 <p class="text-[11px] font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300">SGee Studios</p>
                 <h1 class="truncate text-sm font-semibold text-slate-950 dark:text-white">Operations Admin</h1>
             </div>
-        </div>
-        <div class="mt-4 rounded-lg border border-slate-200/80 bg-slate-50/80 p-3 text-xs leading-5 text-slate-500 dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-400">
-            Booking operations, service catalog, categories, users, and audit logs in one workspace.
         </div>
         <nav class="mt-4 grid gap-1">
             <?php foreach ($nav as $key => [$href, $label]): ?>
@@ -70,17 +67,26 @@ $navIcon = static function (string $key): string {
                 </div>
                 <div class="flex flex-wrap gap-2">
                     <button id="theme-toggle" type="button" class="btn-secondary">Dark mode</button>
-                    <a href="/" class="btn-secondary">View site</a>
-                    <?php if (isset($_SESSION['admin_user_id'])): ?>
-                        <form method="post" action="/admin/logout"><button class="btn-primary">Logout</button></form>
-                    <?php endif; ?>
+                    <button type="button" class="btn-primary" onclick="var p=document.getElementById('logout-confirm-inline');if(p){p.classList.toggle('hidden');}">Logout</button>
+                    <div id="logout-confirm-inline" class="hidden flex items-center gap-2">
+                        <form method="post" action="/logout">
+                            <button class="btn-primary" style="background-color:#dc2626;border-color:#dc2626;">Yes, logout</button>
+                        </form>
+                        <button type="button" class="btn-secondary" onclick="var p=document.getElementById('logout-confirm-inline');if(p){p.classList.add('hidden');}">Cancel</button>
+                    </div>
                 </div>
             </div>
         </header>
         <?php if ($flash): ?>
-            <div class="mt-5 w-full px-4 md:px-8">
-                <div class="rounded-lg border px-4 py-3 text-sm font-semibold shadow-sm <?= $flash['type'] === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300' : 'border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300' ?>">
-                    <?= $e($flash['message']) ?>
+            <div id="admin-feedback-wrap" class="mt-5 w-full px-4 md:px-8">
+                <div id="admin-feedback" class="overflow-hidden rounded-lg border pt-0 shadow-sm <?= $flash['type'] === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300' : 'border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300' ?>">
+                    <div class="flex items-start justify-between gap-2 px-3 py-2 text-sm font-semibold">
+                        <p><?= $e($flash['message']) ?></p>
+                        <button type="button" class="text-xs font-black opacity-70 hover:opacity-100" onclick="var f=document.getElementById('admin-feedback-wrap');if(f){f.remove();}">✕</button>
+                    </div>
+                    <div class="h-1 w-full bg-black/10 dark:bg-white/20">
+                        <div id="admin-feedback-progress" class="h-full bg-current opacity-70"></div>
+                    </div>
                 </div>
             </div>
         <?php endif; ?>
@@ -89,6 +95,21 @@ $navIcon = static function (string $key): string {
         </section>
     </main>
 </div>
+<script>
+    (function () {
+        var feedback = document.getElementById('admin-feedback-wrap');
+        var progress = document.getElementById('admin-feedback-progress');
+        if (!feedback || !progress) return;
+        progress.style.transition = 'width 6s linear';
+        progress.style.width = '100%';
+        requestAnimationFrame(function () {
+            progress.style.width = '0%';
+        });
+        setTimeout(function () {
+            feedback.remove();
+        }, 6000);
+    })();
+</script>
 <script>
     (function () {
         var key = 'admin-theme';
@@ -170,7 +191,8 @@ $navIcon = static function (string $key): string {
 
         function initTable(table) {
             var wrapper = table.closest('.overflow-x-auto');
-            if (!wrapper || wrapper.previousElementSibling?.classList.contains('table-tools')) return;
+            var prev = wrapper ? wrapper.previousElementSibling : null;
+            if (!wrapper || (prev && prev.classList && prev.classList.contains('table-tools'))) return;
 
             var body = table.tBodies[0];
             if (!body) return;

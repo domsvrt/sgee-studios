@@ -19,8 +19,7 @@ $dangerBtn = 'btn-danger';
         <input required type="email" name="email" placeholder="Email address" class="<?= $field ?>">
         <input name="phone" placeholder="Phone" class="<?= $field ?>">
         <input required type="text" name="password" placeholder="Temporary password" class="<?= $field ?>">
-        <select name="role" class="<?= $field ?>"><option value="user">User</option><option value="admin">Admin</option></select>
-        <select name="admin_level" class="<?= $field ?>"><option value="manager">Manager</option><option value="owner">Owner</option></select>
+        <select name="role" class="<?= $field ?>"><option value="user">User</option><option value="manager">Manager</option><option value="admin">Admin</option></select>
         <select name="status" class="<?= $field ?>"><option value="active">Active</option><option value="inactive">Inactive</option><option value="banned">Banned</option></select>
         <button class="<?= $primaryBtn ?>">Create user</button>
     </form>
@@ -34,7 +33,7 @@ $dangerBtn = 'btn-danger';
     <div class="overflow-x-auto">
         <table class="admin-table min-w-[1120px]">
             <thead>
-                <tr><th class="px-4 py-3">Name</th><th class="px-4 py-3">Email</th><th class="px-4 py-3">Phone</th><th class="px-4 py-3">Role</th><th class="px-4 py-3">Admin Level</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Password</th><th class="px-4 py-3">Actions</th></tr>
+                <tr><th class="px-4 py-3">Name</th><th class="px-4 py-3">Email</th><th class="px-4 py-3">Phone</th><th class="px-4 py-3">Role</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Password</th><th class="px-4 py-3">Actions</th></tr>
             </thead>
             <tbody>
                 <?php foreach ($users as $user): ?>
@@ -42,8 +41,7 @@ $dangerBtn = 'btn-danger';
                         <td class="px-4 py-3"><input data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="full_name" value="<?= $e($user['full_name']) ?>" class="<?= $fieldSm ?>"></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="email" value="<?= $e($user['email']) ?>" class="<?= $fieldSm ?> min-w-52"></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="phone" value="<?= $e($user['phone'] ?? '') ?>" class="<?= $fieldSm ?>"></td>
-                        <td class="px-4 py-3"><select data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="role" class="<?= $fieldSm ?>"><option value="user" <?= $user['role'] === 'user' ? 'selected' : '' ?>>User</option><option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option></select></td>
-                        <td class="px-4 py-3"><select data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="admin_level" class="<?= $fieldSm ?>"><option value="manager" <?= ($user['admin_level'] ?? 'manager') === 'manager' ? 'selected' : '' ?>>Manager</option><option value="owner" <?= $user['admin_level'] === 'owner' ? 'selected' : '' ?>>Owner</option></select></td>
+                        <td class="px-4 py-3"><select data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="role" class="<?= $fieldSm ?>"><option value="user" <?= $user['role'] === 'user' ? 'selected' : '' ?>>User</option><option value="manager" <?= $user['role'] === 'manager' ? 'selected' : '' ?>>Manager</option><option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option></select></td>
                         <td class="px-4 py-3"><select data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="status" class="<?= $fieldSm ?>"><option value="active" <?= $user['status'] === 'active' ? 'selected' : '' ?>>Active</option><option value="inactive" <?= $user['status'] === 'inactive' ? 'selected' : '' ?>>Inactive</option><option value="banned" <?= $user['status'] === 'banned' ? 'selected' : '' ?>>Banned</option></select><span class="status-badge status-<?= $e($user['status']) ?> hidden"><?= $e($user['status']) ?></span></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="user-<?= $e($user['id']) ?>" type="text" name="password" value="<?= $e($user['visible_password'] ?? '') ?>" placeholder="Not available" class="<?= $fieldSm ?>"></td>
                         <td class="px-4 py-3">
@@ -56,7 +54,7 @@ $dangerBtn = 'btn-danger';
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$users): ?>
-                    <tr><td colspan="8" class="px-5 py-12 text-center text-slate-500 dark:text-slate-400">No users yet. Create the first admin account above.</td></tr>
+                    <tr><td colspan="7" class="px-5 py-12 text-center text-slate-500 dark:text-slate-400">No users yet. Create the first admin account above.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>

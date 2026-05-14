@@ -40,6 +40,11 @@ $routes = [
         '/sign-in' => [new HomeController(), 'signIn'],
         '/sign-up' => [new HomeController(), 'signUp'],
     ],
+    'POST' => [
+        '/sign-in' => [new HomeController(), 'doSignIn'],
+        '/sign-up' => [new HomeController(), 'doSignUp'],
+        '/logout' => [new HomeController(), 'logout'],
+    ],
 ];
 
 if (isset($routes[$routeMethod][$path])) {
@@ -51,7 +56,6 @@ if (str_starts_with($path, '/admin')) {
     $admin = new \App\Controllers\AdminController();
     $adminRoutes = [
         'GET' => [
-            '/admin/login' => [$admin, 'loginForm'],
             '/admin' => [$admin, 'dashboard'],
             '/admin/users' => [$admin, 'users'],
             '/admin/categories' => [$admin, 'categories'],
@@ -60,8 +64,6 @@ if (str_starts_with($path, '/admin')) {
             '/admin/logs' => [$admin, 'logs'],
         ],
         'POST' => [
-            '/admin/login' => [$admin, 'login'],
-            '/admin/logout' => [$admin, 'logout'],
             '/admin/users/create' => [$admin, 'createUser'],
             '/admin/users/update' => [$admin, 'updateUser'],
             '/admin/users/delete' => [$admin, 'deleteUser'],

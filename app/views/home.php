@@ -216,15 +216,20 @@ $work = [
                 <div class="hidden lg:block">
                     <img src="/assets/images/auth-wedding-detail.jpg" alt="Wedding detail photographed in warm light" class="h-[38rem] w-full rounded-lg object-cover shadow-2xl">
                 </div>
-                <form class="rounded-lg bg-white p-6 shadow-xl ring-1 ring-slate-200">
+                <form method="post" action="<?= $creating ? '/sign-up' : '/sign-in' ?>" class="rounded-lg bg-white p-6 shadow-xl ring-1 ring-slate-200">
                     <p class="text-sm font-black uppercase tracking-[0.24em] text-[#c84c3a]"><?= $creating ? 'Create account' : 'Welcome back' ?></p>
                     <h1 class="mt-3 text-4xl font-black"><?= $creating ? 'Plan your booking with SGee Studios.' : 'Sign in to manage your booking.' ?></h1>
-                    <?php if ($creating): ?>
-                        <label class="mt-6 block text-sm font-black">Name<input class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="text"></label>
+                    <?php if (!empty($flash['message'])): ?>
+                        <div class="mt-4 rounded-lg border px-3 py-2 text-sm font-bold <?= ($flash['type'] ?? '') === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800' ?>">
+                            <?= htmlspecialchars((string) $flash['message'], ENT_QUOTES, 'UTF-8') ?>
+                        </div>
                     <?php endif; ?>
-                    <label class="mt-4 block text-sm font-black">Email<input class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="email"></label>
-                    <label class="mt-4 block text-sm font-black">Password<input class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="password"></label>
-                    <button class="mt-5 min-h-12 w-full rounded-lg bg-slate-950 px-5 text-sm font-black text-white" type="button"><?= $creating ? 'Create account' : 'Sign in' ?></button>
+                    <?php if ($creating): ?>
+                        <label class="mt-6 block text-sm font-black">Name<input required name="full_name" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="text"></label>
+                    <?php endif; ?>
+                    <label class="mt-4 block text-sm font-black">Email<input required name="email" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="email"></label>
+                    <label class="mt-4 block text-sm font-black">Password<input required name="password" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="password"></label>
+                    <button class="mt-5 min-h-12 w-full rounded-lg bg-slate-950 px-5 text-sm font-black text-white" type="submit"><?= $creating ? 'Create account' : 'Sign in' ?></button>
                     <p class="mt-5 text-center text-sm text-slate-600">
                         <?= $creating ? 'Already have an account?' : 'New to SGee Studios?' ?>
                         <a class="font-black text-[#c84c3a]" href="<?= $creating ? '/sign-in' : '/sign-up' ?>"><?= $creating ? 'Sign in' : 'Create one' ?></a>
@@ -238,7 +243,6 @@ $work = [
         <div class="mx-auto flex max-w-7xl flex-col justify-between gap-4 text-sm md:flex-row md:items-center">
             <p class="font-black">SGee Studios</p>
             <p class="text-slate-300">Photography, videography, bookings, and creative coverage.</p>
-            <a href="/admin" class="font-black text-[#ffd166]">Admin</a>
         </div>
     </footer>
 </body>
