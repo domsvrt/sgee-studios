@@ -481,7 +481,9 @@ class HomeActionHandler extends BaseController
         if ($style === '') {
             $style = 'identicon';
         }
-        $diceBearUrl = (new DiceBearService())->avatarUrl($seed, $style, ['backgroundType' => 'solid']);
+        $diceBear = new DiceBearService();
+        $options = $style === 'identicon' ? $diceBear->defaultIdenticonOptions() : [];
+        $diceBearUrl = $diceBear->avatarUrl($seed, $style, $options);
         $svg = @file_get_contents($diceBearUrl);
         if ($svg === false || trim($svg) === '') {
             $hash = substr(hash('sha256', $seed), 0, 30);

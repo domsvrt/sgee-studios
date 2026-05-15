@@ -7,6 +7,13 @@ namespace App\Services;
 class DiceBearService
 {
     private const BASE_URL = 'https://api.dicebear.com/9.x';
+    private const IDENTICON_DEFAULT_OPTIONS = [
+        'backgroundType' => 'gradientLinear',
+        'backgroundColor' => 'fde68a,fca5a5,c4b5fd',
+        'rowColor' => '7c3aed,0ea5e9,f43f5e',
+        'radius' => '50',
+        'scale' => '90',
+    ];
 
     public function avatarUrl(string $seed, string $style = 'initials', array $options = [], string $format = 'svg'): string
     {
@@ -32,9 +39,12 @@ class DiceBearService
             $seed = 'user';
         }
 
-        return $this->avatarUrl($seed, 'identicon', [
-            'backgroundType' => 'solid',
-        ]);
+        return $this->avatarUrl($seed, 'identicon', self::IDENTICON_DEFAULT_OPTIONS);
+    }
+
+    public function defaultIdenticonOptions(): array
+    {
+        return self::IDENTICON_DEFAULT_OPTIONS;
     }
 
     private function buildQuery(array $options): string

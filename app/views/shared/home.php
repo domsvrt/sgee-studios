@@ -46,9 +46,7 @@ $work = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($titles[$page] ?? $titles['home'], ENT_QUOTES, 'UTF-8') ?></title>
-    <link href="/assets/css/shared.css" rel="stylesheet">
-    <?php $isUserPage = in_array($page, ['my-bookings', 'notifications', 'settings'], true); ?>
-    <link href="<?= $isUserPage ? '/assets/css/user.css' : '/assets/css/public.css' ?>" rel="stylesheet">
+    <link href="/assets/css/app.css" rel="stylesheet">
 </head>
 <body class="flex min-h-screen flex-col bg-[#f6f3ee] text-slate-950 antialiased">
     <header class="sticky top-0 z-30 border-b border-slate-200/80 bg-[#f6f3ee]/90 backdrop-blur-xl">
@@ -256,11 +254,11 @@ $work = [
                     <div class="mt-8 space-y-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                         <div>
                             <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Email</p>
-                            <p class="mt-1 text-sm font-bold text-slate-800">hello@sgeestudios.test</p>
+                            <p class="mt-1 text-sm font-bold text-slate-800">sgeestudios@gmail.com</p>
                         </div>
                         <div>
                             <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Phone</p>
-                            <p class="mt-1 text-sm font-bold text-slate-800">+63 900 000 0000</p>
+                            <p class="mt-1 text-sm font-bold text-slate-800">09289831209</p>
                         </div>
                         <div>
                             <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Studio hours</p>
@@ -268,7 +266,7 @@ $work = [
                         </div>
                         <div>
                             <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Coverage area</p>
-                            <p class="mt-1 text-sm font-bold text-slate-800">Metro Manila and nearby provinces</p>
+                            <p class="mt-1 text-sm font-bold text-slate-800">Laguna and nearby provinces</p>
                         </div>
                     </div>
                     <div class="mt-4 rounded-lg bg-slate-950 p-6 text-white shadow-xl">

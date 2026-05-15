@@ -13,8 +13,7 @@ $content = $content ?? '';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $e($title ?? 'Admin') ?> | SGee Studios</title>
     <script src="/assets/js/admin/layout.js" defer></script>
-    <link href="/assets/css/shared.css" rel="stylesheet">
-    <link href="/assets/css/admin.css" rel="stylesheet">
+    <link href="/assets/css/app.css" rel="stylesheet">
 </head>
 <body class="h-full admin-shell antialiased">
 <?php
