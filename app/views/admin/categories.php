@@ -31,12 +31,11 @@ $fieldSm = 'field field-sm w-full min-w-28';
     <div class="overflow-x-auto">
         <table id="categories-table" class="admin-table min-w-[900px]" data-sortable-table>
             <thead>
-                <tr><th class="px-4 py-3">ID</th><th class="px-4 py-3">Code</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Description</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Active</th><th class="px-4 py-3">Created At</th><th class="px-4 py-3">Updated At</th><th class="px-4 py-3">Actions</th></tr>
+                <tr><th class="px-4 py-3">Code</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Description</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Active</th><th class="px-4 py-3">Created At</th><th class="px-4 py-3">Updated At</th><th class="px-4 py-3">Actions</th></tr>
             </thead>
             <tbody data-sort-body>
                 <?php foreach ($categories as $category): ?>
                     <tr data-sort-id="<?= $e($category['id']) ?>">
-                        <td class="px-4 py-3 font-black"><?= $e($category['id']) ?></td>
                         <td class="px-4 py-3 text-xs font-black"><?= $e($category['category_code'] ?? '') ?></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="category-<?= $e($category['id']) ?>" name="name" value="<?= $e($category['name']) ?>" class="<?= $fieldSm ?>"></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="category-<?= $e($category['id']) ?>" name="description" value="<?= $e($category['description'] ?? '') ?>" class="<?= $fieldSm ?> min-w-72"></td>
@@ -53,7 +52,7 @@ $fieldSm = 'field field-sm w-full min-w-28';
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$categories): ?>
-                    <?php admin_render_empty_row(9, 'No categories yet.'); ?>
+                    <?php admin_render_empty_row(8, 'No categories yet.'); ?>
                 <?php endif; ?>
             </tbody>
         </table>

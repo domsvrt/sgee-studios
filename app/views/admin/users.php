@@ -35,7 +35,7 @@ $statuses = ['active', 'inactive', 'banned'];
     <div class="overflow-x-auto">
         <table class="admin-table min-w-[1120px]">
             <thead>
-                <tr><th class="px-4 py-3">ID</th><th class="px-4 py-3">Code</th><th class="px-4 py-3">First Name</th><th class="px-4 py-3">Last Name</th><th class="px-4 py-3">Email</th><th class="px-4 py-3">Phone</th><th class="px-4 py-3">Role</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Created At</th><th class="px-4 py-3">Updated At</th><th class="px-4 py-3">Actions</th></tr>
+                <tr><th class="px-4 py-3">Code</th><th class="px-4 py-3">First Name</th><th class="px-4 py-3">Last Name</th><th class="px-4 py-3">Email</th><th class="px-4 py-3">Phone</th><th class="px-4 py-3">Role</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Created At</th><th class="px-4 py-3">Updated At</th><th class="px-4 py-3">Actions</th></tr>
             </thead>
             <tbody>
                 <?php foreach ($users as $user): ?>
@@ -44,7 +44,6 @@ $statuses = ['active', 'inactive', 'banned'];
                     $lastName = (string) ($user['last_name'] ?? '');
                     ?>
                     <tr>
-                        <td class="px-4 py-3 font-black"><?= $e($user['id']) ?></td>
                         <td class="px-4 py-3 text-xs font-black"><?= $e($user['user_code'] ?? '') ?></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="first_name" value="<?= $e($firstName) ?>" class="<?= $fieldSm ?>"></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="last_name" value="<?= $e($lastName) ?>" class="<?= $fieldSm ?>"></td>
@@ -64,7 +63,7 @@ $statuses = ['active', 'inactive', 'banned'];
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$users): ?>
-                    <?php admin_render_empty_row(11, 'No users yet. Create the first admin account above.'); ?>
+                    <?php admin_render_empty_row(10, 'No users yet. Create the first admin account above.'); ?>
                 <?php endif; ?>
             </tbody>
         </table>

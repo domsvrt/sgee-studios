@@ -40,12 +40,11 @@ $selectionTypes = ['multiple', 'single'];
     <div class="overflow-x-auto">
         <table id="sections-table" class="admin-table min-w-[1100px]" data-sortable-table>
             <thead>
-                <tr><th class="px-4 py-3">ID</th><th class="px-4 py-3">Code</th><th class="px-4 py-3">Category</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Description</th><th class="px-4 py-3">Selection</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Active</th><th class="px-4 py-3">Actions</th></tr>
+                <tr><th class="px-4 py-3">Code</th><th class="px-4 py-3">Category</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Description</th><th class="px-4 py-3">Selection</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Active</th><th class="px-4 py-3">Actions</th></tr>
             </thead>
             <tbody data-sort-body>
                 <?php foreach ($sections as $section): ?>
                     <tr data-sort-id="<?= $e($section['id']) ?>">
-                        <td class="px-4 py-3 font-black"><?= $e($section['id']) ?></td>
                         <td class="px-4 py-3 text-xs font-black"><?= $e($section['section_code'] ?? '') ?></td>
                         <td class="px-4 py-3"><select data-edit-field disabled form="section-<?= $e($section['id']) ?>" name="category_id" class="<?= $fieldSm ?> min-w-44"><?php foreach ($categories as $category): ?><option value="<?= $e($category['id']) ?>" <?= admin_selected((int) $section['category_id'], (int) $category['id']) ?>><?= $e($category['name']) ?></option><?php endforeach; ?></select></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="section-<?= $e($section['id']) ?>" name="name" value="<?= $e($section['name']) ?>" class="<?= $fieldSm ?>"></td>
@@ -61,7 +60,7 @@ $selectionTypes = ['multiple', 'single'];
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$sections): ?>
-                    <?php admin_render_empty_row(9, 'No sections yet.'); ?>
+                    <?php admin_render_empty_row(8, 'No sections yet.'); ?>
                 <?php endif; ?>
             </tbody>
         </table>
@@ -102,15 +101,14 @@ $selectionTypes = ['multiple', 'single'];
     <div class="overflow-x-auto">
         <table id="services-table" class="admin-table min-w-[1300px]" data-sortable-table>
             <thead>
-                <tr><th class="px-4 py-3">ID</th><th class="px-4 py-3">Category</th><th class="px-4 py-3">Section</th><th class="px-4 py-3">Code</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Price</th><th class="px-4 py-3">Type</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Active</th><th class="px-4 py-3">Created At</th><th class="px-4 py-3">Updated At</th><th class="px-4 py-3">Actions</th></tr>
+                <tr><th class="px-4 py-3">Code</th><th class="px-4 py-3">Category</th><th class="px-4 py-3">Section</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Price</th><th class="px-4 py-3">Type</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Active</th><th class="px-4 py-3">Created At</th><th class="px-4 py-3">Updated At</th><th class="px-4 py-3">Actions</th></tr>
             </thead>
             <tbody data-sort-body>
                 <?php foreach ($services as $service): ?>
                     <tr data-sort-id="<?= $e($service['id']) ?>">
-                        <td class="px-4 py-3 font-black"><?= $e($service['id']) ?></td>
+                        <td class="px-4 py-3"><input data-edit-field disabled form="service-<?= $e($service['id']) ?>" name="code" value="<?= $e($service['code']) ?>" class="<?= $fieldSm ?>"></td>
                         <td class="px-4 py-3"><select data-edit-field disabled form="service-<?= $e($service['id']) ?>" name="category_id" class="<?= $fieldSm ?> min-w-44"><?php foreach ($categories as $category): ?><option value="<?= $e($category['id']) ?>" <?= admin_selected((int) $service['category_id'], (int) $category['id']) ?>><?= $e($category['name']) ?></option><?php endforeach; ?></select></td>
                         <td class="px-4 py-3"><select data-edit-field disabled form="service-<?= $e($service['id']) ?>" name="section_id" class="<?= $fieldSm ?> min-w-48"><option value="">No section</option><?php foreach ($sections as $section): ?><option value="<?= $e($section['id']) ?>" <?= admin_selected((int) ($service['section_id'] ?? 0), (int) $section['id']) ?>><?= $e($section['category_name'] . ' - ' . $section['name']) ?></option><?php endforeach; ?></select></td>
-                        <td class="px-4 py-3"><input data-edit-field disabled form="service-<?= $e($service['id']) ?>" name="code" value="<?= $e($service['code']) ?>" class="<?= $fieldSm ?>"></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="service-<?= $e($service['id']) ?>" name="name" value="<?= $e($service['name']) ?>" class="<?= $fieldSm ?> min-w-56"><input form="service-<?= $e($service['id']) ?>" type="hidden" name="description" value="<?= $e($service['description'] ?? '') ?>"><input form="service-<?= $e($service['id']) ?>" type="hidden" name="unit_label" value="<?= $e($service['unit_label'] ?? '') ?>"></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="service-<?= $e($service['id']) ?>" type="number" step="0.01" min="0" name="price" value="<?= $e($service['price']) ?>" class="<?= $fieldSm ?>"></td>
                         <td class="px-4 py-3"><select data-edit-field disabled form="service-<?= $e($service['id']) ?>" name="selection_type" class="<?= $fieldSm ?>"><?php admin_option_tags($selectionTypes, $service['selection_type']); ?></select></td>
@@ -127,7 +125,7 @@ $selectionTypes = ['multiple', 'single'];
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$services): ?>
-                    <?php admin_render_empty_row(12, 'No services yet.'); ?>
+                    <?php admin_render_empty_row(11, 'No services yet.'); ?>
                 <?php endif; ?>
             </tbody>
         </table>
