@@ -6,6 +6,7 @@ $page = $page ?? 'home';
 $isUser = $isUser ?? false;
 $userFirstName = trim((string) ($userFirstName ?? 'User')) ?: 'User';
 $userInitial = strtoupper(substr($userFirstName, 0, 1));
+$userAvatarUrl = trim((string) ($userAvatarUrl ?? ''));
 $notificationUnreadCount = (int) ($notificationUnreadCount ?? 0);
 $recentNotifications = $recentNotifications ?? [];
 
@@ -62,46 +63,32 @@ $work = [
                         <?= htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8') ?>
                     </a>
                 <?php endforeach; ?>
+                <?php if ($isUser): ?>
+                    <a href="/my-bookings" class="rounded-md px-4 py-2 text-sm font-black transition <?= $isActive('my-bookings') ?>">My Bookings</a>
+                    <a href="/notifications" class="rounded-md px-4 py-2 text-sm font-black transition <?= $isActive('notifications') ?>">Notifications<?= $notificationUnreadCount > 0 ? ' (' . htmlspecialchars((string) min($notificationUnreadCount, 99), ENT_QUOTES, 'UTF-8') . ')' : '' ?></a>
+                <?php endif; ?>
             </div>
 
             <div class="hidden items-center gap-2 md:flex">
                 <?php if ($isUser): ?>
-                    <a href="/my-bookings" class="rounded-lg bg-slate-950 px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-slate-800">My Bookings</a>
-                    <details class="relative">
-                        <summary class="grid h-10 w-10 cursor-pointer list-none place-items-center rounded-lg border border-slate-200 bg-white text-slate-800 shadow-sm" aria-label="Notifications">
-                            <span class="relative text-lg leading-none">!</span>
-                            <?php if ($notificationUnreadCount > 0): ?>
-                                <span class="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-[#c84c3a] px-1 text-[10px] font-black text-white"><?= htmlspecialchars((string) min($notificationUnreadCount, 99), ENT_QUOTES, 'UTF-8') ?></span>
-                            <?php endif; ?>
-                        </summary>
-                        <div class="absolute right-0 mt-3 w-80 rounded-lg border border-slate-200 bg-white p-3 shadow-xl">
-                            <div class="mb-2 flex items-center justify-between gap-3">
-                                <p class="text-sm font-black">Notifications</p>
-                                <?php if ($notificationUnreadCount > 0): ?>
-                                    <form method="post" action="/notifications/read-all"><input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES, 'UTF-8') ?>"><button class="text-xs font-black text-[#c84c3a]">Mark all read</button></form>
-                                <?php endif; ?>
-                            </div>
-                            <div class="grid max-h-80 gap-2 overflow-y-auto">
-                                <?php foreach ($recentNotifications as $notification): ?>
-                                    <div class="rounded-lg border border-slate-200 p-3 <?= (int) ($notification['is_read'] ?? 0) === 0 ? 'bg-[#fff8f5]' : 'bg-white' ?>">
-                                        <p class="text-sm font-black"><?= htmlspecialchars((string) $notification['title'], ENT_QUOTES, 'UTF-8') ?></p>
-                                        <p class="mt-1 text-xs leading-5 text-slate-600"><?= htmlspecialchars((string) $notification['message'], ENT_QUOTES, 'UTF-8') ?></p>
-                                        <?php if ((int) ($notification['is_read'] ?? 0) === 0): ?>
-                                            <form method="post" action="/notifications/read" class="mt-2"><input type="hidden" name="id" value="<?= htmlspecialchars((string) $notification['id'], ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES, 'UTF-8') ?>"><button class="text-xs font-black text-slate-700">Mark read</button></form>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php endforeach; ?>
-                                <?php if (!$recentNotifications): ?><p class="py-6 text-center text-sm font-semibold text-slate-500">No notifications yet.</p><?php endif; ?>
-                            </div>
-                            <a href="/notifications" class="mt-3 block rounded-lg bg-slate-950 px-3 py-2 text-center text-xs font-black text-white">View all</a>
-                        </div>
-                    </details>
                     <details class="relative">
                         <summary class="flex cursor-pointer list-none items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-black text-slate-800 shadow-sm">
-                            <span class="grid h-7 w-7 place-items-center rounded-full bg-[#c84c3a] text-xs text-white"><?= htmlspecialchars($userInitial, ENT_QUOTES, 'UTF-8') ?></span>
+                            <span class="grid h-7 w-7 place-items-center overflow-hidden rounded-full bg-[#c84c3a] text-xs text-white">
+                                <?php if ($userAvatarUrl !== ''): ?>
+                                    <img src="<?= htmlspecialchars($userAvatarUrl, ENT_QUOTES, 'UTF-8') ?>" alt="Profile picture" class="h-full w-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
+                                    <span class="hidden h-full w-full place-items-center"><?= htmlspecialchars($userInitial, ENT_QUOTES, 'UTF-8') ?></span>
+                                <?php else: ?>
+                                    <?= htmlspecialchars($userInitial, ENT_QUOTES, 'UTF-8') ?>
+                                <?php endif; ?>
+                            </span>
                             <?= htmlspecialchars($userFirstName, ENT_QUOTES, 'UTF-8') ?>
                         </summary>
-                        <div class="absolute right-0 mt-3 w-44 rounded-lg border border-slate-200 bg-white p-2 shadow-xl">
+                        <div class="absolute right-0 mt-3 w-72 rounded-lg border border-slate-200 bg-white p-3 shadow-xl">
+                            <form method="post" action="/profile/avatar" enctype="multipart/form-data" class="mb-2 grid gap-2 border-b border-slate-100 pb-3">
+                                <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES, 'UTF-8') ?>">
+                                <input type="file" name="avatar" accept=".jpg,.jpeg,.png,.webp" class="block w-full text-xs font-semibold text-slate-600 file:mr-2 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-xs file:font-black file:text-slate-700">
+                                <button class="rounded-md bg-slate-950 px-3 py-2 text-xs font-black text-white">Upload Avatar</button>
+                            </form>
                             <a href="/my-bookings" class="block rounded-md px-3 py-2 text-sm font-black text-slate-700 hover:bg-slate-50">My Bookings</a>
                             <form method="post" action="/logout"><button class="block w-full rounded-md px-3 py-2 text-left text-sm font-black text-[#c84c3a] hover:bg-slate-50">Sign out</button></form>
                         </div>
@@ -120,11 +107,29 @@ $work = [
                             <?= htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8') ?>
                         </a>
                     <?php endforeach; ?>
+                    <?php if ($isUser): ?>
+                        <a href="/my-bookings" class="block rounded-md px-3 py-2 text-sm font-black <?= $page === 'my-bookings' ? 'bg-slate-950 text-white' : 'text-slate-700' ?>">My Bookings</a>
+                        <a href="/notifications" class="block rounded-md px-3 py-2 text-sm font-black <?= $page === 'notifications' ? 'bg-slate-950 text-white' : 'text-slate-700' ?>">Notifications<?= $notificationUnreadCount > 0 ? ' (' . htmlspecialchars((string) min($notificationUnreadCount, 99), ENT_QUOTES, 'UTF-8') . ')' : '' ?></a>
+                    <?php endif; ?>
                     <div class="my-2 h-px bg-slate-100"></div>
                     <?php if ($isUser): ?>
-                        <div class="mb-1 flex items-center gap-2 px-3 py-2 text-sm font-black text-slate-800"><span class="grid h-7 w-7 place-items-center rounded-full bg-[#c84c3a] text-xs text-white"><?= htmlspecialchars($userInitial, ENT_QUOTES, 'UTF-8') ?></span><?= htmlspecialchars($userFirstName, ENT_QUOTES, 'UTF-8') ?></div>
+                        <div class="mb-1 flex items-center gap-2 px-3 py-2 text-sm font-black text-slate-800">
+                            <?php if ($userAvatarUrl !== ''): ?>
+                                <span class="grid h-7 w-7 place-items-center overflow-hidden rounded-full bg-[#c84c3a] text-xs text-white">
+                                    <img src="<?= htmlspecialchars($userAvatarUrl, ENT_QUOTES, 'UTF-8') ?>" alt="Profile picture" class="h-full w-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
+                                    <span class="hidden h-full w-full place-items-center"><?= htmlspecialchars($userInitial, ENT_QUOTES, 'UTF-8') ?></span>
+                                </span>
+                            <?php else: ?>
+                                <span class="grid h-7 w-7 place-items-center rounded-full bg-[#c84c3a] text-xs text-white"><?= htmlspecialchars($userInitial, ENT_QUOTES, 'UTF-8') ?></span>
+                            <?php endif; ?>
+                            <?= htmlspecialchars($userFirstName, ENT_QUOTES, 'UTF-8') ?>
+                        </div>
+                        <form method="post" action="/profile/avatar" enctype="multipart/form-data" class="mb-2 grid gap-2 rounded-md border border-slate-200 p-2">
+                            <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES, 'UTF-8') ?>">
+                            <input type="file" name="avatar" accept=".jpg,.jpeg,.png,.webp" class="block w-full text-xs font-semibold text-slate-600 file:mr-2 file:rounded-md file:border-0 file:bg-slate-100 file:px-2 file:py-1.5 file:text-xs file:font-black file:text-slate-700">
+                            <button class="rounded-md bg-slate-950 px-3 py-2 text-xs font-black text-white">Upload Avatar</button>
+                        </form>
                         <a href="/my-bookings" class="block rounded-md px-3 py-2 text-sm font-black text-slate-700">My Bookings</a>
-                        <a href="/notifications" class="block rounded-md px-3 py-2 text-sm font-black text-slate-700">Notifications<?= $notificationUnreadCount > 0 ? ' (' . htmlspecialchars((string) $notificationUnreadCount, ENT_QUOTES, 'UTF-8') . ')' : '' ?></a>
                         <form method="post" action="/logout"><button class="block w-full rounded-md px-3 py-2 text-left text-sm font-black text-[#c84c3a]">Sign out</button></form>
                     <?php else: ?>
                         <a href="/sign-in" class="block rounded-md px-3 py-2 text-sm font-black text-slate-700">Sign in</a>

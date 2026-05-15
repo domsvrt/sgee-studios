@@ -6,6 +6,8 @@ namespace App\Models;
 
 class UserModel extends BaseModel
 {
+    private static ?bool $usersHasAvatarColumn = null;
+
     public function all(): array
     {
         return $this->db->query('SELECT * FROM users ORDER BY created_at DESC')->fetchAll();
@@ -55,10 +57,15 @@ class UserModel extends BaseModel
 
     public function create(array $data): int
     {
+        $hasAvatar = $this->hasAvatarColumn();
+
         if ($this->hasUsersSplitNameColumns()) {
             $stmt = $this->db->prepare(
-                'INSERT INTO users (first_name, last_name, email, phone, role, status, password_hash)
-                 VALUES (:first_name, :last_name, :email, :phone, :role, :status, :password_hash)'
+                $hasAvatar
+                    ? 'INSERT INTO users (first_name, last_name, email, phone, avatar_path, role, status, password_hash)
+                       VALUES (:first_name, :last_name, :email, :phone, :avatar_path, :role, :status, :password_hash)'
+                    : 'INSERT INTO users (first_name, last_name, email, phone, role, status, password_hash)
+                       VALUES (:first_name, :last_name, :email, :phone, :role, :status, :password_hash)'
             );
             $params = [
                 'first_name' => $data['first_name'] ?? '',
@@ -72,8 +79,11 @@ class UserModel extends BaseModel
         } else {
             $fullName = trim(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? ''));
             $stmt = $this->db->prepare(
-                'INSERT INTO users (full_name, email, phone, role, status, password_hash)
-                 VALUES (:full_name, :email, :phone, :role, :status, :password_hash)'
+                $hasAvatar
+                    ? 'INSERT INTO users (full_name, email, phone, avatar_path, role, status, password_hash)
+                       VALUES (:full_name, :email, :phone, :avatar_path, :role, :status, :password_hash)'
+                    : 'INSERT INTO users (full_name, email, phone, role, status, password_hash)
+                       VALUES (:full_name, :email, :phone, :role, :status, :password_hash)'
             );
             $params = [
                 'full_name' => $fullName,
@@ -85,6 +95,9 @@ class UserModel extends BaseModel
             ];
         }
 
+        if ($hasAvatar) {
+            $params['avatar_path'] = $data['avatar_path'] ?? null;
+        }
         $stmt->execute($params);
         return (int) $this->db->lastInsertId();
     }
@@ -92,11 +105,12 @@ class UserModel extends BaseModel
     public function update(int $id, array $data): void
     {
         $passwordSql = isset($data['password_hash']) ? ', password_hash = :password_hash' : '';
+        $avatarSql = (array_key_exists('avatar_path', $data) && $this->hasAvatarColumn()) ? ', avatar_path = :avatar_path' : '';
 
         if ($this->hasUsersSplitNameColumns()) {
             $stmt = $this->db->prepare(
                 "UPDATE users
-                 SET first_name = :first_name, last_name = :last_name, email = :email, phone = :phone, role = :role,
+                 SET first_name = :first_name, last_name = :last_name, email = :email, phone = :phone{$avatarSql}, role = :role,
                      status = :status {$passwordSql}
                  WHERE id = :id"
             );
@@ -113,7 +127,7 @@ class UserModel extends BaseModel
             $fullName = trim(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? ''));
             $stmt = $this->db->prepare(
                 "UPDATE users
-                 SET full_name = :full_name, email = :email, phone = :phone, role = :role,
+                 SET full_name = :full_name, email = :email, phone = :phone{$avatarSql}, role = :role,
                      status = :status {$passwordSql}
                  WHERE id = :id"
             );
@@ -127,6 +141,9 @@ class UserModel extends BaseModel
             ];
         }
 
+        if (array_key_exists('avatar_path', $data)) {
+            $params['avatar_path'] = $data['avatar_path'];
+        }
         if (isset($data['password_hash'])) {
             $params['password_hash'] = $data['password_hash'];
         }
@@ -154,5 +171,29 @@ class UserModel extends BaseModel
         $stmt->execute(['email' => $email]);
         $user = $stmt->fetch();
         return $user ?: null;
+    }
+
+    public function updateAvatar(int $id, string $avatarPath): void
+    {
+        if (!$this->hasAvatarColumn()) {
+            return;
+        }
+
+        $stmt = $this->db->prepare('UPDATE users SET avatar_path = :avatar_path WHERE id = :id');
+        $stmt->execute([
+            'id' => $id,
+            'avatar_path' => $avatarPath,
+        ]);
+    }
+
+    private function hasAvatarColumn(): bool
+    {
+        if (self::$usersHasAvatarColumn !== null) {
+            return self::$usersHasAvatarColumn;
+        }
+
+        $stmt = $this->db->query("SHOW COLUMNS FROM users LIKE 'avatar_path'");
+        self::$usersHasAvatarColumn = (bool) $stmt->fetch();
+        return self::$usersHasAvatarColumn;
     }
 }

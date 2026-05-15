@@ -41,11 +41,13 @@ $routes = [
         '/sign-up' => [new HomeController(), 'signUp'],
         '/my-bookings' => [new HomeController(), 'myBookings'],
         '/notifications' => [new HomeController(), 'notifications'],
+        '/user-avatar' => [new HomeController(), 'userAvatar'],
     ],
     'POST' => [
         '/sign-in' => [new HomeController(), 'doSignIn'],
         '/sign-up' => [new HomeController(), 'doSignUp'],
         '/logout' => [new HomeController(), 'logout'],
+        '/profile/avatar' => [new HomeController(), 'uploadAvatar'],
         '/notifications/read' => [new HomeController(), 'markNotificationRead'],
         '/notifications/read-all' => [new HomeController(), 'markAllNotificationsRead'],
     ],
