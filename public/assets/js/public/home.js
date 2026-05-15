@@ -1,4 +1,49 @@
 (function () {
+    var feedbackMessages = document.querySelectorAll('[data-auto-dismiss-feedback]');
+    if (feedbackMessages.length === 0) return;
+
+    function dismissFeedback(message) {
+        if (!message || message.dataset.dismissed === '1') return;
+        message.dataset.dismissed = '1';
+        message.style.overflow = 'hidden';
+        message.style.height = message.offsetHeight + 'px';
+        message.style.transition = 'height 220ms ease, opacity 220ms ease, margin 220ms ease, padding 220ms ease';
+        requestAnimationFrame(function () {
+            message.style.opacity = '0';
+            message.style.height = '0px';
+            message.style.marginTop = '0';
+            message.style.paddingTop = '0';
+            message.style.paddingBottom = '0';
+        });
+        setTimeout(function () {
+            if (message && message.remove) message.remove();
+        }, 240);
+    }
+
+    feedbackMessages.forEach(function (message) {
+        var closeButton = message.querySelector('[data-dismiss-feedback]');
+        if (closeButton) {
+            closeButton.addEventListener('click', function () {
+                dismissFeedback(message);
+            });
+        }
+
+        var progress = message.querySelector('[data-feedback-progress]');
+        if (progress) {
+            progress.style.transition = 'width 5s linear';
+            progress.style.width = '100%';
+            requestAnimationFrame(function () {
+                progress.style.width = '0%';
+            });
+        }
+
+        setTimeout(function () {
+            dismissFeedback(message);
+        }, 5000);
+    });
+})();
+
+(function () {
     document.addEventListener('click', function (event) {
         var toggle = event.target.closest('[data-auth-password-toggle]');
         if (!toggle) return;

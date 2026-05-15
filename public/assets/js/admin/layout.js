@@ -10,14 +10,14 @@
     var feedback = document.getElementById('admin-feedback-wrap');
     var progress = document.getElementById('admin-feedback-progress');
     if (!feedback || !progress) return;
-    progress.style.transition = 'width 6s linear';
+    progress.style.transition = 'width 5s linear';
     progress.style.width = '100%';
     requestAnimationFrame(function () {
         progress.style.width = '0%';
     });
     setTimeout(function () {
         feedback.remove();
-    }, 6000);
+    }, 5000);
 })();
 
 (function () {

@@ -136,14 +136,22 @@ $work = [
 
     <main class="flex-1">
         <?php if (!empty($flash['message']) && $page !== 'sign-in' && $page !== 'sign-up' && $page !== 'forgot-password'): ?>
-            <div class="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8" role="alert">
-                <div class="flex items-center gap-3 rounded-lg border px-4 py-3 text-sm font-bold <?= ($flash['type'] ?? '') === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800' ?>">
-                    <?php if (($flash['type'] ?? '') === 'success'): ?>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    <?php else: ?>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    <?php endif; ?>
-                    <?= htmlspecialchars((string) $flash['message'], ENT_QUOTES, 'UTF-8') ?>
+            <div class="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8" role="alert" data-auto-dismiss-feedback>
+                <div class="overflow-hidden rounded-lg border <?= ($flash['type'] ?? '') === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800' ?>">
+                    <div class="flex items-start justify-between gap-3 px-4 py-3 text-sm font-bold">
+                        <div class="flex items-center gap-3">
+                            <?php if (($flash['type'] ?? '') === 'success'): ?>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            <?php else: ?>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <?php endif; ?>
+                            <span><?= htmlspecialchars((string) $flash['message'], ENT_QUOTES, 'UTF-8') ?></span>
+                        </div>
+                        <button type="button" class="text-xs font-black opacity-70 transition hover:opacity-100" data-dismiss-feedback aria-label="Dismiss message">✕</button>
+                    </div>
+                    <div class="h-1 w-full bg-black/10">
+                        <div class="h-full bg-current opacity-70" data-feedback-progress></div>
+                    </div>
                 </div>
             </div>
         <?php endif; ?>
@@ -332,7 +340,7 @@ $work = [
                     <p class="text-sm font-black uppercase tracking-[0.24em] text-[#c84c3a]">Recovery</p>
                     <h1 class="mt-3 text-4xl font-black">Request a password reset.</h1>
                     <?php if (!empty($flash['message'])): ?>
-                        <div class="mt-4 rounded-lg border px-3 py-2 text-sm font-bold <?= ($flash['type'] ?? '') === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800' ?>">
+                        <div class="mt-4 rounded-lg border px-3 py-2 text-sm font-bold <?= ($flash['type'] ?? '') === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800' ?>" data-auto-dismiss-feedback>
                             <?= htmlspecialchars((string) $flash['message'], ENT_QUOTES, 'UTF-8') ?>
                         </div>
                     <?php endif; ?>
@@ -351,7 +359,7 @@ $work = [
                     <p class="text-sm font-black uppercase tracking-[0.24em] text-[#c84c3a]"><?= $creating ? 'Create account' : 'Welcome back' ?></p>
                     <h1 class="mt-3 text-4xl font-black"><?= $creating ? 'Plan your booking with SGee Studios.' : 'Sign in to manage your booking.' ?></h1>
                     <?php if (!empty($flash['message'])): ?>
-                        <div class="mt-4 rounded-lg border px-3 py-2 text-sm font-bold <?= ($flash['type'] ?? '') === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800' ?>">
+                        <div class="mt-4 rounded-lg border px-3 py-2 text-sm font-bold <?= ($flash['type'] ?? '') === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800' ?>" data-auto-dismiss-feedback>
                             <?= htmlspecialchars((string) $flash['message'], ENT_QUOTES, 'UTF-8') ?>
                         </div>
                     <?php endif; ?>
