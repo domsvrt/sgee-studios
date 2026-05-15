@@ -3,6 +3,11 @@
 declare(strict_types=1);
 
 $page = $page ?? 'home';
+$isUser = $isUser ?? false;
+$userFirstName = trim((string) ($userFirstName ?? 'User')) ?: 'User';
+$userInitial = strtoupper(substr($userFirstName, 0, 1));
+$notificationUnreadCount = (int) ($notificationUnreadCount ?? 0);
+$recentNotifications = $recentNotifications ?? [];
 
 $navItems = [
     'home' => ['label' => 'Home', 'href' => '/'],
@@ -18,6 +23,8 @@ $titles = [
     'book-now' => 'Book SGee Studios',
     'sign-in' => 'Sign in | SGee Studios',
     'sign-up' => 'Create account | SGee Studios',
+    'my-bookings' => 'My Bookings | SGee Studios',
+    'notifications' => 'Notifications | SGee Studios',
 ];
 
 $isActive = static fn (string $key): string => $page === $key
@@ -58,8 +65,51 @@ $work = [
             </div>
 
             <div class="hidden items-center gap-2 md:flex">
-                <a href="/sign-in" class="rounded-lg px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-white">Sign in</a>
-                <a href="/sign-up" class="rounded-lg bg-[#c84c3a] px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-[#aa3f31]">Sign up</a>
+                <?php if ($isUser): ?>
+                    <a href="/my-bookings" class="rounded-lg bg-slate-950 px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-slate-800">My Bookings</a>
+                    <details class="relative">
+                        <summary class="grid h-10 w-10 cursor-pointer list-none place-items-center rounded-lg border border-slate-200 bg-white text-slate-800 shadow-sm" aria-label="Notifications">
+                            <span class="relative text-lg leading-none">!</span>
+                            <?php if ($notificationUnreadCount > 0): ?>
+                                <span class="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-[#c84c3a] px-1 text-[10px] font-black text-white"><?= htmlspecialchars((string) min($notificationUnreadCount, 99), ENT_QUOTES, 'UTF-8') ?></span>
+                            <?php endif; ?>
+                        </summary>
+                        <div class="absolute right-0 mt-3 w-80 rounded-lg border border-slate-200 bg-white p-3 shadow-xl">
+                            <div class="mb-2 flex items-center justify-between gap-3">
+                                <p class="text-sm font-black">Notifications</p>
+                                <?php if ($notificationUnreadCount > 0): ?>
+                                    <form method="post" action="/notifications/read-all"><input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES, 'UTF-8') ?>"><button class="text-xs font-black text-[#c84c3a]">Mark all read</button></form>
+                                <?php endif; ?>
+                            </div>
+                            <div class="grid max-h-80 gap-2 overflow-y-auto">
+                                <?php foreach ($recentNotifications as $notification): ?>
+                                    <div class="rounded-lg border border-slate-200 p-3 <?= (int) ($notification['is_read'] ?? 0) === 0 ? 'bg-[#fff8f5]' : 'bg-white' ?>">
+                                        <p class="text-sm font-black"><?= htmlspecialchars((string) $notification['title'], ENT_QUOTES, 'UTF-8') ?></p>
+                                        <p class="mt-1 text-xs leading-5 text-slate-600"><?= htmlspecialchars((string) $notification['message'], ENT_QUOTES, 'UTF-8') ?></p>
+                                        <?php if ((int) ($notification['is_read'] ?? 0) === 0): ?>
+                                            <form method="post" action="/notifications/read" class="mt-2"><input type="hidden" name="id" value="<?= htmlspecialchars((string) $notification['id'], ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES, 'UTF-8') ?>"><button class="text-xs font-black text-slate-700">Mark read</button></form>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endforeach; ?>
+                                <?php if (!$recentNotifications): ?><p class="py-6 text-center text-sm font-semibold text-slate-500">No notifications yet.</p><?php endif; ?>
+                            </div>
+                            <a href="/notifications" class="mt-3 block rounded-lg bg-slate-950 px-3 py-2 text-center text-xs font-black text-white">View all</a>
+                        </div>
+                    </details>
+                    <details class="relative">
+                        <summary class="flex cursor-pointer list-none items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-black text-slate-800 shadow-sm">
+                            <span class="grid h-7 w-7 place-items-center rounded-full bg-[#c84c3a] text-xs text-white"><?= htmlspecialchars($userInitial, ENT_QUOTES, 'UTF-8') ?></span>
+                            <?= htmlspecialchars($userFirstName, ENT_QUOTES, 'UTF-8') ?>
+                        </summary>
+                        <div class="absolute right-0 mt-3 w-44 rounded-lg border border-slate-200 bg-white p-2 shadow-xl">
+                            <a href="/my-bookings" class="block rounded-md px-3 py-2 text-sm font-black text-slate-700 hover:bg-slate-50">My Bookings</a>
+                            <form method="post" action="/logout"><button class="block w-full rounded-md px-3 py-2 text-left text-sm font-black text-[#c84c3a] hover:bg-slate-50">Sign out</button></form>
+                        </div>
+                    </details>
+                <?php else: ?>
+                    <a href="/sign-in" class="rounded-lg px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-white">Sign in</a>
+                    <a href="/sign-up" class="rounded-lg bg-[#c84c3a] px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-[#aa3f31]">Sign up</a>
+                <?php endif; ?>
             </div>
 
             <details class="relative md:hidden">
@@ -71,8 +121,15 @@ $work = [
                         </a>
                     <?php endforeach; ?>
                     <div class="my-2 h-px bg-slate-100"></div>
-                    <a href="/sign-in" class="block rounded-md px-3 py-2 text-sm font-black text-slate-700">Sign in</a>
-                    <a href="/sign-up" class="block rounded-md px-3 py-2 text-sm font-black text-[#c84c3a]">Sign up</a>
+                    <?php if ($isUser): ?>
+                        <div class="mb-1 flex items-center gap-2 px-3 py-2 text-sm font-black text-slate-800"><span class="grid h-7 w-7 place-items-center rounded-full bg-[#c84c3a] text-xs text-white"><?= htmlspecialchars($userInitial, ENT_QUOTES, 'UTF-8') ?></span><?= htmlspecialchars($userFirstName, ENT_QUOTES, 'UTF-8') ?></div>
+                        <a href="/my-bookings" class="block rounded-md px-3 py-2 text-sm font-black text-slate-700">My Bookings</a>
+                        <a href="/notifications" class="block rounded-md px-3 py-2 text-sm font-black text-slate-700">Notifications<?= $notificationUnreadCount > 0 ? ' (' . htmlspecialchars((string) $notificationUnreadCount, ENT_QUOTES, 'UTF-8') . ')' : '' ?></a>
+                        <form method="post" action="/logout"><button class="block w-full rounded-md px-3 py-2 text-left text-sm font-black text-[#c84c3a]">Sign out</button></form>
+                    <?php else: ?>
+                        <a href="/sign-in" class="block rounded-md px-3 py-2 text-sm font-black text-slate-700">Sign in</a>
+                        <a href="/sign-up" class="block rounded-md px-3 py-2 text-sm font-black text-[#c84c3a]">Sign up</a>
+                    <?php endif; ?>
                 </div>
             </details>
         </nav>
@@ -210,6 +267,94 @@ $work = [
                     <label class="mt-4 block text-sm font-black">Event details<textarea class="mt-2 min-h-32 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10"></textarea></label>
                     <button class="mt-5 min-h-12 w-full rounded-lg bg-[#c84c3a] px-5 text-sm font-black text-white shadow-sm" type="button">Request booking</button>
                 </form>
+            </section>
+        <?php elseif ($page === 'my-bookings'): ?>
+            <?php
+            $bookings = $bookings ?? [];
+            $bookingItems = $bookingItems ?? [];
+            ?>
+            <section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+                <div class="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+                    <div>
+                        <p class="text-sm font-black uppercase tracking-[0.24em] text-[#c84c3a]">Customer workspace</p>
+                        <h1 class="mt-3 text-4xl font-black">My Bookings</h1>
+                    </div>
+                    <a href="/book-now" class="inline-flex min-h-11 items-center justify-center rounded-lg bg-slate-950 px-5 text-sm font-black text-white">Book another date</a>
+                </div>
+
+                <div class="mt-8 grid gap-4">
+                    <?php foreach ($bookings as $booking): ?>
+                        <?php $items = $bookingItems[(int) $booking['id']] ?? []; ?>
+                        <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                            <div class="flex flex-col justify-between gap-4 md:flex-row md:items-start">
+                                <div>
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <h2 class="text-xl font-black"><?= htmlspecialchars((string) $booking['booking_code'], ENT_QUOTES, 'UTF-8') ?></h2>
+                                        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black uppercase text-slate-700"><?= htmlspecialchars((string) $booking['status'], ENT_QUOTES, 'UTF-8') ?></span>
+                                    </div>
+                                    <p class="mt-2 text-sm font-bold text-slate-600"><?= htmlspecialchars((string) $booking['booking_date'], ENT_QUOTES, 'UTF-8') ?> at <?= htmlspecialchars(substr((string) $booking['booking_time'], 0, 5), ENT_QUOTES, 'UTF-8') ?></p>
+                                    <p class="mt-1 text-sm text-slate-500"><?= htmlspecialchars((string) ($booking['category_name'] ?? 'No category'), ENT_QUOTES, 'UTF-8') ?></p>
+                                </div>
+                                <div class="text-left md:text-right">
+                                    <p class="text-xs font-black uppercase tracking-wide text-slate-500">Total</p>
+                                    <p class="text-2xl font-black">$<?= htmlspecialchars((string) $booking['total_amount'], ENT_QUOTES, 'UTF-8') ?></p>
+                                    <p class="mt-1 text-xs font-semibold text-slate-500">Updated <?= htmlspecialchars((string) ($booking['updated_at'] ?? ''), ENT_QUOTES, 'UTF-8') ?></p>
+                                </div>
+                            </div>
+                            <div class="mt-4 border-t border-slate-100 pt-4">
+                                <p class="text-xs font-black uppercase tracking-wide text-slate-500">Booked services</p>
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    <?php foreach ($items as $item): ?>
+                                        <span class="rounded-full bg-[#f6f3ee] px-3 py-1 text-xs font-bold text-slate-700"><?= htmlspecialchars((string) $item['service_name_snapshot'], ENT_QUOTES, 'UTF-8') ?></span>
+                                    <?php endforeach; ?>
+                                    <?php if (!$items): ?><span class="text-sm text-slate-500">No services attached.</span><?php endif; ?>
+                                </div>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                    <?php if (!$bookings): ?>
+                        <div class="rounded-lg border border-slate-200 bg-white px-5 py-14 text-center shadow-sm">
+                            <h2 class="text-2xl font-black">No bookings yet.</h2>
+                            <p class="mt-2 text-sm text-slate-600">Your reserved dates and booked services will appear here.</p>
+                            <a href="/book-now" class="mt-5 inline-flex min-h-11 items-center justify-center rounded-lg bg-[#c84c3a] px-5 text-sm font-black text-white">Start a booking</a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </section>
+        <?php elseif ($page === 'notifications'): ?>
+            <?php $notificationsPage = $notificationsPage ?? []; ?>
+            <section class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+                <div class="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+                    <div>
+                        <p class="text-sm font-black uppercase tracking-[0.24em] text-[#c84c3a]">Updates</p>
+                        <h1 class="mt-3 text-4xl font-black">Notifications</h1>
+                    </div>
+                    <?php if ($notificationUnreadCount > 0): ?>
+                        <form method="post" action="/notifications/read-all"><input type="hidden" name="redirect" value="/notifications"><button class="min-h-11 rounded-lg bg-slate-950 px-5 text-sm font-black text-white">Mark all read</button></form>
+                    <?php endif; ?>
+                </div>
+                <div class="mt-8 grid gap-3">
+                    <?php foreach ($notificationsPage as $notification): ?>
+                        <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm <?= (int) ($notification['is_read'] ?? 0) === 0 ? 'ring-2 ring-[#c84c3a]/10' : '' ?>">
+                            <div class="flex flex-col justify-between gap-3 md:flex-row md:items-start">
+                                <div>
+                                    <h2 class="text-lg font-black"><?= htmlspecialchars((string) $notification['title'], ENT_QUOTES, 'UTF-8') ?></h2>
+                                    <p class="mt-1 text-sm leading-6 text-slate-600"><?= htmlspecialchars((string) $notification['message'], ENT_QUOTES, 'UTF-8') ?></p>
+                                    <p class="mt-2 text-xs font-semibold text-slate-500"><?= htmlspecialchars((string) $notification['created_at'], ENT_QUOTES, 'UTF-8') ?></p>
+                                </div>
+                                <?php if ((int) ($notification['is_read'] ?? 0) === 0): ?>
+                                    <form method="post" action="/notifications/read"><input type="hidden" name="id" value="<?= htmlspecialchars((string) $notification['id'], ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="redirect" value="/notifications"><button class="min-h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs font-black text-slate-700">Mark read</button></form>
+                                <?php endif; ?>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                    <?php if (!$notificationsPage): ?>
+                        <div class="rounded-lg border border-slate-200 bg-white px-5 py-14 text-center shadow-sm">
+                            <h2 class="text-2xl font-black">No notifications yet.</h2>
+                            <p class="mt-2 text-sm text-slate-600">Booking status updates will appear here.</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
             </section>
         <?php elseif ($page === 'sign-in' || $page === 'sign-up'): ?>
             <?php $creating = $page === 'sign-up'; ?>

@@ -9,6 +9,24 @@ class BookingItemModel extends BaseModel
     public function groupedByBooking(): array
     {
         $rows = $this->db->query('SELECT * FROM booking_items ORDER BY created_at')->fetchAll();
+        return $this->groupRows($rows);
+    }
+
+    public function groupedByBookingIds(array $bookingIds): array
+    {
+        $ids = array_values(array_unique(array_map('intval', $bookingIds)));
+        if (!$ids) {
+            return [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = $this->db->prepare("SELECT * FROM booking_items WHERE booking_id IN ({$placeholders}) ORDER BY created_at");
+        $stmt->execute($ids);
+        return $this->groupRows($stmt->fetchAll());
+    }
+
+    private function groupRows(array $rows): array
+    {
         $grouped = [];
 
         foreach ($rows as $row) {

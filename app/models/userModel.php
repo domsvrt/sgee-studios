@@ -30,6 +30,29 @@ class UserModel extends BaseModel
         return (int) $this->db->query('SELECT COUNT(*) FROM users')->fetchColumn();
     }
 
+    public function find(int $id): ?array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM users WHERE id = :id LIMIT 1');
+        $stmt->execute(['id' => $id]);
+        $user = $stmt->fetch();
+        return $user ?: null;
+    }
+
+    public function firstName(array $user): string
+    {
+        $firstName = trim((string) ($user['first_name'] ?? ''));
+        if ($firstName !== '') {
+            return $firstName;
+        }
+
+        $fullName = trim((string) ($user['full_name'] ?? ''));
+        if ($fullName !== '') {
+            return (string) preg_split('/\s+/', $fullName, 2)[0];
+        }
+
+        return (string) ($user['email'] ?? 'User');
+    }
+
     public function create(array $data): int
     {
         if ($this->hasUsersSplitNameColumns()) {

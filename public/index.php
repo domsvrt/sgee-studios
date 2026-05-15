@@ -39,11 +39,15 @@ $routes = [
         '/book-now' => [new HomeController(), 'bookNow'],
         '/sign-in' => [new HomeController(), 'signIn'],
         '/sign-up' => [new HomeController(), 'signUp'],
+        '/my-bookings' => [new HomeController(), 'myBookings'],
+        '/notifications' => [new HomeController(), 'notifications'],
     ],
     'POST' => [
         '/sign-in' => [new HomeController(), 'doSignIn'],
         '/sign-up' => [new HomeController(), 'doSignUp'],
         '/logout' => [new HomeController(), 'logout'],
+        '/notifications/read' => [new HomeController(), 'markNotificationRead'],
+        '/notifications/read-all' => [new HomeController(), 'markAllNotificationsRead'],
     ],
 ];
 

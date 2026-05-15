@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Models\BookingItemModel;
 use App\Models\BookingModel;
 use App\Models\BookingStatusLogModel;
+use App\Models\NotificationModel;
 use App\Models\ServiceCategoryModel;
 use App\Models\ServiceModel;
 use App\Models\UserModel;
@@ -20,6 +21,7 @@ class AdminController extends BaseController
     private BookingModel $bookings;
     private BookingItemModel $bookingItems;
     private BookingStatusLogModel $logs;
+    private NotificationModel $notifications;
 
     public function __construct()
     {
@@ -29,6 +31,7 @@ class AdminController extends BaseController
         $this->bookings = new BookingModel();
         $this->bookingItems = new BookingItemModel();
         $this->logs = new BookingStatusLogModel();
+        $this->notifications = new NotificationModel();
     }
 
     public function dashboard(): void
@@ -200,6 +203,7 @@ class AdminController extends BaseController
 
             if ($old && $old['status'] !== $payload['status']) {
                 $this->logs->create($id, $old['status'], $payload['status'], null, 'Status changed from booking edit.');
+                $this->notifications->createBookingStatusNotification($old, $payload['status']);
             }
         }, '/admin/bookings', 'Booking updated.');
     }
@@ -213,6 +217,7 @@ class AdminController extends BaseController
 
             if ($old && $old['status'] !== $status) {
                 $this->logs->create($id, $old['status'], $status, null, trim($_POST['change_note'] ?? '') ?: null);
+                $this->notifications->createBookingStatusNotification($old, $status);
             }
         }, '/admin/bookings', 'Booking status updated.');
     }

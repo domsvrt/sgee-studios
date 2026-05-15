@@ -37,6 +37,19 @@ class BookingModel extends BaseModel
         )->fetchAll();
     }
 
+    public function forUser(int $userId): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT bookings.*, service_categories.name AS category_name
+             FROM bookings
+             LEFT JOIN service_categories ON service_categories.id = bookings.category_id
+             WHERE bookings.user_id = :user_id
+             ORDER BY bookings.updated_at DESC, bookings.created_at DESC'
+        );
+        $stmt->execute(['user_id' => $userId]);
+        return $stmt->fetchAll();
+    }
+
     public function statusCounts(): array
     {
         return $this->db->query('SELECT status, COUNT(*) AS total FROM bookings GROUP BY status')->fetchAll();
@@ -112,4 +125,5 @@ class BookingModel extends BaseModel
         );
         $stmt->execute(['id' => $id]);
     }
+
 }
