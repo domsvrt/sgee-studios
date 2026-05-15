@@ -186,6 +186,44 @@ class UserModel extends BaseModel
         ]);
     }
 
+    public function updateProfile(int $id, string $firstName, string $lastName, string $email): void
+    {
+        if ($this->hasUsersSplitNameColumns()) {
+            $stmt = $this->db->prepare(
+                'UPDATE users
+                 SET first_name = :first_name, last_name = :last_name, email = :email
+                 WHERE id = :id'
+            );
+            $stmt->execute([
+                'id' => $id,
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'email' => $email,
+            ]);
+            return;
+        }
+
+        $stmt = $this->db->prepare(
+            'UPDATE users
+             SET full_name = :full_name, email = :email
+             WHERE id = :id'
+        );
+        $stmt->execute([
+            'id' => $id,
+            'full_name' => trim($firstName . ' ' . $lastName),
+            'email' => $email,
+        ]);
+    }
+
+    public function updatePassword(int $id, string $passwordHash): void
+    {
+        $stmt = $this->db->prepare('UPDATE users SET password_hash = :password_hash WHERE id = :id');
+        $stmt->execute([
+            'id' => $id,
+            'password_hash' => $passwordHash,
+        ]);
+    }
+
     private function hasAvatarColumn(): bool
     {
         if (self::$usersHasAvatarColumn !== null) {

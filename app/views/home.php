@@ -24,8 +24,10 @@ $titles = [
     'book-now' => 'Book SGee Studios',
     'sign-in' => 'Sign in | SGee Studios',
     'sign-up' => 'Create account | SGee Studios',
+    'forgot-password' => 'Forgot password | SGee Studios',
     'my-bookings' => 'My Bookings | SGee Studios',
     'notifications' => 'Notifications | SGee Studios',
+    'settings' => 'Settings | SGee Studios',
 ];
 
 $isActive = static fn (string $key): string => $page === $key
@@ -84,11 +86,7 @@ $work = [
                             <?= htmlspecialchars($userFirstName, ENT_QUOTES, 'UTF-8') ?>
                         </summary>
                         <div class="absolute right-0 mt-3 w-72 rounded-lg border border-slate-200 bg-white p-3 shadow-xl">
-                            <form method="post" action="/profile/avatar" enctype="multipart/form-data" class="mb-2 grid gap-2 border-b border-slate-100 pb-3">
-                                <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES, 'UTF-8') ?>">
-                                <input type="file" name="avatar" accept=".jpg,.jpeg,.png,.webp" class="block w-full text-xs font-semibold text-slate-600 file:mr-2 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-xs file:font-black file:text-slate-700">
-                                <button class="rounded-md bg-slate-950 px-3 py-2 text-xs font-black text-white">Upload Avatar</button>
-                            </form>
+                            <a href="/settings" class="mb-2 block w-full rounded-md px-3 py-2 text-left text-sm font-black text-slate-700 hover:bg-slate-50">Settings</a>
                             <form method="post" action="/logout"><button class="block w-full rounded-md px-3 py-2 text-left text-sm font-black text-[#c84c3a] hover:bg-slate-50">Sign out</button></form>
                         </div>
                     </details>
@@ -123,11 +121,7 @@ $work = [
                             <?php endif; ?>
                             <?= htmlspecialchars($userFirstName, ENT_QUOTES, 'UTF-8') ?>
                         </div>
-                        <form method="post" action="/profile/avatar" enctype="multipart/form-data" class="mb-2 grid gap-2 rounded-md border border-slate-200 p-2">
-                            <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES, 'UTF-8') ?>">
-                            <input type="file" name="avatar" accept=".jpg,.jpeg,.png,.webp" class="block w-full text-xs font-semibold text-slate-600 file:mr-2 file:rounded-md file:border-0 file:bg-slate-100 file:px-2 file:py-1.5 file:text-xs file:font-black file:text-slate-700">
-                            <button class="rounded-md bg-slate-950 px-3 py-2 text-xs font-black text-white">Upload Avatar</button>
-                        </form>
+                        <a href="/settings" class="mb-2 block rounded-md px-3 py-2 text-sm font-black text-slate-700">Settings</a>
                         <form method="post" action="/logout"><button class="block w-full rounded-md px-3 py-2 text-left text-sm font-black text-[#c84c3a]">Sign out</button></form>
                     <?php else: ?>
                         <a href="/sign-in" class="block rounded-md px-3 py-2 text-sm font-black text-slate-700">Sign in</a>
@@ -139,7 +133,7 @@ $work = [
     </header>
 
     <main class="flex-1">
-        <?php if (!empty($flash['message']) && $page !== 'sign-in' && $page !== 'sign-up'): ?>
+        <?php if (!empty($flash['message']) && $page !== 'sign-in' && $page !== 'sign-up' && $page !== 'forgot-password'): ?>
             <div class="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8" role="alert">
                 <div class="flex items-center gap-3 rounded-lg border px-4 py-3 text-sm font-bold <?= ($flash['type'] ?? '') === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800' ?>">
                     <?php if (($flash['type'] ?? '') === 'success'): ?>
@@ -371,6 +365,60 @@ $work = [
                     <?php endif; ?>
                 </div>
             </section>
+        <?php elseif ($page === 'settings'): ?>
+            <?php $settingsUser = $settingsUser ?? ['first_name' => '', 'last_name' => '', 'email' => '']; ?>
+            <section class="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+                <div>
+                    <p class="text-sm font-black uppercase tracking-[0.24em] text-[#c84c3a]">Account</p>
+                    <h1 class="mt-3 text-4xl font-black">Settings</h1>
+                </div>
+
+                <div class="mt-8 grid gap-5 lg:grid-cols-2">
+                    <form method="post" action="/settings/profile" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                        <h2 class="text-xl font-black">Profile details</h2>
+                        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                            <label class="text-sm font-black">First name<input required name="first_name" value="<?= htmlspecialchars((string) ($settingsUser['first_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="text"></label>
+                            <label class="text-sm font-black">Last name<input required name="last_name" value="<?= htmlspecialchars((string) ($settingsUser['last_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="text"></label>
+                        </div>
+                        <label class="mt-4 block text-sm font-black">Email<input required name="email" value="<?= htmlspecialchars((string) ($settingsUser['email'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="email"></label>
+                        <button class="mt-5 min-h-11 rounded-lg bg-slate-950 px-5 text-sm font-black text-white">Save profile</button>
+                    </form>
+
+                    <form method="post" action="/settings/password" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                        <h2 class="text-xl font-black">Change password</h2>
+                        <label class="mt-4 block text-sm font-black">Current password<input required name="current_password" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="password"></label>
+                        <label class="mt-4 block text-sm font-black">New password<input required name="new_password" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="password"></label>
+                        <label class="mt-4 block text-sm font-black">Confirm new password<input required name="confirm_password" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="password"></label>
+                        <button class="mt-5 min-h-11 rounded-lg bg-slate-950 px-5 text-sm font-black text-white">Update password</button>
+                    </form>
+
+                    <form method="post" action="/profile/avatar" enctype="multipart/form-data" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
+                        <h2 class="text-xl font-black">Change avatar</h2>
+                        <p class="mt-2 text-sm text-slate-600">Upload JPG, PNG, or WEBP up to 2MB.</p>
+                        <input type="hidden" name="redirect" value="/settings">
+                        <input type="file" name="avatar" accept=".jpg,.jpeg,.png,.webp" class="mt-4 block w-full text-xs font-semibold text-slate-600 file:mr-2 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-xs file:font-black file:text-slate-700">
+                        <button class="mt-4 min-h-11 rounded-lg bg-slate-950 px-5 text-sm font-black text-white">Upload avatar</button>
+                    </form>
+                </div>
+            </section>
+        <?php elseif ($page === 'forgot-password'): ?>
+            <section class="mx-auto grid min-h-[calc(100vh-4.5rem)] max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8">
+                <div class="hidden lg:block">
+                    <img src="/assets/images/auth-wedding-detail.jpg" alt="Wedding detail photographed in warm light" class="h-[38rem] w-full rounded-lg object-cover shadow-2xl">
+                </div>
+                <form method="post" action="/forgot-password" class="rounded-lg bg-white p-6 shadow-xl ring-1 ring-slate-200">
+                    <p class="text-sm font-black uppercase tracking-[0.24em] text-[#c84c3a]">Recovery</p>
+                    <h1 class="mt-3 text-4xl font-black">Request a password reset.</h1>
+                    <?php if (!empty($flash['message'])): ?>
+                        <div class="mt-4 rounded-lg border px-3 py-2 text-sm font-bold <?= ($flash['type'] ?? '') === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800' ?>">
+                            <?= htmlspecialchars((string) $flash['message'], ENT_QUOTES, 'UTF-8') ?>
+                        </div>
+                    <?php endif; ?>
+                    <label class="mt-5 block text-sm font-black">Email<input required name="email" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="email"></label>
+                    <button class="mt-5 min-h-12 w-full rounded-lg bg-slate-950 px-5 text-sm font-black text-white" type="submit">Send request</button>
+                    <p class="mt-5 text-center text-sm text-slate-600"><a class="font-black text-[#c84c3a]" href="/sign-in">Back to sign in</a></p>
+                </form>
+            </section>
         <?php elseif ($page === 'sign-in' || $page === 'sign-up'): ?>
             <?php $creating = $page === 'sign-up'; ?>
             <section class="mx-auto grid min-h-[calc(100vh-4.5rem)] max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8">
@@ -407,6 +455,11 @@ $work = [
                         <?= $creating ? 'Already have an account?' : 'New to SGee Studios?' ?>
                         <a class="font-black text-[#c84c3a]" href="<?= $creating ? '/sign-in' : '/sign-up' ?>"><?= $creating ? 'Sign in' : 'Create one' ?></a>
                     </p>
+                    <?php if (!$creating): ?>
+                        <p class="mt-2 text-center text-sm text-slate-600">
+                            <a class="font-black text-[#c84c3a]" href="/forgot-password">Forgot password?</a>
+                        </p>
+                    <?php endif; ?>
                 </form>
             </section>
         <?php endif; ?>

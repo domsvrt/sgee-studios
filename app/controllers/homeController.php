@@ -6,7 +6,9 @@ namespace App\Controllers;
 
 use App\Models\BookingItemModel;
 use App\Models\BookingModel;
+use App\Models\ActivityLogModel;
 use App\Models\NotificationModel;
+use App\Models\PasswordResetRequestModel;
 use App\Models\ServiceCategoryModel;
 use App\Models\UserModel;
 
@@ -17,6 +19,8 @@ class HomeController extends BaseController
     private BookingModel $bookings;
     private BookingItemModel $bookingItems;
     private NotificationModel $notifications;
+    private PasswordResetRequestModel $passwordResetRequests;
+    private ActivityLogModel $activityLogs;
 
     public function __construct()
     {
@@ -25,6 +29,8 @@ class HomeController extends BaseController
         $this->bookings = new BookingModel();
         $this->bookingItems = new BookingItemModel();
         $this->notifications = new NotificationModel();
+        $this->passwordResetRequests = new PasswordResetRequestModel();
+        $this->activityLogs = new ActivityLogModel();
     }
 
     public function index(): void
@@ -59,6 +65,11 @@ class HomeController extends BaseController
     public function signUp(): void
     {
         $this->renderHome(['page' => 'sign-up', 'flash' => $this->pullFlash()]);
+    }
+
+    public function forgotPassword(): void
+    {
+        $this->renderHome(['page' => 'forgot-password', 'flash' => $this->pullFlash()]);
     }
 
     public function doSignIn(): void
@@ -121,6 +132,31 @@ class HomeController extends BaseController
         $this->redirect('/sign-in');
     }
 
+    public function requestPasswordReset(): void
+    {
+        $email = strtolower(trim($_POST['email'] ?? ''));
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Please enter a valid email address.'];
+            $this->redirect('/forgot-password');
+        }
+
+        $user = $this->users->findByEmail($email);
+        $userId = $user ? (int) $user['id'] : null;
+        $requestId = $this->passwordResetRequests->createRequest($userId, $email);
+
+        $this->activityLogs->create(
+            'password_reset_request',
+            'Password reset requested',
+            "A forgot-password request was submitted for {$email}.",
+            $userId,
+            null,
+            ['request_id' => $requestId]
+        );
+
+        $_SESSION['flash'] = ['type' => 'success', 'message' => 'If the account exists, your request has been sent to support.'];
+        $this->redirect('/sign-in');
+    }
+
     public function uploadAvatar(): void
     {
         $userId = $this->requireUser();
@@ -159,6 +195,96 @@ class HomeController extends BaseController
             'notificationsPage' => $this->notifications->recentForUser($userId, 50),
             'flash' => $this->pullFlash(),
         ]);
+    }
+
+    public function settings(): void
+    {
+        $userId = $this->requireUser();
+        $user = $this->users->find($userId);
+        if (!$user) {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Unable to load account settings.'];
+            $this->redirect('/');
+        }
+
+        $firstName = trim((string) ($user['first_name'] ?? ''));
+        $lastName = trim((string) ($user['last_name'] ?? ''));
+        if ($firstName === '' && $lastName === '') {
+            $parts = preg_split('/\s+/', trim((string) ($user['full_name'] ?? '')), 2);
+            $firstName = trim((string) ($parts[0] ?? ''));
+            $lastName = trim((string) ($parts[1] ?? ''));
+        }
+
+        $this->renderHome([
+            'page' => 'settings',
+            'settingsUser' => [
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'email' => (string) ($user['email'] ?? ''),
+            ],
+            'flash' => $this->pullFlash(),
+        ]);
+    }
+
+    public function updateProfileSettings(): void
+    {
+        $userId = $this->requireUser();
+        $firstName = trim($_POST['first_name'] ?? '');
+        $lastName = trim($_POST['last_name'] ?? '');
+        $email = strtolower(trim($_POST['email'] ?? ''));
+
+        if ($firstName === '' || $lastName === '' || $email === '') {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'First name, last name, and email are required.'];
+            $this->redirect('/settings');
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Please enter a valid email address.'];
+            $this->redirect('/settings');
+        }
+
+        $existing = $this->users->findByEmail($email);
+        if ($existing && (int) $existing['id'] !== $userId) {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Email is already in use by another account.'];
+            $this->redirect('/settings');
+        }
+
+        $this->users->updateProfile($userId, $firstName, $lastName, $email);
+        $_SESSION['user_first_name'] = $firstName;
+        $_SESSION['flash'] = ['type' => 'success', 'message' => 'Profile settings updated.'];
+        $this->redirect('/settings');
+    }
+
+    public function updatePasswordSettings(): void
+    {
+        $userId = $this->requireUser();
+        $currentPassword = trim($_POST['current_password'] ?? '');
+        $newPassword = trim($_POST['new_password'] ?? '');
+        $confirmPassword = trim($_POST['confirm_password'] ?? '');
+
+        if ($currentPassword === '' || $newPassword === '' || $confirmPassword === '') {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'All password fields are required.'];
+            $this->redirect('/settings');
+        }
+
+        if (strlen($newPassword) < 8) {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'New password must be at least 8 characters.'];
+            $this->redirect('/settings');
+        }
+
+        if ($newPassword !== $confirmPassword) {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Password confirmation does not match.'];
+            $this->redirect('/settings');
+        }
+
+        $user = $this->users->find($userId);
+        if (!$user || !password_verify($currentPassword, (string) $user['password_hash'])) {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Current password is incorrect.'];
+            $this->redirect('/settings');
+        }
+
+        $this->users->updatePassword($userId, password_hash($newPassword, PASSWORD_DEFAULT));
+        $_SESSION['flash'] = ['type' => 'success', 'message' => 'Password updated successfully.'];
+        $this->redirect('/settings');
     }
 
     public function markNotificationRead(): void

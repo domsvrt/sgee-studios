@@ -39,15 +39,20 @@ $routes = [
         '/book-now' => [new HomeController(), 'bookNow'],
         '/sign-in' => [new HomeController(), 'signIn'],
         '/sign-up' => [new HomeController(), 'signUp'],
+        '/forgot-password' => [new HomeController(), 'forgotPassword'],
         '/my-bookings' => [new HomeController(), 'myBookings'],
         '/notifications' => [new HomeController(), 'notifications'],
+        '/settings' => [new HomeController(), 'settings'],
         '/user-avatar' => [new HomeController(), 'userAvatar'],
     ],
     'POST' => [
         '/sign-in' => [new HomeController(), 'doSignIn'],
         '/sign-up' => [new HomeController(), 'doSignUp'],
+        '/forgot-password' => [new HomeController(), 'requestPasswordReset'],
         '/logout' => [new HomeController(), 'logout'],
         '/profile/avatar' => [new HomeController(), 'uploadAvatar'],
+        '/settings/profile' => [new HomeController(), 'updateProfileSettings'],
+        '/settings/password' => [new HomeController(), 'updatePasswordSettings'],
         '/notifications/read' => [new HomeController(), 'markNotificationRead'],
         '/notifications/read-all' => [new HomeController(), 'markAllNotificationsRead'],
     ],
@@ -68,6 +73,8 @@ if (str_starts_with($path, '/admin')) {
             '/admin/services' => [$admin, 'services'],
             '/admin/bookings' => [$admin, 'bookings'],
             '/admin/logs' => [$admin, 'logs'],
+            '/admin/password-requests' => [$admin, 'passwordRequests'],
+            '/admin/activity-logs' => [$admin, 'activityLogs'],
         ],
         'POST' => [
             '/admin/users/create' => [$admin, 'createUser'],
@@ -85,6 +92,7 @@ if (str_starts_with($path, '/admin')) {
             '/admin/bookings/update' => [$admin, 'updateBooking'],
             '/admin/bookings/status' => [$admin, 'updateBookingStatus'],
             '/admin/bookings/delete' => [$admin, 'deleteBooking'],
+            '/admin/password-requests/update' => [$admin, 'updatePasswordRequest'],
         ],
     ];
 

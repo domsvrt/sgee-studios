@@ -7,7 +7,9 @@ namespace App\Controllers;
 use App\Models\BookingItemModel;
 use App\Models\BookingModel;
 use App\Models\BookingStatusLogModel;
+use App\Models\ActivityLogModel;
 use App\Models\NotificationModel;
+use App\Models\PasswordResetRequestModel;
 use App\Models\ServiceCategoryModel;
 use App\Models\ServiceModel;
 use App\Models\UserModel;
@@ -22,6 +24,8 @@ class AdminController extends BaseController
     private BookingItemModel $bookingItems;
     private BookingStatusLogModel $logs;
     private NotificationModel $notifications;
+    private PasswordResetRequestModel $passwordResetRequests;
+    private ActivityLogModel $activityLogs;
 
     public function __construct()
     {
@@ -32,6 +36,8 @@ class AdminController extends BaseController
         $this->bookingItems = new BookingItemModel();
         $this->logs = new BookingStatusLogModel();
         $this->notifications = new NotificationModel();
+        $this->passwordResetRequests = new PasswordResetRequestModel();
+        $this->activityLogs = new ActivityLogModel();
     }
 
     public function dashboard(): void
@@ -100,6 +106,31 @@ class AdminController extends BaseController
             'title' => 'Status Logs',
             'activeNav' => 'logs',
             'logs' => $this->logs->recent(100),
+        ]);
+    }
+
+    public function passwordRequests(): void
+    {
+        $status = trim($_GET['status'] ?? '');
+        $allowed = ['', 'pending', 'approved', 'rejected', 'completed'];
+        if (!in_array($status, $allowed, true)) {
+            $status = '';
+        }
+
+        $this->renderAdmin('passwordRequests', [
+            'title' => 'Password Requests',
+            'activeNav' => 'password-requests',
+            'statusFilter' => $status,
+            'requests' => $this->passwordResetRequests->all($status === '' ? null : $status, 300),
+        ]);
+    }
+
+    public function activityLogs(): void
+    {
+        $this->renderAdmin('activityLogs', [
+            'title' => 'Activity Logs',
+            'activeNav' => 'activity-logs',
+            'logs' => $this->activityLogs->recent(300),
         ]);
     }
 
@@ -204,6 +235,13 @@ class AdminController extends BaseController
             if ($old && $old['status'] !== $payload['status']) {
                 $this->logs->create($id, $old['status'], $payload['status'], null, 'Status changed from booking edit.');
                 $this->notifications->createBookingStatusNotification($old, $payload['status']);
+                $this->activityLogs->create(
+                    'booking_status',
+                    'Booking status updated',
+                    "Booking {$old['booking_code']} status changed to {$payload['status']}.",
+                    (int) ($old['user_id'] ?? 0) ?: null,
+                    (int) ($old['id'] ?? 0) ?: null
+                );
             }
         }, '/admin/bookings', 'Booking updated.');
     }
@@ -218,6 +256,13 @@ class AdminController extends BaseController
             if ($old && $old['status'] !== $status) {
                 $this->logs->create($id, $old['status'], $status, null, trim($_POST['change_note'] ?? '') ?: null);
                 $this->notifications->createBookingStatusNotification($old, $status);
+                $this->activityLogs->create(
+                    'booking_status',
+                    'Booking status updated',
+                    "Booking {$old['booking_code']} status changed to {$status}.",
+                    (int) ($old['user_id'] ?? 0) ?: null,
+                    (int) ($old['id'] ?? 0) ?: null
+                );
             }
         }, '/admin/bookings', 'Booking status updated.');
     }
@@ -225,6 +270,54 @@ class AdminController extends BaseController
     public function deleteBooking(): void
     {
         $this->handle(fn () => $this->bookings->delete($this->requiredId()), '/admin/bookings', 'Booking deleted.');
+    }
+
+    public function updatePasswordRequest(): void
+    {
+        $this->handle(function (): void {
+            $id = $this->requiredId();
+            $status = $this->enum($_POST['status'] ?? '', ['pending', 'approved', 'rejected', 'completed'], 'status');
+            $notes = trim($_POST['notes'] ?? '') ?: null;
+            $adminUserId = (int) ($_SESSION['user_id'] ?? 0);
+            if ($adminUserId <= 0) {
+                throw new \RuntimeException('Missing admin session.');
+            }
+
+            $previous = $this->passwordResetRequests->updateStatus($id, $status, $adminUserId, $notes);
+            if (!$previous) {
+                throw new \InvalidArgumentException('Password reset request not found.');
+            }
+
+            if ($status === 'completed') {
+                $tempPassword = trim($_POST['temporary_password'] ?? '');
+                if ($tempPassword === '') {
+                    throw new \InvalidArgumentException('Temporary password is required when marking as completed.');
+                }
+                if (strlen($tempPassword) < 8) {
+                    throw new \InvalidArgumentException('Temporary password must be at least 8 characters.');
+                }
+
+                $targetUserId = (int) ($previous['user_id'] ?? 0);
+                if ($targetUserId <= 0) {
+                    throw new \InvalidArgumentException('Cannot complete request without a linked user account.');
+                }
+                $this->users->updatePassword($targetUserId, password_hash($tempPassword, PASSWORD_DEFAULT));
+            }
+
+            $email = (string) ($previous['email_snapshot'] ?? '');
+            $this->activityLogs->create(
+                'password_reset_status',
+                'Password reset request updated',
+                "Password reset request for {$email} changed to {$status}.",
+                (int) ($previous['user_id'] ?? 0) ?: null,
+                null,
+                [
+                    'request_id' => $id,
+                    'previous_status' => $previous['status'] ?? 'pending',
+                    'new_status' => $status,
+                ]
+            );
+        }, '/admin/password-requests', 'Password reset request updated.');
     }
 
     private function renderAdmin(string $view, array $data): void
