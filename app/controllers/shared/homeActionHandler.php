@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Controllers\Shared;
 
-use App\Models\BookingItemModel;
-use App\Models\BookingModel;
-use App\Models\ActivityLogModel;
-use App\Models\NotificationModel;
-use App\Models\PasswordResetRequestModel;
-use App\Models\ServiceCategoryModel;
-use App\Models\ServiceModel;
-use App\Models\ServiceSectionModel;
-use App\Models\UserModel;
+use App\Models\Shared\BookingItemModel;
+use App\Models\Shared\BookingModel;
+use App\Models\Shared\ActivityLogModel;
+use App\Models\Shared\NotificationModel;
+use App\Models\Shared\PasswordResetRequestModel;
+use App\Models\Shared\ServiceCategoryModel;
+use App\Models\Shared\ServiceModel;
+use App\Models\Shared\ServiceSectionModel;
+use App\Models\Shared\UserModel;
 
 class HomeActionHandler extends BaseController
 {
