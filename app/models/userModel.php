@@ -13,6 +13,10 @@ class UserModel extends BaseModel
 
     public function bookers(): array
     {
+        if ($this->hasUsersSplitNameColumns()) {
+            return $this->db->query("SELECT id, first_name, last_name, CONCAT(first_name, ' ', last_name) AS full_name, email FROM users WHERE role = 'user' AND status = 'active' ORDER BY first_name, last_name")->fetchAll();
+        }
+
         return $this->db->query("SELECT id, full_name, email FROM users WHERE role = 'user' AND status = 'active' ORDER BY full_name")->fetchAll();
     }
 
@@ -28,25 +32,83 @@ class UserModel extends BaseModel
 
     public function create(array $data): int
     {
-        $stmt = $this->db->prepare(
-            'INSERT INTO users (full_name, email, phone, role, status, password_hash)
-             VALUES (:full_name, :email, :phone, :role, :status, :password_hash)'
-        );
-        $stmt->execute($data);
+        if ($this->hasUsersSplitNameColumns()) {
+            $stmt = $this->db->prepare(
+                'INSERT INTO users (first_name, last_name, email, phone, role, status, password_hash)
+                 VALUES (:first_name, :last_name, :email, :phone, :role, :status, :password_hash)'
+            );
+            $params = [
+                'first_name' => $data['first_name'] ?? '',
+                'last_name' => $data['last_name'] ?? '',
+                'email' => $data['email'] ?? '',
+                'phone' => $data['phone'] ?? null,
+                'role' => $data['role'] ?? 'user',
+                'status' => $data['status'] ?? 'active',
+                'password_hash' => $data['password_hash'] ?? '',
+            ];
+        } else {
+            $fullName = trim(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? ''));
+            $stmt = $this->db->prepare(
+                'INSERT INTO users (full_name, email, phone, role, status, password_hash)
+                 VALUES (:full_name, :email, :phone, :role, :status, :password_hash)'
+            );
+            $params = [
+                'full_name' => $fullName,
+                'email' => $data['email'] ?? '',
+                'phone' => $data['phone'] ?? null,
+                'role' => $data['role'] ?? 'user',
+                'status' => $data['status'] ?? 'active',
+                'password_hash' => $data['password_hash'] ?? '',
+            ];
+        }
+
+        $stmt->execute($params);
         return (int) $this->db->lastInsertId();
     }
 
     public function update(int $id, array $data): void
     {
         $passwordSql = isset($data['password_hash']) ? ', password_hash = :password_hash' : '';
-        $stmt = $this->db->prepare(
-            "UPDATE users
-             SET full_name = :full_name, email = :email, phone = :phone, role = :role,
-                 status = :status {$passwordSql}
-             WHERE id = :id"
-        );
-        $data['id'] = $id;
-        $stmt->execute($data);
+
+        if ($this->hasUsersSplitNameColumns()) {
+            $stmt = $this->db->prepare(
+                "UPDATE users
+                 SET first_name = :first_name, last_name = :last_name, email = :email, phone = :phone, role = :role,
+                     status = :status {$passwordSql}
+                 WHERE id = :id"
+            );
+            $params = [
+                'first_name' => $data['first_name'] ?? '',
+                'last_name' => $data['last_name'] ?? '',
+                'email' => $data['email'] ?? '',
+                'phone' => $data['phone'] ?? null,
+                'role' => $data['role'] ?? 'user',
+                'status' => $data['status'] ?? 'active',
+                'id' => $id,
+            ];
+        } else {
+            $fullName = trim(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? ''));
+            $stmt = $this->db->prepare(
+                "UPDATE users
+                 SET full_name = :full_name, email = :email, phone = :phone, role = :role,
+                     status = :status {$passwordSql}
+                 WHERE id = :id"
+            );
+            $params = [
+                'full_name' => $fullName,
+                'email' => $data['email'] ?? '',
+                'phone' => $data['phone'] ?? null,
+                'role' => $data['role'] ?? 'user',
+                'status' => $data['status'] ?? 'active',
+                'id' => $id,
+            ];
+        }
+
+        if (isset($data['password_hash'])) {
+            $params['password_hash'] = $data['password_hash'];
+        }
+
+        $stmt->execute($params);
     }
 
     public function delete(int $id): void

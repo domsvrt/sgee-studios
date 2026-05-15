@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/helpers.php';
 /** @var array<int, array<string, mixed>> $logs */
 $logs = $logs ?? [];
 /** @var callable $e */
@@ -24,7 +25,7 @@ $e = $e ?? static fn ($value): string => htmlspecialchars((string) $value, ENT_Q
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$logs): ?>
-                    <tr><td colspan="7" class="px-5 py-12 text-center text-slate-500 dark:text-slate-400">No status logs yet.</td></tr>
+                    <?php admin_render_empty_row(7, 'No status logs yet.'); ?>
                 <?php endif; ?>
             </tbody>
         </table>

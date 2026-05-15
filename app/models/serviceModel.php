@@ -15,7 +15,7 @@ class ServiceModel extends BaseModel
             'SELECT services.*, service_categories.name AS category_name
              FROM services
              JOIN service_categories ON service_categories.id = services.category_id
-             ORDER BY service_categories.sort_order, services.sort_order, services.name'
+             ORDER BY services.updated_at DESC, services.created_at DESC'
         )->fetchAll();
     }
 

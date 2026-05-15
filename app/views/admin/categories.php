@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/helpers.php';
 /** @var callable $e */
 $e = $e ?? static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 /** @var array<int, array<string, mixed>> $categories */
@@ -9,16 +10,7 @@ $fieldSm = 'field field-sm w-full min-w-28';
 ?>
 <section class="admin-panel">
     <div class="admin-panel-header">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <div>
-                <h3 class="admin-panel-title">Create Category</h3>
-                <p class="admin-panel-subtitle">Organize services into booking groups.</p>
-            </div>
-            <div class="flex items-center gap-2">
-                <button type="button" class="btn-secondary" data-create-toggle data-target="create-category-form" data-show-label="Create category" data-hide-label="Hide form">Create category</button>
-                <button type="submit" form="create-category-form" class="btn-primary hidden" data-create-submit="create-category-form">Create category</button>
-            </div>
-        </div>
+        <?php admin_render_create_header('Create Category', 'Organize services into booking groups.', 'create-category-form', 'Create category'); ?>
     </div>
     <form id="create-category-form" method="post" action="/admin/categories/create" class="hidden grid gap-3 p-5 md:grid-cols-4">
         <input required name="name" placeholder="Name" class="<?= $field ?>">
@@ -44,7 +36,7 @@ $fieldSm = 'field field-sm w-full min-w-28';
     <div class="overflow-x-auto">
         <table id="categories-table" class="admin-table min-w-[900px]" data-sortable-table>
             <thead>
-                <tr><th class="px-4 py-3">ID</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Description</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Active</th><th class="px-4 py-3">Actions</th></tr>
+                <tr><th class="px-4 py-3">ID</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Description</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Active</th><th class="px-4 py-3">Created At</th><th class="px-4 py-3">Updated At</th><th class="px-4 py-3">Actions</th></tr>
             </thead>
             <tbody data-sort-body>
                 <?php foreach ($categories as $category): ?>
@@ -53,7 +45,9 @@ $fieldSm = 'field field-sm w-full min-w-28';
                         <td class="px-4 py-3"><input data-edit-field disabled form="category-<?= $e($category['id']) ?>" name="name" value="<?= $e($category['name']) ?>" class="<?= $fieldSm ?>"></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="category-<?= $e($category['id']) ?>" name="description" value="<?= $e($category['description'] ?? '') ?>" class="<?= $fieldSm ?> min-w-72"></td>
                         <td class="px-4 py-3"><span class="font-black" data-sort-order-display><?= $e($category['sort_order']) ?></span></td>
-                        <td class="px-4 py-3"><input data-edit-field disabled form="category-<?= $e($category['id']) ?>" class="h-4 w-4 rounded border-slate-300 text-slate-950 dark:text-white" type="checkbox" name="is_active" <?= (int) $category['is_active'] === 1 ? 'checked' : '' ?>><span class="status-badge status-<?= (int) $category['is_active'] === 1 ? 'active' : 'inactive' ?> hidden"><?= (int) $category['is_active'] === 1 ? 'active' : 'inactive' ?></span></td>
+                        <td class="px-4 py-3"><input data-edit-field disabled form="category-<?= $e($category['id']) ?>" class="h-4 w-4 rounded border-slate-300 text-slate-950 dark:text-white" type="checkbox" name="is_active" <?= admin_checked((int) $category['is_active'] === 1) ?>><span class="status-badge status-<?= (int) $category['is_active'] === 1 ? 'active' : 'inactive' ?> hidden"><?= (int) $category['is_active'] === 1 ? 'active' : 'inactive' ?></span></td>
+                        <td class="px-4 py-3 text-xs font-semibold"><?= $e($category['created_at'] ?? '') ?></td>
+                        <td class="px-4 py-3 text-xs font-semibold"><?= $e($category['updated_at'] ?? '') ?></td>
                         <td class="px-4 py-3"><div class="flex gap-2">
                             <button type="button" data-edit-button class="btn-secondary min-h-8 px-3 py-1.5 text-xs">Edit</button>
                             <form id="category-<?= $e($category['id']) ?>" method="post" action="/admin/categories/update"><input type="hidden" name="id" value="<?= $e($category['id']) ?>"><button data-save-button class="btn-primary hidden min-h-8 px-3 py-1.5 text-xs">Save</button></form>
@@ -63,7 +57,7 @@ $fieldSm = 'field field-sm w-full min-w-28';
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$categories): ?>
-                    <tr><td colspan="6" class="px-5 py-12 text-center text-slate-500 dark:text-slate-400">No categories yet.</td></tr>
+                    <?php admin_render_empty_row(8, 'No categories yet.'); ?>
                 <?php endif; ?>
             </tbody>
         </table>

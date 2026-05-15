@@ -186,6 +186,18 @@ $navIcon = static function (string $key): string {
             if (submit) submit.classList.toggle('hidden', hidden);
         });
 
+        document.addEventListener('click', function (event) {
+            var toggle = event.target.closest('[data-password-toggle]');
+            if (!toggle) return;
+            var wrap = toggle.parentElement;
+            if (!wrap) return;
+            var input = wrap.querySelector('[data-password-input]');
+            if (!input) return;
+            var reveal = input.type === 'password';
+            input.type = reveal ? 'text' : 'password';
+            toggle.textContent = reveal ? 'Hide' : 'Show';
+        });
+
         function buildSortForm(form, table) {
             if (!form || !table) return;
             form.innerHTML = '';

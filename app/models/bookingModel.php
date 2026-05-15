@@ -8,19 +8,27 @@ class BookingModel extends BaseModel
 {
     public function all(): array
     {
+        $userNameSql = $this->hasUsersSplitNameColumns()
+            ? "CONCAT(users.first_name, ' ', users.last_name)"
+            : 'users.full_name';
+
         return $this->db->query(
-            'SELECT bookings.*, users.full_name AS user_name, service_categories.name AS category_name
+            "SELECT bookings.*, {$userNameSql} AS user_name, service_categories.name AS category_name
              FROM bookings
              JOIN users ON users.id = bookings.user_id
              LEFT JOIN service_categories ON service_categories.id = bookings.category_id
-             ORDER BY bookings.booking_date DESC, bookings.booking_time DESC'
+             ORDER BY bookings.updated_at DESC, bookings.created_at DESC"
         )->fetchAll();
     }
 
     public function upcoming(): array
     {
+        $userNameSql = $this->hasUsersSplitNameColumns()
+            ? "CONCAT(users.first_name, ' ', users.last_name)"
+            : 'users.full_name';
+
         return $this->db->query(
-            "SELECT bookings.*, users.full_name AS user_name
+            "SELECT bookings.*, {$userNameSql} AS user_name
              FROM bookings
              JOIN users ON users.id = bookings.user_id
              WHERE bookings.booking_date >= CURDATE()

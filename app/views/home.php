@@ -226,7 +226,11 @@ $work = [
                         </div>
                     <?php endif; ?>
                     <?php if ($creating): ?>
-                        <label class="mt-6 block text-sm font-black">Name<input required name="full_name" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="text"></label>
+                        <div class="mt-6 grid gap-4 sm:grid-cols-2">
+                            <label class="block text-sm font-black">First name<input required name="first_name" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="text"></label>
+                            <label class="block text-sm font-black">Last name<input required name="last_name" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="text"></label>
+                        </div>
+                        <label class="mt-4 block text-sm font-black">Phone number<input required name="phone" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="tel"></label>
                     <?php endif; ?>
                     <label class="mt-4 block text-sm font-black">Email<input required name="email" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="email"></label>
                     <label class="mt-4 block text-sm font-black">Password

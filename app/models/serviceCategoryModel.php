@@ -11,7 +11,7 @@ class ServiceCategoryModel extends BaseModel
 {
     public function all(): array
     {
-        return $this->db->query('SELECT * FROM service_categories ORDER BY sort_order, name')->fetchAll();
+        return $this->db->query('SELECT * FROM service_categories ORDER BY updated_at DESC, created_at DESC')->fetchAll();
     }
 
     public function create(array $data): void

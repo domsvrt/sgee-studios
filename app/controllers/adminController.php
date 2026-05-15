@@ -12,7 +12,7 @@ use App\Models\ServiceModel;
 use App\Models\UserModel;
 use Throwable;
 
-class AdminController
+class AdminController extends BaseController
 {
     private UserModel $users;
     private ServiceCategoryModel $categories;
@@ -33,7 +33,7 @@ class AdminController
 
     public function dashboard(): void
     {
-        $this->render('dashboard', [
+        $this->renderAdmin('dashboard', [
             'title' => 'Dashboard',
             'activeNav' => 'dashboard',
             'metrics' => [
@@ -52,7 +52,7 @@ class AdminController
 
     public function users(): void
     {
-        $this->render('users', [
+        $this->renderAdmin('users', [
             'title' => 'Users',
             'activeNav' => 'users',
             'users' => $this->users->all(),
@@ -61,7 +61,7 @@ class AdminController
 
     public function categories(): void
     {
-        $this->render('categories', [
+        $this->renderAdmin('categories', [
             'title' => 'Categories',
             'activeNav' => 'categories',
             'categories' => $this->categories->all(),
@@ -70,7 +70,7 @@ class AdminController
 
     public function services(): void
     {
-        $this->render('services', [
+        $this->renderAdmin('services', [
             'title' => 'Services',
             'activeNav' => 'services',
             'services' => $this->services->all(),
@@ -80,7 +80,7 @@ class AdminController
 
     public function bookings(): void
     {
-        $this->render('bookings', [
+        $this->renderAdmin('bookings', [
             'title' => 'Bookings',
             'activeNav' => 'bookings',
             'bookings' => $this->bookings->all(),
@@ -93,7 +93,7 @@ class AdminController
 
     public function logs(): void
     {
-        $this->render('logs', [
+        $this->renderAdmin('logs', [
             'title' => 'Status Logs',
             'activeNav' => 'logs',
             'logs' => $this->logs->recent(100),
@@ -222,20 +222,10 @@ class AdminController
         $this->handle(fn () => $this->bookings->delete($this->requiredId()), '/admin/bookings', 'Booking deleted.');
     }
 
-    private function render(string $view, array $data): void
+    private function renderAdmin(string $view, array $data): void
     {
         $this->ensureAdminAccess();
-        $flash = $_SESSION['flash'] ?? null;
-        unset($_SESSION['flash']);
-
-        $e = static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
-        extract($data, EXTR_SKIP);
-
-        ob_start();
-        require __DIR__ . "/../views/admin/{$view}.php";
-        $content = ob_get_clean();
-
-        require __DIR__ . '/../views/admin/layout.php';
+        $this->renderWithLayout('admin/layout.php', "admin/{$view}.php", $data);
     }
 
     private function handle(callable $action, string $redirect, string $success): void
@@ -249,20 +239,20 @@ class AdminController
             $_SESSION['flash'] = ['type' => 'error', 'message' => $exception->getMessage()];
         }
 
-        header("Location: {$redirect}");
-        exit;
+        $this->redirect($redirect);
     }
 
     private function ensureAdminAccess(): void
     {
-        return;
+        $this->requireRole(['admin', 'manager']);
     }
 
     private function userPayload(?string $password): array
     {
         $role = $this->enum($_POST['role'] ?? 'user', ['user', 'manager', 'admin'], 'role');
         $payload = [
-            'full_name' => $this->requiredString('full_name'),
+            'first_name' => $this->requiredString('first_name'),
+            'last_name' => $this->requiredString('last_name'),
             'email' => $this->requiredString('email'),
             'phone' => trim($_POST['phone'] ?? '') ?: null,
             'role' => $role,

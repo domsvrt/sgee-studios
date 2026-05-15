@@ -7,7 +7,7 @@ namespace App\Controllers;
 use App\Models\ServiceCategoryModel;
 use App\Models\UserModel;
 
-class HomeController
+class HomeController extends BaseController
 {
     private UserModel $users;
     private ServiceCategoryModel $categories;
@@ -20,46 +20,36 @@ class HomeController
 
     public function index(): void
     {
-        $page = 'home';
         $categories = array_values(array_filter(
             $this->categories->all(),
             static fn (array $category): bool => (int) ($category['is_active'] ?? 0) === 1
         ));
-        require __DIR__ . '/../views/home.php';
+        $this->render('home.php', ['page' => 'home', 'categories' => $categories]);
     }
 
     public function about(): void
     {
-        $page = 'about';
-        require __DIR__ . '/../views/home.php';
+        $this->render('home.php', ['page' => 'about']);
     }
 
     public function contact(): void
     {
-        $page = 'contact';
-        require __DIR__ . '/../views/home.php';
+        $this->render('home.php', ['page' => 'contact']);
     }
 
     public function bookNow(): void
     {
-        $page = 'book-now';
-        require __DIR__ . '/../views/home.php';
+        $this->render('home.php', ['page' => 'book-now']);
     }
 
     public function signIn(): void
     {
-        $page = 'sign-in';
-        $flash = $_SESSION['flash'] ?? null;
-        unset($_SESSION['flash']);
-        require __DIR__ . '/../views/home.php';
+        $this->render('home.php', ['page' => 'sign-in', 'flash' => $this->pullFlash()]);
     }
 
     public function signUp(): void
     {
-        $page = 'sign-up';
-        $flash = $_SESSION['flash'] ?? null;
-        unset($_SESSION['flash']);
-        require __DIR__ . '/../views/home.php';
+        $this->render('home.php', ['page' => 'sign-up', 'flash' => $this->pullFlash()]);
     }
 
     public function doSignIn(): void
@@ -70,57 +60,52 @@ class HomeController
 
         if (!$user || !password_verify($password, $user['password_hash']) || ($user['status'] ?? '') !== 'active') {
             $_SESSION['flash'] = ['type' => 'error', 'message' => 'Invalid credentials.'];
-            header('Location: /sign-in');
-            exit;
+            $this->redirect('/sign-in');
         }
 
         $_SESSION['user_id'] = (int) $user['id'];
         $_SESSION['user_role'] = $user['role'] ?? 'user';
         $_SESSION['flash'] = ['type' => 'success', 'message' => 'Signed in successfully.'];
         $isAdminUser = in_array($_SESSION['user_role'], ['admin', 'manager'], true);
-        header('Location: ' . ($isAdminUser ? '/admin' : '/'));
-        exit;
+        $this->redirect($isAdminUser ? '/admin' : '/');
     }
 
     public function doSignUp(): void
     {
-        $fullName = trim($_POST['full_name'] ?? '');
+        $firstName = trim($_POST['first_name'] ?? '');
+        $lastName = trim($_POST['last_name'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $password = trim($_POST['password'] ?? '');
 
-        if ($fullName === '' || $email === '' || $password === '') {
-            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Name, email, and password are required.'];
-            header('Location: /sign-up');
-            exit;
+        if ($firstName === '' || $lastName === '' || $phone === '' || $email === '' || $password === '') {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'First name, last name, phone number, email, and password are required.'];
+            $this->redirect('/sign-up');
         }
 
         if ($this->users->findByEmail($email)) {
             $_SESSION['flash'] = ['type' => 'error', 'message' => 'Email is already registered.'];
-            header('Location: /sign-up');
-            exit;
+            $this->redirect('/sign-up');
         }
 
         $id = $this->users->create([
-            'full_name' => $fullName,
+            'first_name' => $firstName,
+            'last_name' => $lastName,
             'email' => $email,
-            'phone' => null,
+            'phone' => $phone,
             'role' => 'user',
             'status' => 'active',
             'password_hash' => password_hash($password, PASSWORD_DEFAULT),
         ]);
 
-        $_SESSION['user_id'] = $id;
-        $_SESSION['user_role'] = 'user';
-        $_SESSION['flash'] = ['type' => 'success', 'message' => 'Account created and signed in.'];
-        header('Location: /');
-        exit;
+        $_SESSION['flash'] = ['type' => 'success', 'message' => 'Account created. Please sign in.'];
+        $this->redirect('/sign-in');
     }
 
     public function logout(): void
     {
         unset($_SESSION['user_id'], $_SESSION['user_role']);
         $_SESSION['flash'] = ['type' => 'success', 'message' => 'Signed out.'];
-        header('Location: /sign-in');
-        exit;
+        $this->redirect('/sign-in');
     }
 }
