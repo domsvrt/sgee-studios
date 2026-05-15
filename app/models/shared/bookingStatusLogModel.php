@@ -20,7 +20,7 @@ class BookingStatusLogModel extends BaseModel
              ORDER BY booking_status_logs.created_at DESC
              LIMIT :limit"
         );
-        $stmt->bindValue('limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
     }

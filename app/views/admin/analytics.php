@@ -34,17 +34,16 @@ foreach ($topServices as $name => $stat) {
 $kpiCharts = [
     ['title' => 'Total Users', 'value' => (int) ($metrics['totalUsers'] ?? 0), 'color' => '#14b8a6'],
     ['title' => 'Total Bookings', 'value' => (int) ($metrics['totalBookings'] ?? 0), 'color' => '#f59e0b'],
-    ['title' => 'Active Services', 'value' => (int) ($metrics['activeServices'] ?? 0), 'color' => '#8b5cf6'],
-    ['title' => 'Password Requests', 'value' => (int) ($metrics['passwordRequests'] ?? 0), 'color' => '#ef4444'],
 ];
 
 $healthKpis = [
     ['title' => 'Completion Rate', 'value' => number_format((float) ($healthStats['completionRate'] ?? 0), 1) . '%', 'hint' => 'Completed / Total bookings'],
     ['title' => 'Cancellation Rate', 'value' => number_format((float) ($healthStats['cancellationRate'] ?? 0), 1) . '%', 'hint' => 'Cancelled / Total bookings'],
-    ['title' => 'Avg Booking Value', 'value' => '$' . number_format((float) ($healthStats['avgBookingValue'] ?? 0), 2), 'hint' => 'Revenue per booking'],
+    ['title' => 'Avg Booking Value', 'value' => 'PHP ' . number_format((float) ($healthStats['avgBookingValue'] ?? 0), 2), 'hint' => 'Revenue per booking'],
     ['title' => 'Upcoming Load', 'value' => (string) ((int) ($healthStats['upcomingLoad'] ?? 0)), 'hint' => 'Pending + Confirmed'],
     ['title' => 'Monthly Booking Trend', 'value' => ((int) ($healthStats['monthlyBookingTrend'] ?? 0) >= 0 ? '+' : '') . (string) ((int) ($healthStats['monthlyBookingTrend'] ?? 0)), 'hint' => 'This month vs last month'],
 ];
+$asOfDate = date('F j, Y');
 ?>
 
 <style>
@@ -55,7 +54,7 @@ $healthKpis = [
   .analytics-kpis { grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
 @media (min-width: 1280px){
-  .analytics-kpis { grid-template-columns: repeat(4, minmax(0,1fr)); }
+  .analytics-kpis { grid-template-columns: repeat(2, minmax(0,1fr)); }
   .analytics-panels { grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
 .analytics-card {
@@ -95,7 +94,7 @@ $healthKpis = [
 
 <div class="analytics-grid analytics-kpis">
     <?php foreach ($kpiCharts as $index => $kpi): ?>
-        <section class="analytics-card p-4">
+        <section class="analytics-card p-4" title="As of <?= $e($asOfDate) ?>">
             <p class="text-xs font-black uppercase tracking-wide text-slate-500 dark:text-slate-400"><?= $e($kpi['title']) ?></p>
             <p class="mt-2 text-4xl font-black text-slate-950 dark:text-white"><?= $e($kpi['value']) ?></p>
             <canvas class="mt-3 w-full" height="72" data-chart="spark" data-color="<?= $e($kpi['color']) ?>" data-series='<?= $e(json_encode([
@@ -139,13 +138,13 @@ $healthKpis = [
     <section class="analytics-card p-5">
         <h3 class="text-lg font-black text-slate-900 dark:text-white">Booking Status</h3>
         <p class="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Bar chart distribution</p>
-        <canvas class="mt-4 w-full" height="280" data-chart="bar" data-color="#14b8a6" data-series='<?= $e(json_encode($bookingStatusChart, JSON_UNESCAPED_SLASHES)) ?>'></canvas>
+        <canvas class="mt-4 w-full" height="280" data-chart="bar" data-tooltip="status-name" data-color="#14b8a6" data-series='<?= $e(json_encode($bookingStatusChart, JSON_UNESCAPED_SLASHES)) ?>'></canvas>
     </section>
 
     <section class="analytics-card p-5">
         <h3 class="text-lg font-black text-slate-900 dark:text-white">Top Booked Services</h3>
         <p class="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Bar chart by booked quantity</p>
-        <canvas class="mt-4 w-full" height="280" data-chart="bar" data-color="#f43f5e" data-series='<?= $e(json_encode($topServicesChart, JSON_UNESCAPED_SLASHES)) ?>'></canvas>
+        <canvas class="mt-4 w-full" height="280" data-chart="bar" data-tooltip="service-name" data-color="#f43f5e" data-series='<?= $e(json_encode($topServicesChart, JSON_UNESCAPED_SLASHES)) ?>'></canvas>
     </section>
 
     <section class="analytics-card p-5 xl:col-span-2">
@@ -158,6 +157,27 @@ $healthKpis = [
 
 <script>
 (function () {
+    function ensureChartTooltip() {
+        var tooltip = document.getElementById('analytics-chart-tooltip');
+        if (tooltip) return tooltip;
+        tooltip = document.createElement('div');
+        tooltip.id = 'analytics-chart-tooltip';
+        tooltip.style.position = 'fixed';
+        tooltip.style.zIndex = '2500';
+        tooltip.style.pointerEvents = 'none';
+        tooltip.style.padding = '6px 8px';
+        tooltip.style.borderRadius = '8px';
+        tooltip.style.fontSize = '11px';
+        tooltip.style.fontWeight = '700';
+        tooltip.style.background = 'rgba(15,23,42,0.92)';
+        tooltip.style.color = '#fff';
+        tooltip.style.boxShadow = '0 8px 24px rgba(2,6,23,0.35)';
+        tooltip.style.opacity = '0';
+        tooltip.style.transition = 'opacity 120ms ease';
+        document.body.appendChild(tooltip);
+        return tooltip;
+    }
+
     function parseSeries(el) { try { return JSON.parse(el.getAttribute('data-series') || '[]'); } catch (e) { return []; } }
     function parseColors(el, fallback) { try { var c = JSON.parse(el.getAttribute('data-colors') || '[]'); return c.length ? c : fallback; } catch (e) { return fallback; } }
     function getCanvas(el) { var ctx = el.getContext('2d'); if (!ctx) return null; el.width = Math.max(320, Math.floor(el.clientWidth)); return ctx; }
@@ -179,6 +199,7 @@ $healthKpis = [
         var max = Math.max.apply(null, series.map(function (s) { return Number(s.value) || 0; })) || 1;
         var plotW = w - pad.l - pad.r, plotH = h - pad.t - pad.b;
         var slot = plotW / series.length, barW = Math.max(8, slot * 0.62);
+        var bars = [];
         ctx.clearRect(0, 0, w, h); drawAxes(ctx, w, h, pad);
         ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
         series.forEach(function (p, i) {
@@ -187,10 +208,41 @@ $healthKpis = [
             var x = pad.l + i * slot + (slot - barW) / 2;
             var y = h - pad.b - bh;
             ctx.fillStyle = color; ctx.fillRect(x, y, barW, bh);
+            bars.push({x: x, y: y, w: barW, h: bh, label: String(p.label || ''), value: v});
             ctx.fillStyle = '#475569'; ctx.fillText(String(v), x + barW / 2, y - 6);
             var label = String(p.label || ''); if (label.length > 11) label = label.slice(0, 11) + '...';
             ctx.fillText(label, x + barW / 2, h - pad.b + 14);
         });
+
+        if (el.getAttribute('data-tooltip') === 'service-name') {
+            el._barPoints = bars;
+            if (!el._tooltipBound) {
+                var tooltip = ensureChartTooltip();
+                el.addEventListener('mousemove', function (event) {
+                    var rect = el.getBoundingClientRect();
+                    var x = event.clientX - rect.left;
+                    var y = event.clientY - rect.top;
+                    var hit = null;
+                    (el._barPoints || []).forEach(function (bar) {
+                        if (x >= bar.x && x <= bar.x + bar.w && y >= bar.y && y <= bar.y + bar.h) {
+                            hit = bar;
+                        }
+                    });
+                    if (!hit) {
+                        tooltip.style.opacity = '0';
+                        return;
+                    }
+                    tooltip.textContent = hit.label;
+                    tooltip.style.left = (event.clientX + 12) + 'px';
+                    tooltip.style.top = (event.clientY - 28) + 'px';
+                    tooltip.style.opacity = '1';
+                });
+                el.addEventListener('mouseleave', function () {
+                    tooltip.style.opacity = '0';
+                });
+                el._tooltipBound = true;
+            }
+        }
     }
 
     function drawHBar(el, series, color) {

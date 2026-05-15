@@ -63,6 +63,7 @@ $userRoutes = [
         '/settings' => [$user, 'settings'],
     ],
     'POST' => [
+        '/book-now' => [$user, 'submitBookingRequest'],
         '/profile/avatar' => [$user, 'uploadAvatar'],
         '/settings/profile' => [$user, 'updateProfileSettings'],
         '/settings/password' => [$user, 'updatePasswordSettings'],

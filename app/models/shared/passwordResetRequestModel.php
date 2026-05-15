@@ -49,9 +49,9 @@ class PasswordResetRequestModel extends BaseModel
         $sql .= ' ORDER BY prr.requested_at DESC LIMIT :limit';
         $stmt = $this->db->prepare($sql);
         foreach ($params as $k => $v) {
-            $stmt->bindValue($k, $v);
+            $stmt->bindValue(':' . $k, $v);
         }
-        $stmt->bindValue('limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
     }
@@ -73,18 +73,13 @@ class PasswordResetRequestModel extends BaseModel
 
         $stmt = $this->db->prepare(
             'UPDATE password_reset_requests
-             SET status = :status,
-                 resolved_by_user_id = :resolved_by_user_id,
-                 resolved_at = CASE WHEN :status = "pending" THEN NULL ELSE CURRENT_TIMESTAMP END,
-                 notes = :notes
-             WHERE id = :id'
+             SET status = ?,
+                 resolved_by_user_id = ?,
+                 resolved_at = CASE WHEN ? = "pending" THEN NULL ELSE CURRENT_TIMESTAMP END,
+                 notes = ?
+             WHERE id = ?'
         );
-        $stmt->execute([
-            'id' => $id,
-            'status' => $status,
-            'resolved_by_user_id' => $resolvedByUserId,
-            'notes' => $notes,
-        ]);
+        $stmt->execute([$status, $resolvedByUserId, $status, $notes, $id]);
 
         return $existing;
     }

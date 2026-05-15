@@ -29,7 +29,7 @@ $bookingItems = $bookingItems ?? [];
                     </div>
                     <div class="text-left md:text-right">
                         <p class="text-xs font-black uppercase tracking-wide text-slate-500">Total</p>
-                        <p class="text-2xl font-black">$<?= htmlspecialchars((string) $booking['total_amount'], ENT_QUOTES, 'UTF-8') ?></p>
+                        <p class="text-2xl font-black">PHP <?= htmlspecialchars((string) $booking['total_amount'], ENT_QUOTES, 'UTF-8') ?></p>
                         <p class="mt-1 text-xs font-semibold text-slate-500">Updated <?= htmlspecialchars((string) ($booking['updated_at'] ?? ''), ENT_QUOTES, 'UTF-8') ?></p>
                     </div>
                 </div>

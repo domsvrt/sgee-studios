@@ -19,6 +19,7 @@ class UserController
     public function notifications(): void { $this->home->notifications(); }
     public function settings(): void { $this->home->settings(); }
     public function uploadAvatar(): void { $this->home->uploadAvatar(); }
+    public function submitBookingRequest(): void { $this->home->submitBookingRequest(); }
     public function updateProfileSettings(): void { $this->home->updateProfileSettings(); }
     public function updatePasswordSettings(): void { $this->home->updatePasswordSettings(); }
     public function markNotificationRead(): void { $this->home->markNotificationRead(); }

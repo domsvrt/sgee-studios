@@ -13,6 +13,7 @@ use App\Models\Shared\ServiceCategoryModel;
 use App\Models\Shared\ServiceModel;
 use App\Models\Shared\ServiceSectionModel;
 use App\Models\Shared\UserModel;
+use App\Services\DiceBearService;
 
 class HomeActionHandler extends BaseController
 {
@@ -147,7 +148,11 @@ class HomeActionHandler extends BaseController
 
     public function signIn(): void
     {
-        $this->renderHome(['page' => 'sign-in', 'flash' => $this->pullFlash()]);
+        $flash = $this->pullFlash();
+        if (!$flash && (string) ($_GET['login_required'] ?? '') === '1') {
+            $flash = ['type' => 'error', 'message' => 'you must login first'];
+        }
+        $this->renderHome(['page' => 'sign-in', 'flash' => $flash]);
     }
 
     public function signUp(): void
@@ -174,6 +179,9 @@ class HomeActionHandler extends BaseController
         $_SESSION['user_id'] = (int) $user['id'];
         $_SESSION['user_role'] = $user['role'] ?? 'user';
         $_SESSION['user_first_name'] = $this->users->firstName($user);
+        $_SESSION['user_full_name'] = trim((string) ($user['first_name'] ?? '') . ' ' . (string) ($user['last_name'] ?? ''));
+        $_SESSION['user_email'] = (string) ($user['email'] ?? '');
+        $_SESSION['user_phone'] = trim((string) ($user['phone'] ?? ''));
         $_SESSION['user_avatar'] = $user['avatar_path'] ?? null;
         $_SESSION['flash'] = ['type' => 'success', 'message' => 'Signed in successfully.'];
         $isAdminUser = in_array($_SESSION['user_role'], ['admin', 'manager'], true);
@@ -190,6 +198,11 @@ class HomeActionHandler extends BaseController
 
         if ($firstName === '' || $lastName === '' || $phone === '' || $email === '' || $password === '') {
             $_SESSION['flash'] = ['type' => 'error', 'message' => 'First name, last name, phone number, email, and password are required.'];
+            $this->redirect('/sign-up');
+        }
+
+        if (!preg_match('/^09\d{9}$/', $phone)) {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Please enter a valid Philippine mobile number (11 digits, starts with 09).'];
             $this->redirect('/sign-up');
         }
 
@@ -215,7 +228,7 @@ class HomeActionHandler extends BaseController
 
     public function logout(): void
     {
-        unset($_SESSION['user_id'], $_SESSION['user_role'], $_SESSION['user_first_name'], $_SESSION['user_avatar']);
+        unset($_SESSION['user_id'], $_SESSION['user_role'], $_SESSION['user_first_name'], $_SESSION['user_full_name'], $_SESSION['user_email'], $_SESSION['user_phone'], $_SESSION['user_avatar']);
         $_SESSION['flash'] = ['type' => 'success', 'message' => 'Signed out.'];
         $this->redirect('/sign-in');
     }
@@ -241,7 +254,7 @@ class HomeActionHandler extends BaseController
             ['request_id' => $requestId]
         );
 
-        $_SESSION['flash'] = ['type' => 'success', 'message' => 'If the account exists, your request has been sent to support.'];
+        $_SESSION['flash'] = ['type' => 'success', 'message' => 'Contact SGee Studios for your new password'];
         $this->redirect('/sign-in');
     }
 
@@ -333,8 +346,60 @@ class HomeActionHandler extends BaseController
 
         $this->users->updateProfile($userId, $firstName, $lastName, $email);
         $_SESSION['user_first_name'] = $firstName;
+        $_SESSION['user_full_name'] = trim($firstName . ' ' . $lastName);
+        $_SESSION['user_email'] = $email;
         $_SESSION['flash'] = ['type' => 'success', 'message' => 'Profile settings updated.'];
         $this->redirect('/settings');
+    }
+
+    public function submitBookingRequest(): void
+    {
+        $userId = $this->requireUser();
+        $bookingDate = trim((string) ($_POST['booking_date'] ?? ''));
+        $bookingTime = trim((string) ($_POST['booking_time'] ?? ''));
+        $notes = trim((string) ($_POST['notes'] ?? ''));
+        $categoryIdRaw = trim((string) ($_POST['category_id'] ?? ''));
+        $serviceIds = $_POST['service_ids'] ?? [];
+
+        if ($bookingDate === '' || $bookingTime === '') {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Booking date and time are required.'];
+            $this->redirect('/book-now');
+        }
+
+        if (!is_array($serviceIds) || !$serviceIds) {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Select at least one service before submitting your booking.'];
+            $this->redirect('/book-now');
+        }
+
+        $cleanServiceIds = array_values(array_unique(array_filter(array_map(static fn ($id): int => (int) $id, $serviceIds))));
+        if (!$cleanServiceIds) {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Select at least one valid service.'];
+            $this->redirect('/book-now');
+        }
+
+        $bookingId = $this->bookings->create([
+            'booking_code' => 'BK-' . strtoupper(bin2hex(random_bytes(4))),
+            'user_id' => $userId,
+            'category_id' => $categoryIdRaw === '' ? null : (int) $categoryIdRaw,
+            'booking_date' => $bookingDate,
+            'booking_time' => $bookingTime,
+            'status' => 'pending',
+            'notes' => $notes === '' ? null : $notes,
+            'created_by_user_id' => $userId,
+            'updated_by_user_id' => $userId,
+        ]);
+        $this->bookingItems->replaceForBooking($bookingId, $cleanServiceIds);
+        $this->bookings->recalculateTotal($bookingId);
+        $this->activityLogs->create(
+            'booking_request',
+            'Booking requested',
+            "A new booking request {$bookingId} was submitted by user {$userId}.",
+            $userId,
+            $bookingId
+        );
+
+        $_SESSION['flash'] = ['type' => 'success', 'message' => 'Booking request submitted successfully.'];
+        $this->redirect('/my-bookings');
     }
 
     public function updatePasswordSettings(): void
@@ -390,23 +455,54 @@ class HomeActionHandler extends BaseController
     public function userAvatar(): void
     {
         $file = basename((string) ($_GET['file'] ?? ''));
-        if ($file === '') {
+        if ($file !== '') {
+            $path = __DIR__ . '/../../../storage/users/' . $file;
+            if (!is_file($path)) {
+                http_response_code(404);
+                echo 'Not found';
+                return;
+            }
+
+            $mime = mime_content_type($path) ?: 'application/octet-stream';
+            header('Content-Type: ' . $mime);
+            header('Cache-Control: public, max-age=86400');
+            readfile($path);
+            return;
+        }
+
+        $seed = trim((string) ($_GET['seed'] ?? ''));
+        if ($seed === '') {
             http_response_code(404);
             echo 'Not found';
             return;
         }
 
-        $path = __DIR__ . '/../../../storage/users/' . $file;
-        if (!is_file($path)) {
-            http_response_code(404);
-            echo 'Not found';
-            return;
+        $style = trim((string) ($_GET['style'] ?? 'identicon'));
+        if ($style === '') {
+            $style = 'identicon';
+        }
+        $diceBearUrl = (new DiceBearService())->avatarUrl($seed, $style, ['backgroundType' => 'solid']);
+        $svg = @file_get_contents($diceBearUrl);
+        if ($svg === false || trim($svg) === '') {
+            $hash = substr(hash('sha256', $seed), 0, 30);
+            $c1 = '#' . substr($hash, 0, 6);
+            $c2 = '#' . substr($hash, 6, 6);
+            $c3 = '#' . substr($hash, 12, 6);
+            $c4 = '#' . substr($hash, 18, 6);
+            $c5 = '#' . substr($hash, 24, 6);
+
+            $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">'
+                . '<rect width="96" height="96" fill="' . $c1 . '"/>'
+                . '<rect x="8" y="8" width="36" height="36" rx="8" fill="' . $c2 . '" opacity="0.9"/>'
+                . '<rect x="52" y="8" width="36" height="36" rx="8" fill="' . $c3 . '" opacity="0.9"/>'
+                . '<rect x="8" y="52" width="36" height="36" rx="8" fill="' . $c4 . '" opacity="0.9"/>'
+                . '<circle cx="70" cy="70" r="18" fill="' . $c5 . '" opacity="0.92"/>'
+                . '</svg>';
         }
 
-        $mime = mime_content_type($path) ?: 'application/octet-stream';
-        header('Content-Type: ' . $mime);
-        header('Cache-Control: public, max-age=86400');
-        readfile($path);
+        header('Content-Type: image/svg+xml; charset=UTF-8');
+        header('Cache-Control: public, max-age=60');
+        echo $svg;
     }
 
 }

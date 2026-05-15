@@ -116,10 +116,13 @@ class BookingModel extends BaseModel
     {
         $stmt = $this->db->prepare(
             'UPDATE bookings
-             SET total_amount = COALESCE((SELECT SUM(line_total) FROM booking_items WHERE booking_id = :id), 0)
+             SET total_amount = COALESCE((SELECT SUM(line_total) FROM booking_items WHERE booking_id = :booking_id), 0)
              WHERE id = :id'
         );
-        $stmt->execute(['id' => $id]);
+        $stmt->execute([
+            'booking_id' => $id,
+            'id' => $id,
+        ]);
     }
 
 }

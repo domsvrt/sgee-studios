@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controllers\Shared;
 
+use App\Services\DiceBearService;
+
 trait HomeViewSupportTrait
 {
     private function renderHome(array $data): void
@@ -24,13 +26,23 @@ trait HomeViewSupportTrait
         $role = $_SESSION['user_role'] ?? null;
         $isUser = $userId > 0 && $role === 'user';
         $firstName = trim((string) ($_SESSION['user_first_name'] ?? ''));
+        $fullName = trim((string) ($_SESSION['user_full_name'] ?? ''));
+        $email = trim((string) ($_SESSION['user_email'] ?? ''));
+        $phone = trim((string) ($_SESSION['user_phone'] ?? ''));
         $avatarPath = trim((string) ($_SESSION['user_avatar'] ?? ''));
 
-        if ($isUser && ($firstName === '' || $avatarPath === '')) {
+        if ($isUser && ($firstName === '' || $fullName === '' || $email === '' || $phone === '' || $avatarPath === '')) {
             $user = $this->users->find($userId);
             if ($user) {
                 $firstName = $this->users->firstName($user);
+                $lastName = trim((string) ($user['last_name'] ?? ''));
+                $fullName = trim($firstName . ' ' . $lastName);
+                $email = trim((string) ($user['email'] ?? ''));
+                $phone = trim((string) ($user['phone'] ?? ''));
                 $_SESSION['user_first_name'] = $firstName;
+                $_SESSION['user_full_name'] = $fullName;
+                $_SESSION['user_email'] = $email;
+                $_SESSION['user_phone'] = $phone;
                 $_SESSION['user_avatar'] = $user['avatar_path'] ?? null;
                 $avatarPath = trim((string) ($user['avatar_path'] ?? ''));
             }
@@ -40,7 +52,10 @@ trait HomeViewSupportTrait
             'isLoggedIn' => $userId > 0,
             'isUser' => $isUser,
             'userFirstName' => $firstName ?: 'User',
-            'userAvatarUrl' => $this->avatarPublicUrl($avatarPath),
+            'userFullName' => $fullName ?: ($firstName ?: 'User'),
+            'userEmail' => $email,
+            'userPhone' => $phone,
+            'userAvatarUrl' => $this->avatarPublicUrl($avatarPath, $fullName ?: $firstName, $email),
             'notificationUnreadCount' => $isUser ? $this->notifications->unreadCountForUser($userId) : 0,
             'recentNotifications' => $isUser ? $this->notifications->recentForUser($userId, 5) : [],
         ];
@@ -80,23 +95,39 @@ trait HomeViewSupportTrait
             throw new \RuntimeException('Unable to create avatar upload directory.');
         }
         if (!is_writable($dir)) {
+            @chmod($dir, 0775);
+        }
+        if (!is_writable($dir)) {
             throw new \RuntimeException('Avatar upload directory is not writable.');
         }
 
         $name = 'avatar_' . bin2hex(random_bytes(8)) . '.' . $allowed[$mime];
         $target = $dir . '/' . $name;
-        if (!move_uploaded_file($tmp, $target)) {
-            throw new \RuntimeException('Unable to save avatar file.');
+        $moved = move_uploaded_file($tmp, $target);
+        if (!$moved && is_uploaded_file($tmp)) {
+            $moved = @copy($tmp, $target);
+            if ($moved) {
+                @unlink($tmp);
+            }
+        }
+        if (!$moved) {
+            throw new \RuntimeException('Unable to save avatar file. Please try again.');
         }
 
         return 'users/' . $name;
     }
 
-    private function avatarPublicUrl(string $avatarPath): string
+    private function avatarPublicUrl(string $avatarPath, string $name = '', string $email = ''): string
     {
+        $seed = trim($email) !== '' ? strtolower(trim($email)) : trim($name);
+        if ($seed === '') {
+            $seed = 'user';
+        }
+        $fallbackUrl = '/user-avatar?seed=' . rawurlencode($seed) . '&style=identicon';
+
         $avatarPath = trim($avatarPath);
         if ($avatarPath === '') {
-            return '';
+            return $fallbackUrl;
         }
 
         if (str_starts_with($avatarPath, '/uploads/avatars/')) {
@@ -105,7 +136,7 @@ trait HomeViewSupportTrait
             if (is_file($newPath)) {
                 return '/user-avatar?file=' . rawurlencode($legacyFile);
             }
-            return $avatarPath;
+            return $fallbackUrl;
         }
 
         if (str_starts_with($avatarPath, '/')) {
@@ -113,9 +144,14 @@ trait HomeViewSupportTrait
         }
 
         if (str_starts_with($avatarPath, 'users/')) {
-            return '/user-avatar?file=' . rawurlencode(basename($avatarPath));
+            $file = basename($avatarPath);
+            $path = __DIR__ . '/../../../storage/users/' . $file;
+            if (is_file($path)) {
+                return '/user-avatar?file=' . rawurlencode($file);
+            }
+            return $fallbackUrl;
         }
 
-        return '';
+        return $fallbackUrl;
     }
 }

@@ -50,7 +50,7 @@ $statuses = ['pending', 'confirmed', 'completed', 'cancelled'];
                     <div>
                         <label class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-900">
                             <span><input type="checkbox" name="service_ids[]" value="<?= $e($service['id']) ?>" class="mr-2 h-4 w-4 rounded border-slate-300 text-teal-600"> <?= $e($service['name']) ?></span>
-                            <strong>$<?= $e($service['price']) ?></strong>
+                            <strong>PHP <?= $e($service['price']) ?></strong>
                         </label>
                     </div>
                 <?php endforeach; ?>
@@ -106,7 +106,7 @@ $statuses = ['pending', 'confirmed', 'completed', 'cancelled'];
                                 <p class="mt-2 text-xs text-slate-600 dark:text-slate-300"><?= $e($booking['notes']) ?></p>
                             <?php endif; ?>
                         </td>
-                        <td class="px-4 py-3 font-black">$<?= $e($booking['total_amount']) ?></td>
+                        <td class="px-4 py-3 font-black">PHP <?= $e($booking['total_amount']) ?></td>
                         <td class="px-4 py-3 text-xs font-semibold"><?= $e($booking['created_at'] ?? '') ?></td>
                         <td class="px-4 py-3 text-xs font-semibold"><?= $e($booking['updated_at'] ?? '') ?></td>
                         <td class="px-4 py-3">

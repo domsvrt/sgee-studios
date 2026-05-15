@@ -44,6 +44,20 @@
 })();
 
 (function () {
+    var mobileInputs = document.querySelectorAll('[data-ph-mobile]');
+    mobileInputs.forEach(function (input) {
+        function normalize() {
+            input.value = String(input.value || '').replace(/\D+/g, '').slice(0, 11);
+        }
+        input.addEventListener('input', normalize);
+        input.addEventListener('paste', function () {
+            setTimeout(normalize, 0);
+        });
+        normalize();
+    });
+})();
+
+(function () {
     document.addEventListener('click', function (event) {
         var toggle = event.target.closest('[data-auth-password-toggle]');
         if (!toggle) return;
@@ -81,11 +95,19 @@
     var selectedCount = document.getElementById('book-now-selected-count');
     var totalEl = document.getElementById('book-now-estimated-total');
     var summaryEl = document.getElementById('book-now-selected-summary');
+    var formTotalEl = document.getElementById('book-now-form-total');
+    var categoryInput = document.getElementById('book-now-category-id');
+    var serviceInputsWrap = document.getElementById('book-now-service-inputs');
+    var isAuthenticated = root.getAttribute('data-book-now-authenticated') === '1';
     var selectedCategoryId = 0;
     var selectedItems = {};
 
     function getCategory() {
         return catalog.find(function (row) { return Number(row.id) === Number(selectedCategoryId); }) || null;
+    }
+
+    function formatPhp(amount) {
+        return 'PHP ' + Number(amount || 0).toFixed(2);
     }
 
     function updateTotals() {
@@ -96,10 +118,24 @@
             total += Number(row.price || 0) * Number(row.qty || 1);
         });
         selectedCount.textContent = keys.length + ' item' + (keys.length === 1 ? '' : 's') + ' selected';
-        totalEl.textContent = '$' + total.toFixed(2);
+        totalEl.textContent = formatPhp(total);
         summaryEl.textContent = keys.length > 0
             ? 'Selected services: ' + keys.map(function (key) { return selectedItems[key].name + ' (x' + selectedItems[key].qty + ')'; }).join(' | ')
             : 'No services selected yet.';
+        if (formTotalEl) formTotalEl.textContent = formatPhp(total);
+        if (serviceInputsWrap) {
+            serviceInputsWrap.innerHTML = '';
+            keys.forEach(function (key) {
+                var serviceId = Number(selectedItems[key].id || 0);
+                if (serviceId <= 0) return;
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'service_ids[]';
+                input.value = String(serviceId);
+                serviceInputsWrap.appendChild(input);
+            });
+        }
+        if (categoryInput) categoryInput.value = selectedCategoryId ? String(selectedCategoryId) : '';
     }
 
     function setSelection(item, mode, sectionCode) {
@@ -109,14 +145,14 @@
                     delete selectedItems[key];
                 }
             });
-            selectedItems[item.code] = { name: item.name, price: Number(item.price || 0), qty: 1, sectionCode: sectionCode };
+            selectedItems[item.code] = { id: Number(item.id || 0), name: item.name, price: Number(item.price || 0), qty: 1, sectionCode: sectionCode };
             return;
         }
 
         if (selectedItems[item.code]) {
             delete selectedItems[item.code];
         } else {
-            selectedItems[item.code] = { name: item.name, price: Number(item.price || 0), qty: 1, sectionCode: sectionCode };
+            selectedItems[item.code] = { id: Number(item.id || 0), name: item.name, price: Number(item.price || 0), qty: 1, sectionCode: sectionCode };
         }
     }
 
@@ -140,7 +176,7 @@
                 items += '<button type="button" class="w-full rounded-lg border p-4 text-left transition ' + (selected ? 'border-slate-950 bg-slate-50' : 'border-slate-200 bg-white hover:border-slate-400') + '" data-select-item="' + item.code + '" data-section-type="' + (section.selection_type || 'multiple') + '" data-section-code="' + section.id + '">';
                 items += '<div class="flex items-start justify-between gap-4"><div><p class="text-sm font-black text-slate-900">' + (item.name || '') + '</p>';
                 if (item.description) items += '<p class="mt-1 text-xs text-slate-500">' + item.description + '</p>';
-                items += '</div><div class="text-right"><p class="text-lg font-black text-slate-950">$' + Number(item.price || 0).toFixed(2) + '</p>';
+                items += '</div><div class="text-right"><p class="text-lg font-black text-slate-950">' + formatPhp(item.price) + '</p>';
                 items += '</div></div></button>';
             });
             items += '</div>';
@@ -192,6 +228,11 @@
     var continueBtn = document.getElementById('book-now-continue');
     if (continueBtn) {
         continueBtn.addEventListener('click', function () {
+            if (!isAuthenticated) {
+                window.location.href = '/sign-in?login_required=1';
+                return;
+            }
+            if (Object.keys(selectedItems).length === 0) return;
             servicesWrap.classList.add('hidden');
             formWrap.classList.remove('hidden');
             updateTotals();

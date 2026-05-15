@@ -253,24 +253,38 @@ $work = [
                     <p class="text-sm font-black uppercase tracking-[0.24em] text-[#c84c3a]">Contact</p>
                     <h1 class="mt-4 text-5xl font-black leading-tight">Tell us what you are planning.</h1>
                     <p class="mt-6 text-lg leading-8 text-slate-600">Send the date, location, and type of coverage you need. The studio will reply with availability and a recommended package.</p>
-                    <div class="mt-8 space-y-3 text-sm font-bold text-slate-700">
-                        <p>Email: hello@sgeestudios.test</p>
-                        <p>Phone: +63 900 000 0000</p>
-                        <p>Studio hours: Monday to Saturday, 9 AM to 6 PM</p>
+                    <div class="mt-8 space-y-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                        <div>
+                            <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Email</p>
+                            <p class="mt-1 text-sm font-bold text-slate-800">hello@sgeestudios.test</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Phone</p>
+                            <p class="mt-1 text-sm font-bold text-slate-800">+63 900 000 0000</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Studio hours</p>
+                            <p class="mt-1 text-sm font-bold text-slate-800">Monday to Saturday, 9 AM to 6 PM</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Coverage area</p>
+                            <p class="mt-1 text-sm font-bold text-slate-800">Metro Manila and nearby provinces</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 rounded-lg bg-slate-950 p-6 text-white shadow-xl">
+                        <p class="text-xs font-black uppercase tracking-[0.22em] text-[#ffd166]">Quick response</p>
+                        <p class="mt-3 text-2xl font-black leading-tight">For urgent bookings, call the studio directly and include your preferred shoot date.</p>
                     </div>
                 </div>
-                <form class="rounded-lg bg-white p-6 shadow-xl ring-1 ring-slate-200">
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <label class="text-sm font-black">Name<input class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="text" name="name"></label>
-                        <label class="text-sm font-black">Email<input class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="email" name="email"></label>
-                    </div>
-                    <label class="mt-4 block text-sm font-black">Message<textarea class="mt-2 min-h-40 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" name="message"></textarea></label>
-                    <button class="mt-5 min-h-12 w-full rounded-lg bg-slate-950 px-5 text-sm font-black text-white" type="button">Send inquiry</button>
-                </form>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <img src="/assets/images/work-studio-camera.jpg" alt="Studio camera setup" class="h-56 w-full rounded-lg object-cover shadow-lg sm:h-64">
+                    <img src="/assets/images/work-sunset-couple.jpg" alt="Outdoor couple shoot at sunset" class="h-56 w-full rounded-lg object-cover shadow-lg sm:h-64">
+                    <img src="/assets/images/work-sparklers.jpg" alt="Wedding sparkler send-off coverage" class="h-56 w-full rounded-lg object-cover shadow-lg sm:col-span-2 sm:h-72">
+                </div>
             </section>
         <?php elseif ($page === 'book-now'): ?>
             <?php $bookNowCatalog = $bookNowCatalog ?? []; ?>
-            <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8" data-book-now-catalog='<?= htmlspecialchars((string) json_encode($bookNowCatalog, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>'>
+            <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8" data-book-now-authenticated="<?= $isUser ? '1' : '0' ?>" data-book-now-catalog='<?= htmlspecialchars((string) json_encode($bookNowCatalog, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>'>
                 <div class="mb-10 text-center">
                     <p class="text-sm font-black uppercase tracking-[0.24em] text-[#c84c3a]">Select Your Experience</p>
                     <h1 class="mt-4 text-5xl font-black leading-tight">Our Services</h1>
@@ -308,21 +322,30 @@ $work = [
                         <div>
                             <p id="book-now-selected-count" class="text-sm font-black text-slate-700">0 items selected</p>
                             <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Estimated total</p>
-                            <p id="book-now-estimated-total" class="text-2xl font-black text-slate-950">$0.00</p>
+                            <p id="book-now-estimated-total" class="text-2xl font-black text-slate-950">PHP 0.00</p>
                         </div>
                         <button id="book-now-continue" type="button" class="min-h-11 rounded-lg bg-[#c84c3a] px-5 text-sm font-black text-white shadow-sm">Continue to form</button>
                     </div>
                 </div>
 
-                <form id="book-now-form" class="mt-8 hidden rounded-lg bg-white p-6 shadow-xl ring-1 ring-slate-200">
+                <form id="book-now-form" method="post" action="/book-now" class="mt-8 hidden rounded-lg bg-white p-6 shadow-xl ring-1 ring-slate-200">
+                    <input type="hidden" name="category_id" id="book-now-category-id" value="">
+                    <div id="book-now-service-inputs"></div>
                     <div class="grid gap-4 sm:grid-cols-2">
-                        <label class="text-sm font-black">Full name<input class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="text"></label>
-                        <label class="text-sm font-black">Email<input class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="email"></label>
-                        <label class="text-sm font-black">Event date<input class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="date"></label>
+                        <label class="text-sm font-black">Full name<input readonly value="<?= htmlspecialchars((string) ($userFullName ?? $userFirstName ?? 'User'), ENT_QUOTES, 'UTF-8') ?>" class="mt-2 w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-3 font-normal outline-none" type="text"></label>
+                        <label class="text-sm font-black">Email<input readonly value="<?= htmlspecialchars((string) ($userEmail ?? ''), ENT_QUOTES, 'UTF-8') ?>" class="mt-2 w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-3 font-normal outline-none" type="email"></label>
+                        <label class="text-sm font-black">Phone number<input readonly value="<?= htmlspecialchars((string) ($userPhone ?? ''), ENT_QUOTES, 'UTF-8') ?>" class="mt-2 w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-3 font-normal outline-none" type="tel"></label>
+                        <label class="text-sm font-black">Booking date<input required name="booking_date" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="date"></label>
+                        <label class="text-sm font-black">Booking time<input required name="booking_time" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="time"></label>
                     </div>
-                    <label class="mt-4 block text-sm font-black">Event details<textarea class="mt-2 min-h-32 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10"></textarea></label>
-                    <p id="book-now-selected-summary" class="mt-4 rounded-lg bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600"></p>
-                    <button class="mt-5 min-h-12 w-full rounded-lg bg-[#c84c3a] px-5 text-sm font-black text-white shadow-sm" type="button">Request booking</button>
+                    <label class="mt-4 block text-sm font-black">Notes<textarea name="notes" class="mt-2 min-h-32 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10"></textarea></label>
+                    <div class="mt-4 rounded-lg bg-slate-50 px-3 py-3 text-sm">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Chosen services</p>
+                        <p id="book-now-selected-summary" class="mt-2 font-semibold text-slate-700">No services selected yet.</p>
+                        <p class="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Total amount</p>
+                        <p id="book-now-form-total" class="text-xl font-black text-slate-950">PHP 0.00</p>
+                    </div>
+                    <button class="mt-5 min-h-12 w-full rounded-lg bg-[#c84c3a] px-5 text-sm font-black text-white shadow-sm" type="submit">Request booking</button>
                 </form>
             </section>
         <?php elseif ($page === 'my-bookings'): ?>
@@ -378,7 +401,7 @@ $work = [
                             <label class="block text-sm font-black">First name<input required name="first_name" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="text"></label>
                             <label class="block text-sm font-black">Last name<input required name="last_name" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="text"></label>
                         </div>
-                        <label class="mt-4 block text-sm font-black">Phone number<input required name="phone" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="tel"></label>
+                        <label class="mt-4 block text-sm font-black">Phone number<input required name="phone" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="tel" inputmode="numeric" pattern="09[0-9]{9}" maxlength="11" minlength="11" placeholder="09XXXXXXXXX" data-ph-mobile></label>
                     <?php endif; ?>
                     <label class="mt-4 block text-sm font-black">Email<input required name="email" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="email"></label>
                     <label class="mt-4 block text-sm font-black">Password
