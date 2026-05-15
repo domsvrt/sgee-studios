@@ -416,7 +416,10 @@ class HomeController extends BaseController
         if (!array_key_exists('flash', $data)) {
             $data['flash'] = $this->pullFlash();
         }
-        $this->render('home.php', array_merge($data, $auth));
+        $page = (string) ($data['page'] ?? 'home');
+        $userPages = ['my-bookings', 'notifications', 'settings'];
+        $viewPath = in_array($page, $userPages, true) ? 'user/home.php' : 'public/home.php';
+        $this->render($viewPath, array_merge($data, $auth));
     }
 
     private function authViewData(): array
