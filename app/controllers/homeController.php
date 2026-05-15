@@ -203,6 +203,11 @@ class HomeController extends BaseController
     private function renderHome(array $data): void
     {
         $auth = $this->authViewData();
+        // Ensure every page always receives the flash message; callers that
+        // already call pullFlash() and pass 'flash' in $data take precedence.
+        if (!array_key_exists('flash', $data)) {
+            $data['flash'] = $this->pullFlash();
+        }
         $this->render('home.php', array_merge($data, $auth));
     }
 

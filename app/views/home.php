@@ -73,10 +73,10 @@ $work = [
                 <?php if ($isUser): ?>
                     <details class="relative">
                         <summary class="flex cursor-pointer list-none items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-black text-slate-800 shadow-sm">
-                            <span class="grid h-7 w-7 place-items-center overflow-hidden rounded-full bg-[#c84c3a] text-xs text-white">
+                            <span class="flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#c84c3a] text-xs text-white" style="width:32px;height:32px;">
                                 <?php if ($userAvatarUrl !== ''): ?>
-                                    <img src="<?= htmlspecialchars($userAvatarUrl, ENT_QUOTES, 'UTF-8') ?>" alt="Profile picture" class="h-full w-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
-                                    <span class="hidden h-full w-full place-items-center"><?= htmlspecialchars($userInitial, ENT_QUOTES, 'UTF-8') ?></span>
+                                    <img src="<?= htmlspecialchars($userAvatarUrl, ENT_QUOTES, 'UTF-8') ?>" alt="Profile picture" class="object-cover" style="width:32px;height:32px;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                    <span class="hidden items-center justify-center" style="width:32px;height:32px;"><?= htmlspecialchars($userInitial, ENT_QUOTES, 'UTF-8') ?></span>
                                 <?php else: ?>
                                     <?= htmlspecialchars($userInitial, ENT_QUOTES, 'UTF-8') ?>
                                 <?php endif; ?>
@@ -89,7 +89,6 @@ $work = [
                                 <input type="file" name="avatar" accept=".jpg,.jpeg,.png,.webp" class="block w-full text-xs font-semibold text-slate-600 file:mr-2 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-xs file:font-black file:text-slate-700">
                                 <button class="rounded-md bg-slate-950 px-3 py-2 text-xs font-black text-white">Upload Avatar</button>
                             </form>
-                            <a href="/my-bookings" class="block rounded-md px-3 py-2 text-sm font-black text-slate-700 hover:bg-slate-50">My Bookings</a>
                             <form method="post" action="/logout"><button class="block w-full rounded-md px-3 py-2 text-left text-sm font-black text-[#c84c3a] hover:bg-slate-50">Sign out</button></form>
                         </div>
                     </details>
@@ -115,12 +114,12 @@ $work = [
                     <?php if ($isUser): ?>
                         <div class="mb-1 flex items-center gap-2 px-3 py-2 text-sm font-black text-slate-800">
                             <?php if ($userAvatarUrl !== ''): ?>
-                                <span class="grid h-7 w-7 place-items-center overflow-hidden rounded-full bg-[#c84c3a] text-xs text-white">
-                                    <img src="<?= htmlspecialchars($userAvatarUrl, ENT_QUOTES, 'UTF-8') ?>" alt="Profile picture" class="h-full w-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
-                                    <span class="hidden h-full w-full place-items-center"><?= htmlspecialchars($userInitial, ENT_QUOTES, 'UTF-8') ?></span>
+                                <span class="flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#c84c3a] text-xs text-white" style="width:32px;height:32px;">
+                                    <img src="<?= htmlspecialchars($userAvatarUrl, ENT_QUOTES, 'UTF-8') ?>" alt="Profile picture" class="object-cover" style="width:32px;height:32px;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                    <span class="hidden items-center justify-center" style="width:32px;height:32px;"><?= htmlspecialchars($userInitial, ENT_QUOTES, 'UTF-8') ?></span>
                                 </span>
                             <?php else: ?>
-                                <span class="grid h-7 w-7 place-items-center rounded-full bg-[#c84c3a] text-xs text-white"><?= htmlspecialchars($userInitial, ENT_QUOTES, 'UTF-8') ?></span>
+                                <span class="flex shrink-0 items-center justify-center rounded-full bg-[#c84c3a] text-xs text-white" style="width:32px;height:32px;"><?= htmlspecialchars($userInitial, ENT_QUOTES, 'UTF-8') ?></span>
                             <?php endif; ?>
                             <?= htmlspecialchars($userFirstName, ENT_QUOTES, 'UTF-8') ?>
                         </div>
@@ -129,7 +128,6 @@ $work = [
                             <input type="file" name="avatar" accept=".jpg,.jpeg,.png,.webp" class="block w-full text-xs font-semibold text-slate-600 file:mr-2 file:rounded-md file:border-0 file:bg-slate-100 file:px-2 file:py-1.5 file:text-xs file:font-black file:text-slate-700">
                             <button class="rounded-md bg-slate-950 px-3 py-2 text-xs font-black text-white">Upload Avatar</button>
                         </form>
-                        <a href="/my-bookings" class="block rounded-md px-3 py-2 text-sm font-black text-slate-700">My Bookings</a>
                         <form method="post" action="/logout"><button class="block w-full rounded-md px-3 py-2 text-left text-sm font-black text-[#c84c3a]">Sign out</button></form>
                     <?php else: ?>
                         <a href="/sign-in" class="block rounded-md px-3 py-2 text-sm font-black text-slate-700">Sign in</a>
@@ -141,6 +139,18 @@ $work = [
     </header>
 
     <main class="flex-1">
+        <?php if (!empty($flash['message']) && $page !== 'sign-in' && $page !== 'sign-up'): ?>
+            <div class="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8" role="alert">
+                <div class="flex items-center gap-3 rounded-lg border px-4 py-3 text-sm font-bold <?= ($flash['type'] ?? '') === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800' ?>">
+                    <?php if (($flash['type'] ?? '') === 'success'): ?>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <?php else: ?>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <?php endif; ?>
+                    <?= htmlspecialchars((string) $flash['message'], ENT_QUOTES, 'UTF-8') ?>
+                </div>
+            </div>
+        <?php endif; ?>
         <?php if ($page === 'home'): ?>
             <section class="mx-auto grid min-h-[calc(100vh-4.5rem)] max-w-7xl items-center gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[1.02fr_0.98fr] lg:px-8">
                 <div class="max-w-3xl">
