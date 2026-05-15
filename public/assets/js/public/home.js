@@ -30,7 +30,7 @@
 
         var progress = message.querySelector('[data-feedback-progress]');
         if (progress) {
-            progress.style.transition = 'width 5s linear';
+            progress.style.transition = 'width 4s linear';
             progress.style.width = '100%';
             requestAnimationFrame(function () {
                 progress.style.width = '0%';
@@ -39,7 +39,7 @@
 
         setTimeout(function () {
             dismissFeedback(message);
-        }, 5000);
+        }, 4000);
     });
 })();
 

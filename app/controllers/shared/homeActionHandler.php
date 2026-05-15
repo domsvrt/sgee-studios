@@ -396,7 +396,7 @@ class HomeActionHandler extends BaseController
             return;
         }
 
-        $path = __DIR__ . '/../../storage/users/' . $file;
+        $path = __DIR__ . '/../../../storage/users/' . $file;
         if (!is_file($path)) {
             http_response_code(404);
             echo 'Not found';

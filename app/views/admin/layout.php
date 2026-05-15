@@ -20,6 +20,7 @@ $content = $content ?? '';
 <?php
 $nav = [
     'dashboard' => ['/admin', 'Dashboard'],
+    'analytics' => ['/admin/analytics', 'Analytics'],
     'users' => ['/admin/users', 'Users'],
     'categories' => ['/admin/categories', 'Categories'],
     'services' => ['/admin/services', 'Services'],
@@ -33,6 +34,7 @@ $navIcon = static function (string $key): string {
     $attrs = 'class="h-4 w-4" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
     $icons = [
         'dashboard' => '<svg ' . $attrs . '><path d="M3 13h8V3H3v10Z"></path><path d="M13 21h8V11h-8v10Z"></path><path d="M13 3v6h8V3h-8Z"></path><path d="M3 21h8v-6H3v6Z"></path></svg>',
+        'analytics' => '<svg ' . $attrs . '><path d="M3 3v18h18"></path><rect x="7" y="12" width="3" height="6"></rect><rect x="12" y="9" width="3" height="9"></rect><rect x="17" y="6" width="3" height="12"></rect></svg>',
         'users' => '<svg ' . $attrs . '><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>',
         'categories' => '<svg ' . $attrs . '><path d="M4 4h6v6H4V4Z"></path><path d="M14 4h6v6h-6V4Z"></path><path d="M4 14h6v6H4v-6Z"></path><path d="M14 14h6v6h-6v-6Z"></path></svg>',
         'services' => '<svg ' . $attrs . '><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.1-3.1a5 5 0 0 1-6.6 6.6L7.6 19.4a2.1 2.1 0 0 1-3-3l6.6-6.6a5 5 0 0 1 6.6-6.6l-3.1 3.1Z"></path></svg>',

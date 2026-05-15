@@ -85,6 +85,7 @@ if (str_starts_with($path, '/admin')) {
     $adminRoutes = [
         'GET' => [
             '/admin' => [$admin, 'dashboard'],
+            '/admin/analytics' => [$admin, 'analytics'],
             '/admin/users' => [$admin, 'users'],
             '/admin/categories' => [$admin, 'categories'],
             '/admin/services' => [$admin, 'services'],

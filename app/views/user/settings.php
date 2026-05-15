@@ -23,9 +23,33 @@ $settingsUser = $settingsUser ?? ['first_name' => '', 'last_name' => '', 'email'
 
         <form method="post" action="/settings/password" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <h2 class="text-xl font-black">Change password</h2>
-            <label class="mt-4 block text-sm font-black">Current password<input required name="current_password" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="password"></label>
-            <label class="mt-4 block text-sm font-black">New password<input required name="new_password" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="password"></label>
-            <label class="mt-4 block text-sm font-black">Confirm new password<input required name="confirm_password" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="password"></label>
+            <label class="mt-4 block text-sm font-black">Current password
+                <span class="mt-2 flex items-center gap-2">
+                    <input required name="current_password" class="w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="password" data-auth-password-input>
+                    <button type="button" class="grid h-11 w-11 place-items-center rounded-lg border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-50" data-auth-password-toggle aria-label="Show password">
+                        <svg data-eye-open xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.06 12a10.94 10.94 0 0 1 19.88 0 10.94 10.94 0 0 1-19.88 0Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <svg data-eye-closed xmlns="http://www.w3.org/2000/svg" class="hidden h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 3 18 18"></path><path d="M10.58 10.58a2 2 0 1 0 2.83 2.83"></path><path d="M9.88 5.09A10.94 10.94 0 0 1 12 5c5 0 9.27 3.11 10.94 7a10.49 10.49 0 0 1-4.35 5.09"></path><path d="M6.61 6.61A10.49 10.49 0 0 0 1.06 12 10.94 10.94 0 0 0 12 19c1.86 0 3.62-.44 5.18-1.21"></path></svg>
+                    </button>
+                </span>
+            </label>
+            <label class="mt-4 block text-sm font-black">New password
+                <span class="mt-2 flex items-center gap-2">
+                    <input required name="new_password" class="w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="password" data-auth-password-input>
+                    <button type="button" class="grid h-11 w-11 place-items-center rounded-lg border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-50" data-auth-password-toggle aria-label="Show password">
+                        <svg data-eye-open xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.06 12a10.94 10.94 0 0 1 19.88 0 10.94 10.94 0 0 1-19.88 0Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <svg data-eye-closed xmlns="http://www.w3.org/2000/svg" class="hidden h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 3 18 18"></path><path d="M10.58 10.58a2 2 0 1 0 2.83 2.83"></path><path d="M9.88 5.09A10.94 10.94 0 0 1 12 5c5 0 9.27 3.11 10.94 7a10.49 10.49 0 0 1-4.35 5.09"></path><path d="M6.61 6.61A10.49 10.49 0 0 0 1.06 12 10.94 10.94 0 0 0 12 19c1.86 0 3.62-.44 5.18-1.21"></path></svg>
+                    </button>
+                </span>
+            </label>
+            <label class="mt-4 block text-sm font-black">Confirm new password
+                <span class="mt-2 flex items-center gap-2">
+                    <input required name="confirm_password" class="w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="password" data-auth-password-input>
+                    <button type="button" class="grid h-11 w-11 place-items-center rounded-lg border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-50" data-auth-password-toggle aria-label="Show password">
+                        <svg data-eye-open xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.06 12a10.94 10.94 0 0 1 19.88 0 10.94 10.94 0 0 1-19.88 0Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <svg data-eye-closed xmlns="http://www.w3.org/2000/svg" class="hidden h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 3 18 18"></path><path d="M10.58 10.58a2 2 0 1 0 2.83 2.83"></path><path d="M9.88 5.09A10.94 10.94 0 0 1 12 5c5 0 9.27 3.11 10.94 7a10.49 10.49 0 0 1-4.35 5.09"></path><path d="M6.61 6.61A10.49 10.49 0 0 0 1.06 12 10.94 10.94 0 0 0 12 19c1.86 0 3.62-.44 5.18-1.21"></path></svg>
+                    </button>
+                </span>
+            </label>
             <button class="mt-5 min-h-11 rounded-lg bg-slate-950 px-5 text-sm font-black text-white">Update password</button>
         </form>
 

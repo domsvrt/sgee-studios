@@ -75,8 +75,8 @@ trait HomeViewSupportTrait
             throw new \InvalidArgumentException('Only JPG, PNG, or WEBP avatars are allowed.');
         }
 
-        $dir = __DIR__ . '/../../storage/users';
-        if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
+        $dir = __DIR__ . '/../../../storage/users';
+        if (!is_dir($dir) && !@mkdir($dir, 0775, true) && !is_dir($dir)) {
             throw new \RuntimeException('Unable to create avatar upload directory.');
         }
         if (!is_writable($dir)) {
@@ -101,7 +101,7 @@ trait HomeViewSupportTrait
 
         if (str_starts_with($avatarPath, '/uploads/avatars/')) {
             $legacyFile = basename($avatarPath);
-            $newPath = __DIR__ . '/../../storage/users/' . $legacyFile;
+            $newPath = __DIR__ . '/../../../storage/users/' . $legacyFile;
             if (is_file($newPath)) {
                 return '/user-avatar?file=' . rawurlencode($legacyFile);
             }

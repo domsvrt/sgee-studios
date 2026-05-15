@@ -73,6 +73,140 @@ class AdminActionHandler extends BaseController
         ]);
     }
 
+    public function analytics(): void
+    {
+        $users = $this->users->all();
+        $bookings = $this->bookings->all();
+        $bookingItemsByBooking = $this->bookingItems->groupedByBooking();
+        $services = $this->services->all();
+        $notifications = [];
+        foreach ($users as $user) {
+            $userId = (int) ($user['id'] ?? 0);
+            if ($userId <= 0) {
+                continue;
+            }
+            foreach ($this->notifications->recentForUser($userId, 100) as $notification) {
+                $notifications[] = $notification;
+            }
+        }
+        $passwordRequests = $this->passwordResetRequests->all(null, 500);
+        $activityLogs = $this->activityLogs->recent(500);
+
+        $userRoleCounts = [];
+        foreach ($users as $user) {
+            $role = (string) ($user['role'] ?? 'unknown');
+            $userRoleCounts[$role] = ($userRoleCounts[$role] ?? 0) + 1;
+        }
+        ksort($userRoleCounts);
+
+        $bookingStatusCounts = [];
+        $revenueTotal = 0.0;
+        $monthlyRevenue = [];
+        $monthlyBookings = [];
+        foreach ($bookings as $booking) {
+            $status = (string) ($booking['status'] ?? 'unknown');
+            $bookingStatusCounts[$status] = ($bookingStatusCounts[$status] ?? 0) + 1;
+            $amount = (float) ($booking['total_amount'] ?? 0);
+            $revenueTotal += $amount;
+            $month = substr((string) ($booking['booking_date'] ?? ''), 0, 7);
+            if ($month !== '' && strlen($month) === 7) {
+                $monthlyRevenue[$month] = ($monthlyRevenue[$month] ?? 0) + $amount;
+                $monthlyBookings[$month] = ($monthlyBookings[$month] ?? 0) + 1;
+            }
+        }
+        ksort($bookingStatusCounts);
+        ksort($monthlyRevenue);
+        ksort($monthlyBookings);
+        $monthlyRevenue = array_slice($monthlyRevenue, -6, null, true);
+        $monthlyBookings = array_slice($monthlyBookings, -6, null, true);
+
+        $topServices = [];
+        foreach ($bookingItemsByBooking as $items) {
+            foreach ($items as $item) {
+                $key = (string) ($item['service_name_snapshot'] ?? 'Unknown service');
+                if (!isset($topServices[$key])) {
+                    $topServices[$key] = ['count' => 0, 'revenue' => 0.0];
+                }
+                $topServices[$key]['count'] += (int) ($item['quantity'] ?? 1);
+                $topServices[$key]['revenue'] += (float) ($item['line_total'] ?? 0);
+            }
+        }
+        uasort($topServices, static function (array $a, array $b): int {
+            if ($a['count'] === $b['count']) {
+                return $b['revenue'] <=> $a['revenue'];
+            }
+            return $b['count'] <=> $a['count'];
+        });
+        $topServices = array_slice($topServices, 0, 8, true);
+
+        $notificationStats = ['total' => 0, 'unread' => 0, 'read' => 0];
+        foreach ($notifications as $notification) {
+            $notificationStats['total']++;
+            if ((int) ($notification['is_read'] ?? 0) === 1) {
+                $notificationStats['read']++;
+            } else {
+                $notificationStats['unread']++;
+            }
+        }
+
+        $passwordRequestStatusCounts = [];
+        foreach ($passwordRequests as $request) {
+            $status = (string) ($request['status'] ?? 'unknown');
+            $passwordRequestStatusCounts[$status] = ($passwordRequestStatusCounts[$status] ?? 0) + 1;
+        }
+        ksort($passwordRequestStatusCounts);
+
+        $activityTypeCounts = [];
+        foreach ($activityLogs as $log) {
+            $type = (string) ($log['type'] ?? 'unknown');
+            $activityTypeCounts[$type] = ($activityTypeCounts[$type] ?? 0) + 1;
+        }
+        arsort($activityTypeCounts);
+
+        $totalBookings = count($bookings);
+        $completedBookings = (int) ($bookingStatusCounts['completed'] ?? 0);
+        $cancelledBookings = (int) ($bookingStatusCounts['cancelled'] ?? 0);
+        $pendingBookings = (int) ($bookingStatusCounts['pending'] ?? 0);
+        $confirmedBookings = (int) ($bookingStatusCounts['confirmed'] ?? 0);
+        $completionRate = $totalBookings > 0 ? ($completedBookings / $totalBookings) * 100 : 0.0;
+        $cancellationRate = $totalBookings > 0 ? ($cancelledBookings / $totalBookings) * 100 : 0.0;
+        $avgBookingValue = $totalBookings > 0 ? $revenueTotal / $totalBookings : 0.0;
+        $upcomingLoad = $pendingBookings + $confirmedBookings;
+        $monthlyValues = array_values($monthlyBookings);
+        $monthlyTrend = 0;
+        if (count($monthlyValues) >= 2) {
+            $monthlyTrend = (int) end($monthlyValues) - (int) prev($monthlyValues);
+        }
+
+        $this->renderAdmin('analytics', [
+            'title' => 'Analytics',
+            'activeNav' => 'analytics',
+            'metrics' => [
+                'totalUsers' => count($users),
+                'totalBookings' => count($bookings),
+                'totalRevenue' => $revenueTotal,
+                'activeServices' => $this->services->activeCount(),
+                'notificationTotal' => $notificationStats['total'],
+                'passwordRequests' => count($passwordRequests),
+            ],
+            'healthStats' => [
+                'completionRate' => $completionRate,
+                'cancellationRate' => $cancellationRate,
+                'avgBookingValue' => $avgBookingValue,
+                'upcomingLoad' => $upcomingLoad,
+                'monthlyBookingTrend' => $monthlyTrend,
+            ],
+            'userRoleCounts' => $userRoleCounts,
+            'bookingStatusCounts' => $bookingStatusCounts,
+            'monthlyRevenue' => $monthlyRevenue,
+            'monthlyBookings' => $monthlyBookings,
+            'topServices' => $topServices,
+            'notificationStats' => $notificationStats,
+            'passwordRequestStatusCounts' => $passwordRequestStatusCounts,
+            'activityTypeCounts' => array_slice($activityTypeCounts, 0, 10, true),
+        ]);
+    }
+
     public function categories(): void
     {
         $this->renderAdmin('categories', [

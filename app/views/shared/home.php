@@ -340,8 +340,13 @@ $work = [
                     <p class="text-sm font-black uppercase tracking-[0.24em] text-[#c84c3a]">Recovery</p>
                     <h1 class="mt-3 text-4xl font-black">Request a password reset.</h1>
                     <?php if (!empty($flash['message'])): ?>
-                        <div class="mt-4 rounded-lg border px-3 py-2 text-sm font-bold <?= ($flash['type'] ?? '') === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800' ?>" data-auto-dismiss-feedback>
-                            <?= htmlspecialchars((string) $flash['message'], ENT_QUOTES, 'UTF-8') ?>
+                        <div class="mt-4 overflow-hidden rounded-lg border text-sm font-bold <?= ($flash['type'] ?? '') === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800' ?>" data-auto-dismiss-feedback>
+                            <div class="px-3 py-2">
+                                <?= htmlspecialchars((string) $flash['message'], ENT_QUOTES, 'UTF-8') ?>
+                            </div>
+                            <div class="h-1 w-full bg-black/10">
+                                <div class="h-full bg-current opacity-70" data-feedback-progress></div>
+                            </div>
                         </div>
                     <?php endif; ?>
                     <label class="mt-5 block text-sm font-black">Email<input required name="email" class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="email"></label>
@@ -359,8 +364,13 @@ $work = [
                     <p class="text-sm font-black uppercase tracking-[0.24em] text-[#c84c3a]"><?= $creating ? 'Create account' : 'Welcome back' ?></p>
                     <h1 class="mt-3 text-4xl font-black"><?= $creating ? 'Plan your booking with SGee Studios.' : 'Sign in to manage your booking.' ?></h1>
                     <?php if (!empty($flash['message'])): ?>
-                        <div class="mt-4 rounded-lg border px-3 py-2 text-sm font-bold <?= ($flash['type'] ?? '') === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800' ?>" data-auto-dismiss-feedback>
-                            <?= htmlspecialchars((string) $flash['message'], ENT_QUOTES, 'UTF-8') ?>
+                        <div class="mt-4 overflow-hidden rounded-lg border text-sm font-bold <?= ($flash['type'] ?? '') === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800' ?>" data-auto-dismiss-feedback>
+                            <div class="px-3 py-2">
+                                <?= htmlspecialchars((string) $flash['message'], ENT_QUOTES, 'UTF-8') ?>
+                            </div>
+                            <div class="h-1 w-full bg-black/10">
+                                <div class="h-full bg-current opacity-70" data-feedback-progress></div>
+                            </div>
                         </div>
                     <?php endif; ?>
                     <?php if ($creating): ?>
