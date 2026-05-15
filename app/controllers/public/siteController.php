@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Controllers\Public;
 
-use App\Controllers\HomeController;
+use App\Controllers\Shared\HomeActionHandler;
 
 class SiteController
 {
-    private HomeController $home;
+    private HomeActionHandler $home;
 
     public function __construct()
     {
-        $this->home = new HomeController();
+        $this->home = new HomeActionHandler();
     }
 
     public function index(): void { $this->home->index(); }

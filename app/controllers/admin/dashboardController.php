@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controllers\Admin;
 
-use App\Controllers\AdminController;
+use App\Controllers\Shared\AdminActionHandler;
 
-class DashboardController extends AdminController
+class DashboardController extends AdminActionHandler
 {
 }

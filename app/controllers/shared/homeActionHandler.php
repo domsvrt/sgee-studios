@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controllers;
+namespace App\Controllers\Shared;
 
 use App\Models\BookingItemModel;
 use App\Models\BookingModel;
@@ -14,7 +14,7 @@ use App\Models\ServiceModel;
 use App\Models\ServiceSectionModel;
 use App\Models\UserModel;
 
-class HomeController extends BaseController
+class HomeActionHandler extends BaseController
 {
     private UserModel $users;
     private ServiceCategoryModel $categories;

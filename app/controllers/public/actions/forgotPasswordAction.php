@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Controllers\Public\Actions;
 
-use App\Controllers\HomeController;
+use App\Controllers\Shared\HomeActionHandler;
 
 class ForgotPasswordAction
 {
     public function __invoke(): void
     {
-        (new HomeController())->forgotPassword();
+        (new HomeActionHandler())->forgotPassword();
     }
 }

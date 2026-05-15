@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Controllers\Public\Actions;
 
-use App\Controllers\HomeController;
+use App\Controllers\Shared\HomeActionHandler;
 
 class UserAvatarAction
 {
     public function __invoke(): void
     {
-        (new HomeController())->userAvatar();
+        (new HomeActionHandler())->userAvatar();
     }
 }

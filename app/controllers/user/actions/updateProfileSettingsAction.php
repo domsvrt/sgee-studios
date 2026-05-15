@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Controllers\User\Actions;
 
-use App\Controllers\HomeController;
+use App\Controllers\Shared\HomeActionHandler;
 
 class UpdateProfileSettingsAction
 {
     public function __invoke(): void
     {
-        (new HomeController())->updateProfileSettings();
+        (new HomeActionHandler())->updateProfileSettings();
     }
 }

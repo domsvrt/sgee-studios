@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controllers;
+namespace App\Controllers\Shared;
 
 use App\Models\BookingItemModel;
 use App\Models\BookingModel;
@@ -16,7 +16,7 @@ use App\Models\ServiceModel;
 use App\Models\UserModel;
 use Throwable;
 
-class AdminController extends BaseController
+class AdminActionHandler extends BaseController
 {
     private UserModel $users;
     private ServiceCategoryModel $categories;
