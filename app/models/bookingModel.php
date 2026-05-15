@@ -8,9 +8,7 @@ class BookingModel extends BaseModel
 {
     public function all(): array
     {
-        $userNameSql = $this->hasUsersSplitNameColumns()
-            ? "CONCAT(users.first_name, ' ', users.last_name)"
-            : 'users.full_name';
+        $userNameSql = "CONCAT(users.first_name, ' ', users.last_name)";
 
         return $this->db->query(
             "SELECT bookings.*, {$userNameSql} AS user_name, service_categories.name AS category_name
@@ -23,9 +21,7 @@ class BookingModel extends BaseModel
 
     public function upcoming(): array
     {
-        $userNameSql = $this->hasUsersSplitNameColumns()
-            ? "CONCAT(users.first_name, ' ', users.last_name)"
-            : 'users.full_name';
+        $userNameSql = "CONCAT(users.first_name, ' ', users.last_name)";
 
         return $this->db->query(
             "SELECT bookings.*, {$userNameSql} AS user_name

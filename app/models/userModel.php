@@ -16,11 +16,7 @@ class UserModel extends BaseModel
 
     public function bookers(): array
     {
-        if ($this->hasUsersSplitNameColumns()) {
-            return $this->db->query("SELECT id, first_name, last_name, CONCAT(first_name, ' ', last_name) AS full_name, email FROM users WHERE role = 'user' AND status = 'active' ORDER BY first_name, last_name")->fetchAll();
-        }
-
-        return $this->db->query("SELECT id, full_name, email FROM users WHERE role = 'user' AND status = 'active' ORDER BY full_name")->fetchAll();
+        return $this->db->query("SELECT id, first_name, last_name, CONCAT(first_name, ' ', last_name) AS full_name, email FROM users WHERE role = 'user' AND status = 'active' ORDER BY first_name, last_name")->fetchAll();
     }
 
     public function adminCount(): int
@@ -48,11 +44,6 @@ class UserModel extends BaseModel
             return $firstName;
         }
 
-        $fullName = trim((string) ($user['full_name'] ?? ''));
-        if ($fullName !== '') {
-            return (string) preg_split('/\s+/', $fullName, 2)[0];
-        }
-
         return (string) ($user['email'] ?? 'User');
     }
 
@@ -62,53 +53,29 @@ class UserModel extends BaseModel
         $hasUserCode = $this->hasUserCodeColumn();
         $userCode = $hasUserCode ? $this->nextUserCode() : null;
 
-        if ($this->hasUsersSplitNameColumns()) {
-            $stmt = $this->db->prepare(
-                $hasAvatar
-                    ? ($hasUserCode
-                        ? 'INSERT INTO users (user_code, first_name, last_name, email, phone, avatar_path, role, status, password_hash)
-                           VALUES (:user_code, :first_name, :last_name, :email, :phone, :avatar_path, :role, :status, :password_hash)'
-                        : 'INSERT INTO users (first_name, last_name, email, phone, avatar_path, role, status, password_hash)
-                           VALUES (:first_name, :last_name, :email, :phone, :avatar_path, :role, :status, :password_hash)')
-                    : ($hasUserCode
-                        ? 'INSERT INTO users (user_code, first_name, last_name, email, phone, role, status, password_hash)
-                           VALUES (:user_code, :first_name, :last_name, :email, :phone, :role, :status, :password_hash)'
-                        : 'INSERT INTO users (first_name, last_name, email, phone, role, status, password_hash)
-                           VALUES (:first_name, :last_name, :email, :phone, :role, :status, :password_hash)')
-            );
-            $params = [
-                'first_name' => $data['first_name'] ?? '',
-                'last_name' => $data['last_name'] ?? '',
-                'email' => $data['email'] ?? '',
-                'phone' => $data['phone'] ?? null,
-                'role' => $data['role'] ?? 'user',
-                'status' => $data['status'] ?? 'active',
-                'password_hash' => $data['password_hash'] ?? '',
-            ];
-        } else {
-            $fullName = trim(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? ''));
-            $stmt = $this->db->prepare(
-                $hasAvatar
-                    ? ($hasUserCode
-                        ? 'INSERT INTO users (user_code, full_name, email, phone, avatar_path, role, status, password_hash)
-                           VALUES (:user_code, :full_name, :email, :phone, :avatar_path, :role, :status, :password_hash)'
-                        : 'INSERT INTO users (full_name, email, phone, avatar_path, role, status, password_hash)
-                           VALUES (:full_name, :email, :phone, :avatar_path, :role, :status, :password_hash)')
-                    : ($hasUserCode
-                        ? 'INSERT INTO users (user_code, full_name, email, phone, role, status, password_hash)
-                           VALUES (:user_code, :full_name, :email, :phone, :role, :status, :password_hash)'
-                        : 'INSERT INTO users (full_name, email, phone, role, status, password_hash)
-                           VALUES (:full_name, :email, :phone, :role, :status, :password_hash)')
-            );
-            $params = [
-                'full_name' => $fullName,
-                'email' => $data['email'] ?? '',
-                'phone' => $data['phone'] ?? null,
-                'role' => $data['role'] ?? 'user',
-                'status' => $data['status'] ?? 'active',
-                'password_hash' => $data['password_hash'] ?? '',
-            ];
-        }
+        $stmt = $this->db->prepare(
+            $hasAvatar
+                ? ($hasUserCode
+                    ? 'INSERT INTO users (user_code, first_name, last_name, email, phone, avatar_path, role, status, password_hash)
+                       VALUES (:user_code, :first_name, :last_name, :email, :phone, :avatar_path, :role, :status, :password_hash)'
+                    : 'INSERT INTO users (first_name, last_name, email, phone, avatar_path, role, status, password_hash)
+                       VALUES (:first_name, :last_name, :email, :phone, :avatar_path, :role, :status, :password_hash)')
+                : ($hasUserCode
+                    ? 'INSERT INTO users (user_code, first_name, last_name, email, phone, role, status, password_hash)
+                       VALUES (:user_code, :first_name, :last_name, :email, :phone, :role, :status, :password_hash)'
+                    : 'INSERT INTO users (first_name, last_name, email, phone, role, status, password_hash)
+                       VALUES (:first_name, :last_name, :email, :phone, :role, :status, :password_hash)')
+        );
+
+        $params = [
+            'first_name' => trim((string) ($data['first_name'] ?? '')),
+            'last_name' => trim((string) ($data['last_name'] ?? '')),
+            'email' => $data['email'] ?? '',
+            'phone' => $data['phone'] ?? null,
+            'role' => $data['role'] ?? 'user',
+            'status' => $data['status'] ?? 'active',
+            'password_hash' => $data['password_hash'] ?? '',
+        ];
 
         if ($hasAvatar) {
             $params['avatar_path'] = $data['avatar_path'] ?? null;
@@ -116,6 +83,7 @@ class UserModel extends BaseModel
         if ($hasUserCode) {
             $params['user_code'] = $userCode;
         }
+
         $stmt->execute($params);
         return (int) $this->db->lastInsertId();
     }
@@ -125,39 +93,22 @@ class UserModel extends BaseModel
         $passwordSql = isset($data['password_hash']) ? ', password_hash = :password_hash' : '';
         $avatarSql = (array_key_exists('avatar_path', $data) && $this->hasAvatarColumn()) ? ', avatar_path = :avatar_path' : '';
 
-        if ($this->hasUsersSplitNameColumns()) {
-            $stmt = $this->db->prepare(
-                "UPDATE users
-                 SET first_name = :first_name, last_name = :last_name, email = :email, phone = :phone{$avatarSql}, role = :role,
-                     status = :status {$passwordSql}
-                 WHERE id = :id"
-            );
-            $params = [
-                'first_name' => $data['first_name'] ?? '',
-                'last_name' => $data['last_name'] ?? '',
-                'email' => $data['email'] ?? '',
-                'phone' => $data['phone'] ?? null,
-                'role' => $data['role'] ?? 'user',
-                'status' => $data['status'] ?? 'active',
-                'id' => $id,
-            ];
-        } else {
-            $fullName = trim(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? ''));
-            $stmt = $this->db->prepare(
-                "UPDATE users
-                 SET full_name = :full_name, email = :email, phone = :phone{$avatarSql}, role = :role,
-                     status = :status {$passwordSql}
-                 WHERE id = :id"
-            );
-            $params = [
-                'full_name' => $fullName,
-                'email' => $data['email'] ?? '',
-                'phone' => $data['phone'] ?? null,
-                'role' => $data['role'] ?? 'user',
-                'status' => $data['status'] ?? 'active',
-                'id' => $id,
-            ];
-        }
+        $stmt = $this->db->prepare(
+            "UPDATE users
+             SET first_name = :first_name, last_name = :last_name, email = :email, phone = :phone{$avatarSql}, role = :role,
+                 status = :status {$passwordSql}
+             WHERE id = :id"
+        );
+
+        $params = [
+            'first_name' => trim((string) ($data['first_name'] ?? '')),
+            'last_name' => trim((string) ($data['last_name'] ?? '')),
+            'email' => $data['email'] ?? '',
+            'phone' => $data['phone'] ?? null,
+            'role' => $data['role'] ?? 'user',
+            'status' => $data['status'] ?? 'active',
+            'id' => $id,
+        ];
 
         if (array_key_exists('avatar_path', $data)) {
             $params['avatar_path'] = $data['avatar_path'];
@@ -206,29 +157,15 @@ class UserModel extends BaseModel
 
     public function updateProfile(int $id, string $firstName, string $lastName, string $email): void
     {
-        if ($this->hasUsersSplitNameColumns()) {
-            $stmt = $this->db->prepare(
-                'UPDATE users
-                 SET first_name = :first_name, last_name = :last_name, email = :email
-                 WHERE id = :id'
-            );
-            $stmt->execute([
-                'id' => $id,
-                'first_name' => $firstName,
-                'last_name' => $lastName,
-                'email' => $email,
-            ]);
-            return;
-        }
-
         $stmt = $this->db->prepare(
             'UPDATE users
-             SET full_name = :full_name, email = :email
+             SET first_name = :first_name, last_name = :last_name, email = :email
              WHERE id = :id'
         );
         $stmt->execute([
             'id' => $id,
-            'full_name' => trim($firstName . ' ' . $lastName),
+            'first_name' => $firstName,
+            'last_name' => $lastName,
             'email' => $email,
         ]);
     }

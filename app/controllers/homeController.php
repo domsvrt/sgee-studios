@@ -295,11 +295,6 @@ class HomeController extends BaseController
 
         $firstName = trim((string) ($user['first_name'] ?? ''));
         $lastName = trim((string) ($user['last_name'] ?? ''));
-        if ($firstName === '' && $lastName === '') {
-            $parts = preg_split('/\s+/', trim((string) ($user['full_name'] ?? '')), 2);
-            $firstName = trim((string) ($parts[0] ?? ''));
-            $lastName = trim((string) ($parts[1] ?? ''));
-        }
 
         $this->renderHome([
             'page' => 'settings',

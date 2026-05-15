@@ -32,9 +32,7 @@ class ActivityLogModel extends BaseModel
 
     public function recent(int $limit = 100): array
     {
-        $nameSql = $this->hasUsersSplitNameColumns()
-            ? "CONCAT(users.first_name, ' ', users.last_name)"
-            : 'users.full_name';
+        $nameSql = "CONCAT(users.first_name, ' ', users.last_name)";
 
         $stmt = $this->db->prepare(
             "SELECT activity_logs.*, bookings.booking_code, {$nameSql} AS user_name, users.email AS user_email

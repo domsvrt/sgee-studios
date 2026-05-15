@@ -40,14 +40,8 @@ $statuses = ['active', 'inactive', 'banned'];
             <tbody>
                 <?php foreach ($users as $user): ?>
                     <?php
-                    $fullName = trim((string) ($user['full_name'] ?? ''));
                     $firstName = (string) ($user['first_name'] ?? '');
                     $lastName = (string) ($user['last_name'] ?? '');
-                    if ($firstName === '' && $lastName === '' && $fullName !== '') {
-                        $parts = preg_split('/\s+/', $fullName, 2) ?: [];
-                        $firstName = (string) ($parts[0] ?? '');
-                        $lastName = (string) ($parts[1] ?? '');
-                    }
                     ?>
                     <tr>
                         <td class="px-4 py-3 font-black"><?= $e($user['id']) ?></td>

@@ -31,13 +31,9 @@ class PasswordResetRequestModel extends BaseModel
 
     public function all(?string $status = null, int $limit = 200): array
     {
-        $nameSql = $this->hasUsersSplitNameColumns()
-            ? "CONCAT(u.first_name, ' ', u.last_name)"
-            : 'u.full_name';
+        $nameSql = "CONCAT(u.first_name, ' ', u.last_name)";
 
-        $resolverNameSql = $this->hasUsersSplitNameColumns()
-            ? "CONCAT(r.first_name, ' ', r.last_name)"
-            : 'r.full_name';
+        $resolverNameSql = "CONCAT(r.first_name, ' ', r.last_name)";
 
         $sql = "SELECT prr.*, {$nameSql} AS requester_name, u.email AS requester_email, {$resolverNameSql} AS resolver_name
                 FROM password_reset_requests prr

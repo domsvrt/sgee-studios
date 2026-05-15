@@ -10,9 +10,7 @@ class BookingStatusLogModel extends BaseModel
 {
     public function recent(int $limit = 10): array
     {
-        $userNameSql = $this->hasUsersSplitNameColumns()
-            ? "CONCAT(users.first_name, ' ', users.last_name)"
-            : 'users.full_name';
+        $userNameSql = "CONCAT(users.first_name, ' ', users.last_name)";
 
         $stmt = $this->db->prepare(
             "SELECT booking_status_logs.*, bookings.booking_code, {$userNameSql} AS changed_by_name
