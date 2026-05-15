@@ -10,12 +10,16 @@ use App\Models\ActivityLogModel;
 use App\Models\NotificationModel;
 use App\Models\PasswordResetRequestModel;
 use App\Models\ServiceCategoryModel;
+use App\Models\ServiceModel;
+use App\Models\ServiceSectionModel;
 use App\Models\UserModel;
 
 class HomeController extends BaseController
 {
     private UserModel $users;
     private ServiceCategoryModel $categories;
+    private ServiceSectionModel $sections;
+    private ServiceModel $services;
     private BookingModel $bookings;
     private BookingItemModel $bookingItems;
     private NotificationModel $notifications;
@@ -26,6 +30,8 @@ class HomeController extends BaseController
     {
         $this->users = new UserModel();
         $this->categories = new ServiceCategoryModel();
+        $this->sections = new ServiceSectionModel();
+        $this->services = new ServiceModel();
         $this->bookings = new BookingModel();
         $this->bookingItems = new BookingItemModel();
         $this->notifications = new NotificationModel();
@@ -54,7 +60,88 @@ class HomeController extends BaseController
 
     public function bookNow(): void
     {
-        $this->renderHome(['page' => 'book-now']);
+        $categories = array_values(array_filter(
+            $this->categories->all(),
+            static fn (array $category): bool => (int) ($category['is_active'] ?? 0) === 1
+        ));
+        usort($categories, static fn (array $a, array $b): int => ((int) ($a['sort_order'] ?? 0) <=> (int) ($b['sort_order'] ?? 0)));
+
+        $sectionRows = $this->sections->all();
+        $serviceRows = $this->services->activeCatalogRows();
+
+        $sectionsByCategory = [];
+        foreach ($sectionRows as $section) {
+            if ((int) ($section['is_active'] ?? 0) !== 1) {
+                continue;
+            }
+
+            $categoryId = (int) ($section['category_id'] ?? 0);
+            $sectionsByCategory[$categoryId][] = [
+                'id' => (int) $section['id'],
+                'name' => (string) ($section['name'] ?? ''),
+                'description' => (string) ($section['description'] ?? ''),
+                'selection_type' => (string) ($section['selection_type'] ?? 'multiple'),
+                'sort_order' => (int) ($section['sort_order'] ?? 0),
+                'items' => [],
+            ];
+        }
+
+        foreach ($serviceRows as $service) {
+            $categoryId = (int) ($service['category_id'] ?? 0);
+            if (!isset($sectionsByCategory[$categoryId])) {
+                $sectionsByCategory[$categoryId] = [];
+            }
+
+            $sectionId = (int) ($service['section_id'] ?? 0);
+            $targetIndex = null;
+            foreach ($sectionsByCategory[$categoryId] as $index => $section) {
+                if ((int) $section['id'] === $sectionId) {
+                    $targetIndex = $index;
+                    break;
+                }
+            }
+            if ($targetIndex === null) {
+                $sectionsByCategory[$categoryId][] = [
+                    'id' => $sectionId,
+                    'name' => (string) ($service['section_name'] ?? 'Services'),
+                    'description' => (string) ($service['section_description'] ?? ''),
+                    'selection_type' => (string) ($service['section_selection_type'] ?? 'multiple'),
+                    'sort_order' => (int) ($service['section_sort_order'] ?? 9999),
+                    'items' => [],
+                ];
+                $targetIndex = array_key_last($sectionsByCategory[$categoryId]);
+            }
+
+            $sectionsByCategory[$categoryId][$targetIndex]['items'][] = [
+                'id' => (int) $service['id'],
+                'code' => (string) ($service['code'] ?? ''),
+                'name' => (string) ($service['name'] ?? ''),
+                'description' => (string) ($service['description'] ?? ''),
+                'price' => (float) ($service['price'] ?? 0),
+                'unit_label' => (string) ($service['unit_label'] ?? ''),
+                'selection_type' => (string) ($service['selection_type'] ?? 'multiple'),
+            ];
+        }
+
+        $catalog = [];
+        foreach ($categories as $category) {
+            $categoryId = (int) ($category['id'] ?? 0);
+            $sections = $sectionsByCategory[$categoryId] ?? [];
+            usort($sections, static fn (array $a, array $b): int => ((int) ($a['sort_order'] ?? 0) <=> (int) ($b['sort_order'] ?? 0)));
+
+            $sections = array_values(array_filter($sections, static fn (array $section): bool => !empty($section['items'])));
+            $catalog[] = [
+                'id' => $categoryId,
+                'name' => (string) ($category['name'] ?? ''),
+                'description' => (string) ($category['description'] ?? ''),
+                'sections' => $sections,
+            ];
+        }
+
+        $this->renderHome([
+            'page' => 'book-now',
+            'bookNowCatalog' => $catalog,
+        ]);
     }
 
     public function signIn(): void

@@ -19,7 +19,15 @@ $statuses = ['pending', 'confirmed', 'completed', 'cancelled'];
 ?>
 <section class="admin-panel">
     <div class="admin-panel-header">
-        <?php admin_render_create_header('Create Booking', 'Book a registered user into a required date and time slot.', 'create-booking-form', 'Create booking'); ?>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h3 class="admin-panel-title">Bookings</h3>
+                <p class="admin-panel-subtitle"><?= $e(count($bookings)) ?> scheduled records</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" class="btn-secondary" data-create-toggle data-target="create-booking-form" data-show-label="Create booking" data-hide-label="Hide form">Create booking</button>
+            </div>
+        </div>
     </div>
     <form id="create-booking-form" method="post" action="/admin/bookings/create" class="hidden grid gap-3 p-5 lg:grid-cols-4">
         <input name="booking_code" placeholder="Auto code if blank" class="<?= $field ?>">
@@ -52,10 +60,6 @@ $statuses = ['pending', 'confirmed', 'completed', 'cancelled'];
             </div>
         </div>
     </form>
-</section>
-
-<section class="admin-panel mt-5">
-    <div class="admin-panel-header"><h3 class="admin-panel-title">Bookings</h3><p class="admin-panel-subtitle"><?= $e(count($bookings)) ?> scheduled records</p></div>
     <div class="overflow-x-auto">
         <table class="admin-table min-w-[1500px]">
             <thead>

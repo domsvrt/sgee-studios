@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS services (
   description TEXT NULL,
   price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   unit_label VARCHAR(50) NULL,
-  selection_type ENUM('single','multiple','quantity') NOT NULL DEFAULT 'multiple',
+  selection_type ENUM('single','multiple') NOT NULL DEFAULT 'multiple',
   is_active TINYINT(1) NOT NULL DEFAULT 1,
   sort_order INT NOT NULL DEFAULT 0,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -11,6 +11,7 @@ use App\Models\ActivityLogModel;
 use App\Models\NotificationModel;
 use App\Models\PasswordResetRequestModel;
 use App\Models\ServiceCategoryModel;
+use App\Models\ServiceSectionModel;
 use App\Models\ServiceModel;
 use App\Models\UserModel;
 use Throwable;
@@ -19,6 +20,7 @@ class AdminController extends BaseController
 {
     private UserModel $users;
     private ServiceCategoryModel $categories;
+    private ServiceSectionModel $sections;
     private ServiceModel $services;
     private BookingModel $bookings;
     private BookingItemModel $bookingItems;
@@ -31,6 +33,7 @@ class AdminController extends BaseController
     {
         $this->users = new UserModel();
         $this->categories = new ServiceCategoryModel();
+        $this->sections = new ServiceSectionModel();
         $this->services = new ServiceModel();
         $this->bookings = new BookingModel();
         $this->bookingItems = new BookingItemModel();
@@ -84,7 +87,34 @@ class AdminController extends BaseController
             'activeNav' => 'services',
             'services' => $this->services->all(),
             'categories' => $this->categories->all(),
+            'sections' => $this->sections->all(),
         ]);
+    }
+
+    public function createServiceSection(): void
+    {
+        $this->handle(fn () => $this->sections->create($this->serviceSectionPayload()), '/admin/services', 'Service section created.');
+    }
+
+    public function updateServiceSection(): void
+    {
+        $this->handle(fn () => $this->sections->update($this->requiredId(), $this->serviceSectionPayload()), '/admin/services', 'Service section updated.');
+    }
+
+    public function deleteServiceSection(): void
+    {
+        $this->handle(fn () => $this->sections->delete($this->requiredId()), '/admin/services', 'Service section deleted.');
+    }
+
+    public function reorderServiceSections(): void
+    {
+        $this->handle(function (): void {
+            $ids = $_POST['ordered_ids'] ?? [];
+            if (!is_array($ids) || !$ids) {
+                throw new \InvalidArgumentException('No service section order was provided.');
+            }
+            $this->sections->reorder($ids);
+        }, '/admin/services', 'Service section order updated.');
     }
 
     public function bookings(): void
@@ -380,14 +410,28 @@ class AdminController extends BaseController
             throw new \InvalidArgumentException('Price cannot be negative.');
         }
 
+        $sectionIdRaw = trim((string) ($_POST['section_id'] ?? ''));
+
         return [
             'category_id' => (int) $this->requiredString('category_id'),
+            'section_id' => $sectionIdRaw === '' ? null : (int) $sectionIdRaw,
             'code' => $this->slug($this->requiredString('code')),
             'name' => $this->requiredString('name'),
             'description' => trim($_POST['description'] ?? '') ?: null,
             'price' => number_format($price, 2, '.', ''),
             'unit_label' => trim($_POST['unit_label'] ?? '') ?: null,
-            'selection_type' => $this->enum($_POST['selection_type'] ?? 'multiple', ['single', 'multiple', 'quantity'], 'selection type'),
+            'selection_type' => $this->enum($_POST['selection_type'] ?? 'multiple', ['single', 'multiple'], 'selection type'),
+            'is_active' => isset($_POST['is_active']) ? 1 : 0,
+        ];
+    }
+
+    private function serviceSectionPayload(): array
+    {
+        return [
+            'category_id' => (int) $this->requiredString('category_id'),
+            'name' => $this->requiredString('name'),
+            'description' => trim($_POST['description'] ?? '') ?: null,
+            'selection_type' => $this->enum($_POST['selection_type'] ?? 'multiple', ['single', 'multiple'], 'selection type'),
             'is_active' => isset($_POST['is_active']) ? 1 : 0,
         ];
     }

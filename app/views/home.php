@@ -259,21 +259,59 @@ $work = [
                 </form>
             </section>
         <?php elseif ($page === 'book-now'): ?>
-            <section class="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
-                <div>
-                    <p class="text-sm font-black uppercase tracking-[0.24em] text-[#c84c3a]">Book now</p>
-                    <h1 class="mt-4 text-5xl font-black leading-tight">Reserve your shoot date.</h1>
-                    <p class="mt-6 text-lg leading-8 text-slate-600">Share the essentials and SGee Studios will confirm availability, package fit, and the next steps for securing the schedule.</p>
-                    <img src="/assets/images/book-wedding-table.jpg" alt="Styled wedding table with flowers and candles" class="mt-8 h-72 w-full rounded-lg object-cover shadow-lg">
+            <?php $bookNowCatalog = $bookNowCatalog ?? []; ?>
+            <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8" data-book-now-catalog='<?= htmlspecialchars((string) json_encode($bookNowCatalog, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>'>
+                <div class="mb-10 text-center">
+                    <p class="text-sm font-black uppercase tracking-[0.24em] text-[#c84c3a]">Select Your Experience</p>
+                    <h1 class="mt-4 text-5xl font-black leading-tight">Our Services</h1>
+                    <p class="mx-auto mt-4 max-w-3xl text-lg leading-8 text-slate-600">Choose a category first, then select the services that match your event before requesting your booking schedule.</p>
                 </div>
-                <form class="rounded-lg bg-white p-6 shadow-xl ring-1 ring-slate-200">
+
+                <div id="book-now-categories" class="grid gap-4 md:grid-cols-2">
+                    <?php foreach ($bookNowCatalog as $category): ?>
+                        <button type="button" class="group rounded-lg border border-slate-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:border-slate-400 hover:shadow-lg" data-category-id="<?= htmlspecialchars((string) $category['id'], ENT_QUOTES, 'UTF-8') ?>">
+                            <p class="text-xs font-black uppercase tracking-[0.22em] text-slate-400">Category</p>
+                            <h2 class="mt-2 text-2xl font-black text-slate-950"><?= htmlspecialchars((string) ($category['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></h2>
+                            <p class="mt-3 text-sm leading-6 text-slate-600"><?= htmlspecialchars((string) ($category['description'] ?: 'Browse available services and package options.'), ENT_QUOTES, 'UTF-8') ?></p>
+                            <span class="mt-5 inline-flex items-center text-sm font-black text-[#c84c3a]">Choose category</span>
+                        </button>
+                    <?php endforeach; ?>
+                    <?php if (!$bookNowCatalog): ?>
+                        <article class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm md:col-span-2">
+                            <h2 class="text-2xl font-black">No active services available yet.</h2>
+                            <p class="mt-3 text-sm leading-6 text-slate-600">Please check back soon or contact the studio for direct assistance.</p>
+                        </article>
+                    <?php endif; ?>
+                </div>
+
+                <div id="book-now-services" class="mt-8 hidden rounded-lg border border-slate-200 bg-white p-6 shadow-xl ring-1 ring-slate-200">
+                    <div class="flex flex-col justify-between gap-3 border-b border-slate-100 pb-4 md:flex-row md:items-end">
+                        <div>
+                            <p class="text-xs font-black uppercase tracking-[0.22em] text-slate-400">Selected category</p>
+                            <h2 id="book-now-category-title" class="mt-2 text-3xl font-black text-slate-950"></h2>
+                            <p id="book-now-category-desc" class="mt-2 text-sm text-slate-600"></p>
+                        </div>
+                        <button id="book-now-back" type="button" class="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-300 bg-white px-4 text-sm font-black text-slate-700">Back to categories</button>
+                    </div>
+                    <div id="book-now-services-list" class="mt-5 space-y-6"></div>
+                    <div class="mt-6 flex flex-col justify-between gap-3 rounded-lg bg-[#f6f3ee] p-4 md:flex-row md:items-center">
+                        <div>
+                            <p id="book-now-selected-count" class="text-sm font-black text-slate-700">0 items selected</p>
+                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Estimated total</p>
+                            <p id="book-now-estimated-total" class="text-2xl font-black text-slate-950">$0.00</p>
+                        </div>
+                        <button id="book-now-continue" type="button" class="min-h-11 rounded-lg bg-[#c84c3a] px-5 text-sm font-black text-white shadow-sm">Continue to form</button>
+                    </div>
+                </div>
+
+                <form id="book-now-form" class="mt-8 hidden rounded-lg bg-white p-6 shadow-xl ring-1 ring-slate-200">
                     <div class="grid gap-4 sm:grid-cols-2">
                         <label class="text-sm font-black">Full name<input class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="text"></label>
                         <label class="text-sm font-black">Email<input class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="email"></label>
                         <label class="text-sm font-black">Event date<input class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10" type="date"></label>
-                        <label class="text-sm font-black">Coverage<select class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10"><option>Photo and video</option><option>Photography only</option><option>Videography only</option></select></label>
                     </div>
                     <label class="mt-4 block text-sm font-black">Event details<textarea class="mt-2 min-h-32 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal outline-none focus:border-[#c84c3a] focus:ring-4 focus:ring-[#c84c3a]/10"></textarea></label>
+                    <p id="book-now-selected-summary" class="mt-4 rounded-lg bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600"></p>
                     <button class="mt-5 min-h-12 w-full rounded-lg bg-[#c84c3a] px-5 text-sm font-black text-white shadow-sm" type="button">Request booking</button>
                 </form>
             </section>
@@ -488,6 +526,146 @@ $work = [
                 if (eyeOpen) eyeOpen.classList.toggle('hidden', show);
                 if (eyeClosed) eyeClosed.classList.toggle('hidden', !show);
             });
+        })();
+
+        (function () {
+            var root = document.querySelector('[data-book-now-catalog]');
+            if (!root) return;
+
+            var catalog = [];
+            try {
+                catalog = JSON.parse(root.getAttribute('data-book-now-catalog') || '[]');
+            } catch (error) {
+                catalog = [];
+            }
+
+            var categoriesWrap = document.getElementById('book-now-categories');
+            var servicesWrap = document.getElementById('book-now-services');
+            var formWrap = document.getElementById('book-now-form');
+            var servicesList = document.getElementById('book-now-services-list');
+            var categoryTitle = document.getElementById('book-now-category-title');
+            var categoryDesc = document.getElementById('book-now-category-desc');
+            var selectedCount = document.getElementById('book-now-selected-count');
+            var totalEl = document.getElementById('book-now-estimated-total');
+            var summaryEl = document.getElementById('book-now-selected-summary');
+            var selectedCategoryId = 0;
+            var selectedItems = {};
+
+            function getCategory() {
+                return catalog.find(function (row) { return Number(row.id) === Number(selectedCategoryId); }) || null;
+            }
+
+            function updateTotals() {
+                var keys = Object.keys(selectedItems);
+                var total = 0;
+                keys.forEach(function (key) {
+                    var row = selectedItems[key];
+                    total += Number(row.price || 0) * Number(row.qty || 1);
+                });
+                selectedCount.textContent = keys.length + ' item' + (keys.length === 1 ? '' : 's') + ' selected';
+                totalEl.textContent = '$' + total.toFixed(2);
+                summaryEl.textContent = keys.length > 0
+                    ? 'Selected services: ' + keys.map(function (key) { return selectedItems[key].name + ' (x' + selectedItems[key].qty + ')'; }).join(' | ')
+                    : 'No services selected yet.';
+            }
+
+            function setSelection(item, mode, sectionCode) {
+                if (mode === 'single') {
+                    Object.keys(selectedItems).forEach(function (key) {
+                        if (selectedItems[key].sectionCode === sectionCode) {
+                            delete selectedItems[key];
+                        }
+                    });
+                    selectedItems[item.code] = { name: item.name, price: Number(item.price || 0), qty: 1, sectionCode: sectionCode };
+                    return;
+                }
+
+                if (selectedItems[item.code]) {
+                    delete selectedItems[item.code];
+                } else {
+                    selectedItems[item.code] = { name: item.name, price: Number(item.price || 0), qty: 1, sectionCode: sectionCode };
+                }
+            }
+
+            function renderServices() {
+                var category = getCategory();
+                if (!category) return;
+
+                categoryTitle.textContent = category.name || '';
+                categoryDesc.textContent = category.description || '';
+                servicesList.innerHTML = '';
+
+                (category.sections || []).forEach(function (section) {
+                    var sectionWrap = document.createElement('div');
+                    var header = '<h3 class="text-xl font-black text-slate-950">' + (section.name || '') + '</h3>';
+                    if (section.description) {
+                        header += '<p class="mt-1 text-xs text-slate-500">' + section.description + '</p>';
+                    }
+                    var items = '<div class="mt-3 space-y-3">';
+                    (section.items || []).forEach(function (item) {
+                        var selected = !!selectedItems[item.code];
+                        var qty = selectedItems[item.code] ? Number(selectedItems[item.code].qty || 1) : 0;
+                        items += '<button type="button" class="w-full rounded-lg border p-4 text-left transition ' + (selected ? 'border-slate-950 bg-slate-50' : 'border-slate-200 bg-white hover:border-slate-400') + '" data-select-item="' + item.code + '" data-section-type="' + (section.selection_type || 'multiple') + '" data-section-code="' + section.id + '">';
+                        items += '<div class="flex items-start justify-between gap-4"><div><p class="text-sm font-black text-slate-900">' + (item.name || '') + '</p>';
+                        if (item.description) items += '<p class="mt-1 text-xs text-slate-500">' + item.description + '</p>';
+                        items += '</div><div class="text-right"><p class="text-lg font-black text-slate-950">$' + Number(item.price || 0).toFixed(2) + '</p>';
+                        items += '</div></div></button>';
+                    });
+                    items += '</div>';
+                    sectionWrap.innerHTML = header + items;
+                    servicesList.appendChild(sectionWrap);
+                });
+                updateTotals();
+            }
+
+            categoriesWrap.addEventListener('click', function (event) {
+                var btn = event.target.closest('[data-category-id]');
+                if (!btn) return;
+                selectedCategoryId = Number(btn.getAttribute('data-category-id') || '0');
+                selectedItems = {};
+                categoriesWrap.classList.add('hidden');
+                formWrap.classList.add('hidden');
+                servicesWrap.classList.remove('hidden');
+                renderServices();
+            });
+
+            servicesWrap.addEventListener('click', function (event) {
+                var btn = event.target.closest('[data-select-item]');
+                if (!btn) return;
+                var code = btn.getAttribute('data-select-item') || '';
+                var sectionType = btn.getAttribute('data-section-type') || 'multiple';
+                var sectionCode = btn.getAttribute('data-section-code') || '';
+                var category = getCategory();
+                if (!category) return;
+                var itemFound = null;
+                (category.sections || []).forEach(function (section) {
+                    (section.items || []).forEach(function (item) {
+                        if (item.code === code) itemFound = item;
+                    });
+                });
+                if (!itemFound) return;
+                setSelection(itemFound, sectionType, sectionCode);
+                renderServices();
+            });
+
+            var backBtn = document.getElementById('book-now-back');
+            if (backBtn) {
+                backBtn.addEventListener('click', function () {
+                    servicesWrap.classList.add('hidden');
+                    formWrap.classList.add('hidden');
+                    categoriesWrap.classList.remove('hidden');
+                });
+            }
+
+            var continueBtn = document.getElementById('book-now-continue');
+            if (continueBtn) {
+                continueBtn.addEventListener('click', function () {
+                    servicesWrap.classList.add('hidden');
+                    formWrap.classList.remove('hidden');
+                    updateTotals();
+                });
+            }
+            updateTotals();
         })();
     </script>
 </body>

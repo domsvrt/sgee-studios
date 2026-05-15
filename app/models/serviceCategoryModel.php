@@ -9,6 +9,8 @@ use PDOException;
 
 class ServiceCategoryModel extends BaseModel
 {
+    private static ?bool $hasCategoryCodeColumn = null;
+
     public function all(): array
     {
         return $this->db->query('SELECT * FROM service_categories ORDER BY updated_at DESC, created_at DESC')->fetchAll();
@@ -18,10 +20,18 @@ class ServiceCategoryModel extends BaseModel
     {
         $nextOrder = (int) $this->db->query('SELECT COALESCE(MAX(sort_order), 0) + 1 FROM service_categories')->fetchColumn();
         $data['sort_order'] = $nextOrder;
-        $stmt = $this->db->prepare(
-            'INSERT INTO service_categories (name, description, is_active, sort_order)
-             VALUES (:name, :description, :is_active, :sort_order)'
-        );
+        if ($this->hasCategoryCodeColumn()) {
+            $data['category_code'] = $this->nextCategoryCode();
+            $stmt = $this->db->prepare(
+                'INSERT INTO service_categories (category_code, name, description, is_active, sort_order)
+                 VALUES (:category_code, :name, :description, :is_active, :sort_order)'
+            );
+        } else {
+            $stmt = $this->db->prepare(
+                'INSERT INTO service_categories (name, description, is_active, sort_order)
+                 VALUES (:name, :description, :is_active, :sort_order)'
+            );
+        }
         $stmt->execute($data);
     }
 
@@ -58,5 +68,27 @@ class ServiceCategoryModel extends BaseModel
                 'sort_order' => $index + 1,
             ]);
         }
+    }
+
+    private function hasCategoryCodeColumn(): bool
+    {
+        if (self::$hasCategoryCodeColumn !== null) {
+            return self::$hasCategoryCodeColumn;
+        }
+
+        $stmt = $this->db->query("SHOW COLUMNS FROM service_categories LIKE 'category_code'");
+        self::$hasCategoryCodeColumn = (bool) $stmt->fetch();
+        return self::$hasCategoryCodeColumn;
+    }
+
+    private function nextCategoryCode(): string
+    {
+        $value = (int) $this->db->query(
+            "SELECT COALESCE(MAX(CAST(SUBSTRING(category_code, 5) AS UNSIGNED)), 0) + 1
+             FROM service_categories
+             WHERE category_code REGEXP '^CAT-[0-9]+$'"
+        )->fetchColumn();
+
+        return 'CAT-' . str_pad((string) $value, 4, '0', STR_PAD_LEFT);
     }
 }

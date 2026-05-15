@@ -7,6 +7,7 @@ namespace App\Models;
 class UserModel extends BaseModel
 {
     private static ?bool $usersHasAvatarColumn = null;
+    private static ?bool $usersHasUserCodeColumn = null;
 
     public function all(): array
     {
@@ -58,14 +59,22 @@ class UserModel extends BaseModel
     public function create(array $data): int
     {
         $hasAvatar = $this->hasAvatarColumn();
+        $hasUserCode = $this->hasUserCodeColumn();
+        $userCode = $hasUserCode ? $this->nextUserCode() : null;
 
         if ($this->hasUsersSplitNameColumns()) {
             $stmt = $this->db->prepare(
                 $hasAvatar
-                    ? 'INSERT INTO users (first_name, last_name, email, phone, avatar_path, role, status, password_hash)
-                       VALUES (:first_name, :last_name, :email, :phone, :avatar_path, :role, :status, :password_hash)'
-                    : 'INSERT INTO users (first_name, last_name, email, phone, role, status, password_hash)
-                       VALUES (:first_name, :last_name, :email, :phone, :role, :status, :password_hash)'
+                    ? ($hasUserCode
+                        ? 'INSERT INTO users (user_code, first_name, last_name, email, phone, avatar_path, role, status, password_hash)
+                           VALUES (:user_code, :first_name, :last_name, :email, :phone, :avatar_path, :role, :status, :password_hash)'
+                        : 'INSERT INTO users (first_name, last_name, email, phone, avatar_path, role, status, password_hash)
+                           VALUES (:first_name, :last_name, :email, :phone, :avatar_path, :role, :status, :password_hash)')
+                    : ($hasUserCode
+                        ? 'INSERT INTO users (user_code, first_name, last_name, email, phone, role, status, password_hash)
+                           VALUES (:user_code, :first_name, :last_name, :email, :phone, :role, :status, :password_hash)'
+                        : 'INSERT INTO users (first_name, last_name, email, phone, role, status, password_hash)
+                           VALUES (:first_name, :last_name, :email, :phone, :role, :status, :password_hash)')
             );
             $params = [
                 'first_name' => $data['first_name'] ?? '',
@@ -80,10 +89,16 @@ class UserModel extends BaseModel
             $fullName = trim(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? ''));
             $stmt = $this->db->prepare(
                 $hasAvatar
-                    ? 'INSERT INTO users (full_name, email, phone, avatar_path, role, status, password_hash)
-                       VALUES (:full_name, :email, :phone, :avatar_path, :role, :status, :password_hash)'
-                    : 'INSERT INTO users (full_name, email, phone, role, status, password_hash)
-                       VALUES (:full_name, :email, :phone, :role, :status, :password_hash)'
+                    ? ($hasUserCode
+                        ? 'INSERT INTO users (user_code, full_name, email, phone, avatar_path, role, status, password_hash)
+                           VALUES (:user_code, :full_name, :email, :phone, :avatar_path, :role, :status, :password_hash)'
+                        : 'INSERT INTO users (full_name, email, phone, avatar_path, role, status, password_hash)
+                           VALUES (:full_name, :email, :phone, :avatar_path, :role, :status, :password_hash)')
+                    : ($hasUserCode
+                        ? 'INSERT INTO users (user_code, full_name, email, phone, role, status, password_hash)
+                           VALUES (:user_code, :full_name, :email, :phone, :role, :status, :password_hash)'
+                        : 'INSERT INTO users (full_name, email, phone, role, status, password_hash)
+                           VALUES (:full_name, :email, :phone, :role, :status, :password_hash)')
             );
             $params = [
                 'full_name' => $fullName,
@@ -97,6 +112,9 @@ class UserModel extends BaseModel
 
         if ($hasAvatar) {
             $params['avatar_path'] = $data['avatar_path'] ?? null;
+        }
+        if ($hasUserCode) {
+            $params['user_code'] = $userCode;
         }
         $stmt->execute($params);
         return (int) $this->db->lastInsertId();
@@ -233,5 +251,27 @@ class UserModel extends BaseModel
         $stmt = $this->db->query("SHOW COLUMNS FROM users LIKE 'avatar_path'");
         self::$usersHasAvatarColumn = (bool) $stmt->fetch();
         return self::$usersHasAvatarColumn;
+    }
+
+    private function hasUserCodeColumn(): bool
+    {
+        if (self::$usersHasUserCodeColumn !== null) {
+            return self::$usersHasUserCodeColumn;
+        }
+
+        $stmt = $this->db->query("SHOW COLUMNS FROM users LIKE 'user_code'");
+        self::$usersHasUserCodeColumn = (bool) $stmt->fetch();
+        return self::$usersHasUserCodeColumn;
+    }
+
+    private function nextUserCode(): string
+    {
+        $value = (int) $this->db->query(
+            "SELECT COALESCE(MAX(CAST(SUBSTRING(user_code, 5) AS UNSIGNED)), 0) + 1
+             FROM users
+             WHERE user_code REGEXP '^USR-[0-9]+$'"
+        )->fetchColumn();
+
+        return 'USR-' . str_pad((string) $value, 6, '0', STR_PAD_LEFT);
     }
 }

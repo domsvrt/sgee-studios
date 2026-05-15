@@ -13,7 +13,15 @@ $statuses = ['active', 'inactive', 'banned'];
 ?>
 <section class="admin-panel">
     <div class="admin-panel-header">
-        <?php admin_render_create_header('Create User', 'Add an admin or a booking customer account.', 'create-user-form', 'Create user'); ?>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h3 class="admin-panel-title">User Directory</h3>
+                <p class="admin-panel-subtitle"><?= $e(count($users)) ?> account records</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" class="btn-secondary" data-create-toggle data-target="create-user-form" data-show-label="Create user" data-hide-label="Hide form">Create user</button>
+            </div>
+        </div>
     </div>
     <form id="create-user-form" method="post" action="/admin/users/create" class="hidden grid gap-3 p-5 md:grid-cols-2 xl:grid-cols-4">
         <input required name="first_name" placeholder="First name" class="<?= $field ?>">
@@ -24,17 +32,10 @@ $statuses = ['active', 'inactive', 'banned'];
         <select name="role" class="<?= $field ?>"><?php admin_option_tags($roles, 'user'); ?></select>
         <select name="status" class="<?= $field ?>"><?php admin_option_tags($statuses, 'active'); ?></select>
     </form>
-</section>
-
-<section class="admin-panel mt-5">
-    <div class="admin-panel-header">
-        <h3 class="admin-panel-title">User Directory</h3>
-        <p class="admin-panel-subtitle"><?= $e(count($users)) ?> account records</p>
-    </div>
     <div class="overflow-x-auto">
         <table class="admin-table min-w-[1120px]">
             <thead>
-                <tr><th class="px-4 py-3">ID</th><th class="px-4 py-3">First Name</th><th class="px-4 py-3">Last Name</th><th class="px-4 py-3">Email</th><th class="px-4 py-3">Phone</th><th class="px-4 py-3">Role</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Created At</th><th class="px-4 py-3">Updated At</th><th class="px-4 py-3">Actions</th></tr>
+                <tr><th class="px-4 py-3">ID</th><th class="px-4 py-3">Code</th><th class="px-4 py-3">First Name</th><th class="px-4 py-3">Last Name</th><th class="px-4 py-3">Email</th><th class="px-4 py-3">Phone</th><th class="px-4 py-3">Role</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Created At</th><th class="px-4 py-3">Updated At</th><th class="px-4 py-3">Actions</th></tr>
             </thead>
             <tbody>
                 <?php foreach ($users as $user): ?>
@@ -50,6 +51,7 @@ $statuses = ['active', 'inactive', 'banned'];
                     ?>
                     <tr>
                         <td class="px-4 py-3 font-black"><?= $e($user['id']) ?></td>
+                        <td class="px-4 py-3 text-xs font-black"><?= $e($user['user_code'] ?? '') ?></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="first_name" value="<?= $e($firstName) ?>" class="<?= $fieldSm ?>"></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="last_name" value="<?= $e($lastName) ?>" class="<?= $fieldSm ?>"></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="user-<?= $e($user['id']) ?>" name="email" value="<?= $e($user['email']) ?>" class="<?= $fieldSm ?> min-w-52"></td>
@@ -68,7 +70,7 @@ $statuses = ['active', 'inactive', 'banned'];
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$users): ?>
-                    <?php admin_render_empty_row(10, 'No users yet. Create the first admin account above.'); ?>
+                    <?php admin_render_empty_row(11, 'No users yet. Create the first admin account above.'); ?>
                 <?php endif; ?>
             </tbody>
         </table>

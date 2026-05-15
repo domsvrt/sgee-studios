@@ -8,18 +8,7 @@ $categories = $categories ?? [];
 $field = 'field';
 $fieldSm = 'field field-sm w-full min-w-28';
 ?>
-<section class="admin-panel">
-    <div class="admin-panel-header">
-        <?php admin_render_create_header('Create Category', 'Organize services into booking groups.', 'create-category-form', 'Create category'); ?>
-    </div>
-    <form id="create-category-form" method="post" action="/admin/categories/create" class="hidden grid gap-3 p-5 md:grid-cols-4">
-        <input required name="name" placeholder="Name" class="<?= $field ?>">
-        <input name="description" placeholder="Description" class="<?= $field ?> md:col-span-2">
-        <label class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-200"><input type="checkbox" name="is_active" checked class="h-4 w-4 rounded border-slate-300 text-teal-600"> Active</label>
-    </form>
-</section>
-
-<section class="admin-panel mt-5" data-sort-panel>
+<section class="admin-panel" data-sort-panel>
     <div class="admin-panel-header">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -27,21 +16,28 @@ $fieldSm = 'field field-sm w-full min-w-28';
                 <p class="admin-panel-subtitle"><?= $e(count($categories)) ?> service groups</p>
             </div>
             <div class="flex items-center gap-2">
+                <button type="button" class="btn-secondary" data-create-toggle data-target="create-category-form" data-show-label="Create category" data-hide-label="Hide form">Create category</button>
                 <button type="button" class="btn-secondary" data-sort-toggle data-target="categories-sort-form" data-table-id="categories-table">Sort mode</button>
                 <button type="submit" form="categories-sort-form" class="btn-primary hidden" data-sort-save>Save order</button>
             </div>
         </div>
         <form id="categories-sort-form" method="post" action="/admin/categories/reorder" class="hidden" data-sort-form></form>
     </div>
+    <form id="create-category-form" method="post" action="/admin/categories/create" class="hidden grid gap-3 p-5 md:grid-cols-4">
+        <input required name="name" placeholder="Name" class="<?= $field ?>">
+        <input name="description" placeholder="Description" class="<?= $field ?> md:col-span-2">
+        <label class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-200"><input type="checkbox" name="is_active" checked class="h-4 w-4 rounded border-slate-300 text-teal-600"> Active</label>
+    </form>
     <div class="overflow-x-auto">
         <table id="categories-table" class="admin-table min-w-[900px]" data-sortable-table>
             <thead>
-                <tr><th class="px-4 py-3">ID</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Description</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Active</th><th class="px-4 py-3">Created At</th><th class="px-4 py-3">Updated At</th><th class="px-4 py-3">Actions</th></tr>
+                <tr><th class="px-4 py-3">ID</th><th class="px-4 py-3">Code</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Description</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Active</th><th class="px-4 py-3">Created At</th><th class="px-4 py-3">Updated At</th><th class="px-4 py-3">Actions</th></tr>
             </thead>
             <tbody data-sort-body>
                 <?php foreach ($categories as $category): ?>
                     <tr data-sort-id="<?= $e($category['id']) ?>">
                         <td class="px-4 py-3 font-black"><?= $e($category['id']) ?></td>
+                        <td class="px-4 py-3 text-xs font-black"><?= $e($category['category_code'] ?? '') ?></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="category-<?= $e($category['id']) ?>" name="name" value="<?= $e($category['name']) ?>" class="<?= $fieldSm ?>"></td>
                         <td class="px-4 py-3"><input data-edit-field disabled form="category-<?= $e($category['id']) ?>" name="description" value="<?= $e($category['description'] ?? '') ?>" class="<?= $fieldSm ?> min-w-72"></td>
                         <td class="px-4 py-3"><span class="font-black" data-sort-order-display><?= $e($category['sort_order']) ?></span></td>
@@ -57,7 +53,7 @@ $fieldSm = 'field field-sm w-full min-w-28';
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$categories): ?>
-                    <?php admin_render_empty_row(8, 'No categories yet.'); ?>
+                    <?php admin_render_empty_row(9, 'No categories yet.'); ?>
                 <?php endif; ?>
             </tbody>
         </table>
