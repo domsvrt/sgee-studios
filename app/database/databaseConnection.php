@@ -34,6 +34,10 @@ class DatabaseConnection
             ]
         );
 
+        $dbTimezone = getenv('DB_TIMEZONE') ?: '+08:00';
+        $stmt = self::$connection->prepare('SET time_zone = :tz');
+        $stmt->execute(['tz' => $dbTimezone]);
+
         return self::$connection;
     }
 

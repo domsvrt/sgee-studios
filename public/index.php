@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 session_start();
 
+$appTimezone = getenv('APP_TIMEZONE') ?: 'Asia/Manila';
+date_default_timezone_set($appTimezone);
+
 spl_autoload_register(function (string $class): void {
     $prefix = 'App\\';
     $baseDir = __DIR__ . '/../app/';
