@@ -28,8 +28,8 @@ class BookingModel extends BaseModel
              FROM bookings
              JOIN users ON users.id = bookings.user_id
              WHERE bookings.booking_date >= CURDATE()
-             ORDER BY bookings.booking_date, bookings.booking_time
-             LIMIT 8"
+               AND bookings.status IN ('pending', 'confirmed')
+             ORDER BY bookings.booking_date, bookings.booking_time"
         )->fetchAll();
     }
 
@@ -60,7 +60,12 @@ class BookingModel extends BaseModel
 
     public function upcomingCount(): int
     {
-        return (int) $this->db->query("SELECT COUNT(*) FROM bookings WHERE booking_date >= CURDATE()")->fetchColumn();
+        return (int) $this->db->query(
+            "SELECT COUNT(*)
+             FROM bookings
+             WHERE booking_date >= CURDATE()
+               AND status IN ('pending', 'confirmed')"
+        )->fetchColumn();
     }
 
     public function create(array $data): int
