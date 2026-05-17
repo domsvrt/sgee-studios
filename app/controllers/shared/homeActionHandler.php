@@ -278,6 +278,13 @@ class HomeActionHandler extends BaseController
     {
         $userId = $this->requireUser();
         $bookings = $this->bookings->forUser($userId);
+        $nowTs = time();
+        foreach ($bookings as &$booking) {
+            $canEditCancel = $this->canUserModifyBooking($booking, $nowTs);
+            $booking['can_edit_cancel'] = $canEditCancel;
+            $booking['edit_cutoff_at'] = $this->bookingEditCutoffAt($booking);
+        }
+        unset($booking);
         $bookingItems = $this->bookingItems->groupedByBookingIds(array_column($bookings, 'id'));
 
         $this->renderHome([
@@ -402,6 +409,82 @@ class HomeActionHandler extends BaseController
         $this->redirect('/my-bookings');
     }
 
+    public function updateMyBooking(): void
+    {
+        $userId = $this->requireUser();
+        $bookingId = (int) ($_POST['id'] ?? 0);
+        $bookingDate = trim((string) ($_POST['booking_date'] ?? ''));
+        $bookingTime = trim((string) ($_POST['booking_time'] ?? ''));
+        $notes = trim((string) ($_POST['notes'] ?? ''));
+
+        if ($bookingId <= 0) {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Invalid booking request.'];
+            $this->redirect('/my-bookings');
+        }
+
+        if ($bookingDate === '' || $bookingTime === '') {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Booking date and time are required.'];
+            $this->redirect('/my-bookings');
+        }
+
+        $booking = $this->bookings->find($bookingId);
+        if (!$this->validateUserBookingAction($booking, $userId)) {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'This booking can no longer be edited.'];
+            $this->redirect('/my-bookings');
+        }
+
+        $this->bookings->updateUserBooking($bookingId, $userId, [
+            'booking_date' => $bookingDate,
+            'booking_time' => $bookingTime,
+            'notes' => $notes === '' ? null : $notes,
+        ]);
+
+        $this->activityLogs->create(
+            'booking_update',
+            'Booking updated by user',
+            "Booking {$bookingId} was updated by user {$userId}.",
+            $userId,
+            $bookingId
+        );
+
+        $_SESSION['flash'] = ['type' => 'success', 'message' => 'Booking updated successfully.'];
+        $this->redirect('/my-bookings');
+    }
+
+    public function cancelMyBooking(): void
+    {
+        $userId = $this->requireUser();
+        $bookingId = (int) ($_POST['id'] ?? 0);
+
+        if ($bookingId <= 0) {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Invalid booking request.'];
+            $this->redirect('/my-bookings');
+        }
+
+        $booking = $this->bookings->find($bookingId);
+        if (!$this->validateUserBookingAction($booking, $userId)) {
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'This booking can no longer be cancelled.'];
+            $this->redirect('/my-bookings');
+        }
+
+        $oldStatus = (string) ($booking['status'] ?? '');
+        $this->bookings->cancelUserBooking($bookingId, $userId);
+        if ($oldStatus !== 'cancelled') {
+            $this->notifications->createBookingStatusNotification($booking, 'cancelled');
+        }
+
+        $this->activityLogs->create(
+            'booking_cancel',
+            'Booking cancelled by user',
+            "Booking {$bookingId} was cancelled by user {$userId}.",
+            $userId,
+            $bookingId
+        );
+
+        $_SESSION['flash'] = ['type' => 'success', 'message' => 'Booking cancelled successfully.'];
+        $this->redirect('/my-bookings');
+    }
+
     public function updatePasswordSettings(): void
     {
         $userId = $this->requireUser();
@@ -505,6 +588,55 @@ class HomeActionHandler extends BaseController
         header('Content-Type: image/svg+xml; charset=UTF-8');
         header('Cache-Control: public, max-age=60');
         echo $svg;
+    }
+
+    private function validateUserBookingAction(?array $booking, int $userId): bool
+    {
+        if (!$booking) {
+            return false;
+        }
+
+        if ((int) ($booking['user_id'] ?? 0) !== $userId) {
+            return false;
+        }
+
+        return $this->canUserModifyBooking($booking);
+    }
+
+    private function canUserModifyBooking(array $booking, ?int $nowTs = null): bool
+    {
+        $status = (string) ($booking['status'] ?? '');
+        if ($status !== 'pending') {
+            return false;
+        }
+
+        $createdAt = (string) ($booking['created_at'] ?? '');
+        if ($createdAt === '') {
+            return false;
+        }
+
+        $createdTs = strtotime($createdAt);
+        if ($createdTs === false) {
+            return false;
+        }
+
+        $nowTs = $nowTs ?? time();
+        return ($nowTs - $createdTs) <= 172800;
+    }
+
+    private function bookingEditCutoffAt(array $booking): ?string
+    {
+        $createdAt = (string) ($booking['created_at'] ?? '');
+        if ($createdAt === '') {
+            return null;
+        }
+
+        $createdTs = strtotime($createdAt);
+        if ($createdTs === false) {
+            return null;
+        }
+
+        return date('Y-m-d H:i:s', $createdTs + 172800);
     }
 
 }

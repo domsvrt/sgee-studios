@@ -42,6 +42,23 @@ $bookingItems = $bookingItems ?? [];
                         <?php if (!$items): ?><span class="text-sm text-slate-500">No services attached.</span><?php endif; ?>
                     </div>
                 </div>
+                <?php if ((bool) ($booking['can_edit_cancel'] ?? false)): ?>
+                    <div class="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                        <p class="text-xs font-black uppercase tracking-wide text-slate-500">Edit or cancel (within 48 hours from booking creation)</p>
+                        <p class="mt-1 text-xs text-slate-600">Allowed until <?= htmlspecialchars((string) ($booking['edit_cutoff_at'] ?? ''), ENT_QUOTES, 'UTF-8') ?></p>
+                        <form method="post" action="/my-bookings/update" class="mt-3 grid gap-2 md:grid-cols-4">
+                            <input type="hidden" name="id" value="<?= htmlspecialchars((string) $booking['id'], ENT_QUOTES, 'UTF-8') ?>">
+                            <input type="date" name="booking_date" value="<?= htmlspecialchars((string) $booking['booking_date'], ENT_QUOTES, 'UTF-8') ?>" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700" required>
+                            <input type="time" name="booking_time" value="<?= htmlspecialchars(substr((string) $booking['booking_time'], 0, 5), ENT_QUOTES, 'UTF-8') ?>" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700" required>
+                            <input type="text" name="notes" value="<?= htmlspecialchars((string) ($booking['notes'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" placeholder="Notes" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700">
+                            <button class="inline-flex min-h-11 items-center justify-center rounded-lg bg-slate-950 px-4 text-sm font-black text-white">Update booking</button>
+                        </form>
+                        <form method="post" action="/my-bookings/cancel" class="mt-2">
+                            <input type="hidden" name="id" value="<?= htmlspecialchars((string) $booking['id'], ENT_QUOTES, 'UTF-8') ?>">
+                            <button class="inline-flex min-h-11 items-center justify-center rounded-lg border border-rose-200 bg-rose-50 px-4 text-sm font-black text-rose-700">Cancel booking</button>
+                        </form>
+                    </div>
+                <?php endif; ?>
             </article>
         <?php endforeach; ?>
         <?php if (!$bookings): ?>

@@ -117,6 +117,42 @@ class BookingModel extends BaseModel
         return $booking ?: null;
     }
 
+    public function updateUserBooking(int $id, int $userId, array $data): bool
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE bookings
+             SET booking_date = :booking_date,
+                 booking_time = :booking_time,
+                 notes = :notes,
+                 updated_by_user_id = :updated_by_user_id
+             WHERE id = :id AND user_id = :user_id'
+        );
+        return $stmt->execute([
+            'booking_date' => $data['booking_date'],
+            'booking_time' => $data['booking_time'],
+            'notes' => $data['notes'],
+            'updated_by_user_id' => $userId,
+            'id' => $id,
+            'user_id' => $userId,
+        ]);
+    }
+
+    public function cancelUserBooking(int $id, int $userId): bool
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE bookings
+             SET status = :status,
+                 updated_by_user_id = :updated_by_user_id
+             WHERE id = :id AND user_id = :user_id'
+        );
+        return $stmt->execute([
+            'status' => 'cancelled',
+            'updated_by_user_id' => $userId,
+            'id' => $id,
+            'user_id' => $userId,
+        ]);
+    }
+
     public function recalculateTotal(int $id): void
     {
         $stmt = $this->db->prepare(
