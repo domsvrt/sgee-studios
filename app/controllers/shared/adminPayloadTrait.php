@@ -8,7 +8,7 @@ trait AdminPayloadTrait
 {
     private function userPayload(?string $password): array
     {
-        $role = $this->enum($_POST['role'] ?? 'user', ['user', 'manager', 'admin'], 'role');
+        $role = $this->enum($_POST['role'] ?? 'user', ['user', 'admin'], 'role');
         $payload = [
             'first_name' => $this->requiredString('first_name'),
             'last_name' => $this->requiredString('last_name'),

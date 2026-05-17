@@ -8,28 +8,22 @@ use Throwable;
 
 trait AdminGuardTrait
 {
-    private function currentAdminRole(): string
+    private function canEditProtectedEntries(): bool
     {
-        $role = $_SESSION['user_role'] ?? '';
-        return is_string($role) ? $role : '';
+        return true;
     }
 
-    private function canManageProtectedEntries(): bool
+    private function assertCanEditProtectedEntries(): void
     {
-        return $this->currentAdminRole() === 'manager';
-    }
-
-    private function assertCanManageProtectedEntries(): void
-    {
-        if (!$this->canManageProtectedEntries()) {
-            throw new \RuntimeException('Only manager accounts can modify user and booking entries.');
+        if (!$this->canEditProtectedEntries()) {
+            throw new \RuntimeException('Only admin accounts can edit existing user and booking entries.');
         }
     }
 
     private function renderAdmin(string $view, array $data): void
     {
         $this->ensureAdminAccess();
-        $data['canManageProtectedEntries'] = $this->canManageProtectedEntries();
+        $data['canEditProtectedEntries'] = $this->canEditProtectedEntries();
         $this->renderWithLayout('admin/layout.php', "admin/{$view}.php", $data);
     }
 
@@ -49,6 +43,6 @@ trait AdminGuardTrait
 
     private function ensureAdminAccess(): void
     {
-        $this->requireRole(['admin', 'manager']);
+        $this->requireRole(['admin']);
     }
 }

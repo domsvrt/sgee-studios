@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash VARCHAR(255) NOT NULL,
   full_name VARCHAR(120) NOT NULL,
   phone VARCHAR(30) NULL,
-  role ENUM('user','manager','admin') NOT NULL DEFAULT 'user',
+  role ENUM('user','admin') NOT NULL DEFAULT 'user',
   status ENUM('active','inactive','banned') NOT NULL DEFAULT 'active',
   email_verified_at DATETIME NULL,
   last_login_at DATETIME NULL,

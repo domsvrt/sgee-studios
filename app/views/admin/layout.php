@@ -72,8 +72,12 @@ $navIcon = static function (string $key): string {
                     <h2 class="mt-1 text-3xl font-black tracking-tight text-slate-950 dark:text-white"><?= $e($title ?? 'Admin') ?></h2>
                 </div>
                 <div class="flex flex-wrap gap-2">
-                    <?php if (($canManageProtectedEntries ?? false) === true): ?>
+                    <?php if (($canEditProtectedEntries ?? false) === true): ?>
                         <a href="/admin/backups/export" class="btn-secondary">Export backup</a>
+                        <form method="post" action="/admin/backups/import" enctype="multipart/form-data" class="contents">
+                            <input id="backup-import-file" type="file" name="backup_file" accept=".sql,text/sql,application/sql" class="hidden" onchange="this.form.submit()">
+                            <button type="button" class="btn-secondary" onclick="var i=document.getElementById('backup-import-file');if(i){i.click();}">Import backup</button>
+                        </form>
                     <?php endif; ?>
                     <button id="theme-toggle" type="button" class="btn-secondary">Dark mode</button>
                     <button id="logout-toggle-btn" type="button" class="btn-primary" onclick="var p=document.getElementById('logout-confirm-inline');var b=document.getElementById('logout-toggle-btn');if(p&&b){p.classList.remove('hidden');b.classList.add('hidden');}">Logout</button>

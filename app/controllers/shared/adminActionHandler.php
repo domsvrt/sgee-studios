@@ -367,7 +367,6 @@ class AdminActionHandler extends BaseController
     public function createUser(): void
     {
         $this->handle(function (): void {
-            $this->assertCanManageProtectedEntries();
             $password = trim($_POST['password'] ?? '');
             if ($password === '') {
                 throw new \InvalidArgumentException('Password is required when creating a user.');
@@ -381,7 +380,7 @@ class AdminActionHandler extends BaseController
     public function updateUser(): void
     {
         $this->handle(function (): void {
-            $this->assertCanManageProtectedEntries();
+            $this->assertCanEditProtectedEntries();
             $id = $this->requiredId();
             $password = trim($_POST['password'] ?? '');
             $this->users->update($id, $this->userPayload($password !== '' ? $password : null));
@@ -390,10 +389,7 @@ class AdminActionHandler extends BaseController
 
     public function deleteUser(): void
     {
-        $this->handle(function (): void {
-            $this->assertCanManageProtectedEntries();
-            $this->users->delete($this->requiredId());
-        }, '/admin/users', 'User deleted.');
+        $this->handle(fn () => $this->users->delete($this->requiredId()), '/admin/users', 'User deleted.');
     }
 
     public function createCategory(): void
@@ -451,7 +447,6 @@ class AdminActionHandler extends BaseController
     public function createBooking(): void
     {
         $this->handle(function (): void {
-            $this->assertCanManageProtectedEntries();
             $bookingId = $this->bookings->create($this->bookingPayload());
             $this->bookingItems->replaceForBooking($bookingId, $_POST['service_ids'] ?? []);
             $this->bookings->recalculateTotal($bookingId);
@@ -461,7 +456,7 @@ class AdminActionHandler extends BaseController
     public function updateBooking(): void
     {
         $this->handle(function (): void {
-            $this->assertCanManageProtectedEntries();
+            $this->assertCanEditProtectedEntries();
             $id = $this->requiredId();
             $old = $this->bookings->find($id);
             $payload = $this->bookingPayload();
@@ -486,7 +481,7 @@ class AdminActionHandler extends BaseController
     public function updateBookingStatus(): void
     {
         $this->handle(function (): void {
-            $this->assertCanManageProtectedEntries();
+            $this->assertCanEditProtectedEntries();
             $id = $this->requiredId();
             $status = $this->enum($_POST['status'] ?? '', ['pending', 'confirmed', 'completed', 'cancelled'], 'status');
             $old = $this->bookings->updateStatus($id, $status, null);
@@ -507,16 +502,13 @@ class AdminActionHandler extends BaseController
 
     public function deleteBooking(): void
     {
-        $this->handle(function (): void {
-            $this->assertCanManageProtectedEntries();
-            $this->bookings->delete($this->requiredId());
-        }, '/admin/bookings', 'Booking deleted.');
+        $this->handle(fn () => $this->bookings->delete($this->requiredId()), '/admin/bookings', 'Booking deleted.');
     }
 
     public function exportBackup(): void
     {
         $this->ensureAdminAccess();
-        $this->assertCanManageProtectedEntries();
+        $this->assertCanEditProtectedEntries();
 
         $db = DatabaseConnection::get();
         $tables = $db->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN) ?: [];
@@ -555,12 +547,12 @@ class AdminActionHandler extends BaseController
         }
         $output[] = 'SET FOREIGN_KEY_CHECKS=1;';
 
-        $this->activityLogs->create(
-            'backup_export',
-            'Backup exported',
-            'A manager exported a full data backup.',
-            (int) ($_SESSION['user_id'] ?? 0) ?: null
-        );
+                $this->activityLogs->create(
+                    'backup_export',
+                    'Backup exported',
+                    'An admin exported a full data backup.',
+                    (int) ($_SESSION['user_id'] ?? 0) ?: null
+                );
 
         $filename = 'sgee-backup-' . date('Ymd-His') . '.sql';
         header('Content-Type: application/sql; charset=utf-8');
@@ -568,6 +560,97 @@ class AdminActionHandler extends BaseController
         header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
         echo implode("\n", $output);
         exit;
+    }
+
+    public function importBackup(): void
+    {
+        $this->ensureAdminAccess();
+        $this->assertCanEditProtectedEntries();
+
+        try {
+            $file = $_FILES['backup_file'] ?? null;
+            if (!is_array($file) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+                throw new \RuntimeException('Backup file upload failed.');
+            }
+
+            $name = strtolower((string) ($file['name'] ?? ''));
+            if (!str_ends_with($name, '.sql')) {
+                throw new \InvalidArgumentException('Only .sql backup files are supported.');
+            }
+
+            $tmpPath = (string) ($file['tmp_name'] ?? '');
+            if ($tmpPath === '' || !is_uploaded_file($tmpPath)) {
+                throw new \RuntimeException('Uploaded backup file is invalid.');
+            }
+
+            $sql = file_get_contents($tmpPath);
+            if (!is_string($sql) || trim($sql) === '') {
+                throw new \InvalidArgumentException('Backup file is empty.');
+            }
+
+            $db = DatabaseConnection::get();
+            $allowedTables = [
+                'booking_items',
+                'booking_status_logs',
+                'user_notifications',
+                'password_reset_requests',
+                'activity_logs',
+                'bookings',
+                'services',
+                'service_sections',
+                'service_categories',
+                'users',
+            ];
+
+            $db->beginTransaction();
+            $db->exec('SET FOREIGN_KEY_CHECKS=0');
+            foreach ($allowedTables as $table) {
+                $db->exec("DELETE FROM `{$table}`");
+            }
+
+            $lines = preg_split('/\R/', $sql) ?: [];
+            $statement = '';
+            foreach ($lines as $line) {
+                $trimmed = trim($line);
+                if ($trimmed === '' || str_starts_with($trimmed, '--')) {
+                    continue;
+                }
+                $statement .= $line . "\n";
+                if (str_ends_with(rtrim($trimmed), ';')) {
+                    $db->exec($statement);
+                    $statement = '';
+                }
+            }
+
+            if (trim($statement) !== '') {
+                $db->exec($statement);
+            }
+
+            $db->exec('SET FOREIGN_KEY_CHECKS=1');
+            $db->commit();
+
+            $this->activityLogs->create(
+                'backup_import',
+                'Backup imported',
+                'An admin imported a full data backup.',
+                (int) ($_SESSION['user_id'] ?? 0) ?: null
+            );
+
+            $_SESSION['flash'] = ['type' => 'success', 'message' => 'Backup imported successfully.'];
+        } catch (Throwable $exception) {
+            if (isset($db) && $db instanceof PDO && $db->inTransaction()) {
+                $db->rollBack();
+            }
+            if (isset($db) && $db instanceof PDO) {
+                try {
+                    $db->exec('SET FOREIGN_KEY_CHECKS=1');
+                } catch (Throwable) {
+                }
+            }
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Backup import failed: ' . $exception->getMessage()];
+        }
+
+        $this->redirect('/admin');
     }
 
     public function updatePasswordRequest(): void

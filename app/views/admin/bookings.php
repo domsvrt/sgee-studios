@@ -16,7 +16,7 @@ $bookingItems = $bookingItems ?? [];
 $field = 'field';
 $fieldSm = 'field field-sm w-full min-w-32';
 $statuses = ['pending', 'confirmed', 'completed', 'cancelled'];
-$canManageProtectedEntries = (bool) ($canManageProtectedEntries ?? false);
+$canEditProtectedEntries = (bool) ($canEditProtectedEntries ?? false);
 ?>
 <section class="admin-panel">
     <div class="admin-panel-header">
@@ -26,9 +26,8 @@ $canManageProtectedEntries = (bool) ($canManageProtectedEntries ?? false);
                 <p class="admin-panel-subtitle"><?= $e(count($bookings)) ?> scheduled records</p>
             </div>
             <div class="flex items-center gap-2">
-                <?php if ($canManageProtectedEntries): ?>
-                    <button type="button" class="btn-secondary" data-create-toggle data-target="create-booking-form" data-show-label="Create booking" data-hide-label="Hide form">Add booking</button>
-                <?php endif; ?>
+                <button type="button" class="btn-secondary" data-create-toggle data-target="create-booking-form" data-show-label="Create booking" data-hide-label="Hide form">Add booking</button>
+                <button type="submit" form="create-booking-form" class="btn-primary hidden" data-create-submit="create-booking-form">Add booking</button>
             </div>
         </div>
     </div>
@@ -61,9 +60,6 @@ $canManageProtectedEntries = (bool) ($canManageProtectedEntries ?? false);
                     <p class="text-sm text-slate-500 dark:text-slate-400">Create services before attaching booking items.</p>
                 <?php endif; ?>
             </div>
-        </div>
-        <div class="lg:col-span-4 flex justify-end">
-            <button class="btn-primary" type="submit">Add booking</button>
         </div>
     </form>
     <div class="overflow-x-auto">
@@ -116,12 +112,10 @@ $canManageProtectedEntries = (bool) ($canManageProtectedEntries ?? false);
                         <td class="px-4 py-3 text-xs font-semibold"><?= $e($booking['created_at'] ?? '') ?></td>
                         <td class="px-4 py-3 text-xs font-semibold"><?= $e($booking['updated_at'] ?? '') ?></td>
                         <td class="px-4 py-3">
-                            <?php if ($canManageProtectedEntries): ?>
+                            <?php if ($canEditProtectedEntries): ?>
                                 <form method="post" action="/admin/bookings/status" class="mb-2 grid gap-1 rounded-lg border border-slate-200 bg-slate-50 p-2 dark:border-slate-800 dark:bg-slate-950/40"><input type="hidden" name="id" value="<?= $e($booking['id']) ?>"><select name="status" class="<?= $fieldSm ?>"><?php admin_option_tags($statuses, $booking['status']); ?></select><input name="change_note" placeholder="Log note" class="<?= $fieldSm ?>"><button class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">Log status</button></form>
-                                <form method="post" action="/admin/bookings/delete" onsubmit="return confirm('Delete this booking?');"><input type="hidden" name="id" value="<?= $e($booking['id']) ?>"><button class="btn-danger w-full">Delete</button></form>
-                            <?php else: ?>
-                                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">Read-only for admin role</p>
                             <?php endif; ?>
+                            <form method="post" action="/admin/bookings/delete" onsubmit="return confirm('Delete this booking?');"><input type="hidden" name="id" value="<?= $e($booking['id']) ?>"><button class="btn-danger w-full">Delete</button></form>
                         </td>
                     </tr>
                 <?php endforeach; ?>

@@ -120,6 +120,7 @@ if (str_starts_with($path, '/admin')) {
             '/admin/bookings/status' => [$admin, 'updateBookingStatus'],
             '/admin/bookings/delete' => [$admin, 'deleteBooking'],
             '/admin/password-requests/update' => [$admin, 'updatePasswordRequest'],
+            '/admin/backups/import' => [$admin, 'importBackup'],
         ],
     ];
 

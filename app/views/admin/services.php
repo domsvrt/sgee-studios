@@ -22,6 +22,7 @@ $selectionTypes = ['multiple', 'single'];
             </div>
             <div class="flex items-center gap-2">
                 <button type="button" class="btn-secondary" data-create-toggle data-target="create-section-form" data-show-label="Create section" data-hide-label="Hide form">Create section</button>
+                <button type="submit" form="create-section-form" class="btn-primary hidden" data-create-submit="create-section-form">Add section</button>
                 <button type="button" class="btn-secondary" data-sort-toggle data-target="sections-sort-form" data-table-id="sections-table">Sort mode</button>
                 <button type="submit" form="sections-sort-form" class="btn-primary hidden" data-sort-save>Save order</button>
             </div>
@@ -36,9 +37,6 @@ $selectionTypes = ['multiple', 'single'];
         <input name="description" placeholder="Description" class="<?= $field ?>">
         <select name="selection_type" class="<?= $field ?>"><?php admin_option_tags($selectionTypes, 'multiple'); ?></select>
         <label class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-200"><input type="checkbox" name="is_active" checked class="h-4 w-4 rounded border-slate-300 text-teal-600"> Active</label>
-        <div class="md:col-span-4 flex justify-end">
-            <button class="btn-primary" type="submit">Add section</button>
-        </div>
     </form>
     <div class="overflow-x-auto">
         <table id="sections-table" class="admin-table min-w-[1100px]" data-sortable-table>
@@ -79,6 +77,7 @@ $selectionTypes = ['multiple', 'single'];
             </div>
             <div class="flex items-center gap-2">
                 <button type="button" class="btn-secondary" data-create-toggle data-target="create-service-form" data-show-label="Create service" data-hide-label="Hide form">Create service</button>
+                <button type="submit" form="create-service-form" class="btn-primary hidden" data-create-submit="create-service-form">Add service</button>
                 <button type="button" class="btn-secondary" data-sort-toggle data-target="services-sort-form" data-table-id="services-table">Sort mode</button>
                 <button type="submit" form="services-sort-form" class="btn-primary hidden" data-sort-save>Save order</button>
             </div>
@@ -100,9 +99,6 @@ $selectionTypes = ['multiple', 'single'];
         <input name="unit_label" placeholder="Unit label" class="<?= $field ?>">
         <select name="selection_type" class="<?= $field ?>"><?php admin_option_tags($selectionTypes, 'multiple'); ?></select>
         <label class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-200"><input type="checkbox" name="is_active" checked class="h-4 w-4 rounded border-slate-300 text-teal-600"> Active</label>
-        <div class="md:col-span-4 flex justify-end">
-            <button class="btn-primary" type="submit">Add service</button>
-        </div>
     </form>
     <div class="overflow-x-auto">
         <table id="services-table" class="admin-table min-w-[1300px]" data-sortable-table>

@@ -184,7 +184,7 @@ class HomeActionHandler extends BaseController
         $_SESSION['user_phone'] = trim((string) ($user['phone'] ?? ''));
         $_SESSION['user_avatar'] = $user['avatar_path'] ?? null;
         $_SESSION['flash'] = ['type' => 'success', 'message' => 'Signed in successfully.'];
-        $isAdminUser = in_array($_SESSION['user_role'], ['admin', 'manager'], true);
+        $isAdminUser = ($_SESSION['user_role'] ?? '') === 'admin';
         $this->redirect($isAdminUser ? '/admin' : '/');
     }
 
