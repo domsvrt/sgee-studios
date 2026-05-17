@@ -108,6 +108,7 @@ $asOfDate = date('F j, Y');
                     <?php endforeach; ?>
                 </select>
                 <button type="submit" class="btn-primary">Apply</button>
+                <a href="/admin/analytics/export-pdf?range=<?= $e(urlencode($range)) ?>" target="_blank" rel="noopener noreferrer" class="btn-secondary">Export PDF</a>
             </form>
         </div>
     </div>

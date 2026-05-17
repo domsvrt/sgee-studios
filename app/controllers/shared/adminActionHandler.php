@@ -78,7 +78,25 @@ class AdminActionHandler extends BaseController
 
     public function analytics(): void
     {
-        $range = trim((string) ($_GET['range'] ?? 'monthly'));
+        $payload = $this->buildAnalyticsPayload((string) ($_GET['range'] ?? 'monthly'));
+        $this->renderAdmin('analytics', [
+            'title' => 'Analytics',
+            'activeNav' => 'analytics',
+            ...$payload,
+        ]);
+    }
+
+    public function exportAnalyticsPdf(): void
+    {
+        $this->ensureAdminAccess();
+        $payload = $this->buildAnalyticsPayload((string) ($_GET['range'] ?? 'monthly'));
+        $payload['generatedAt'] = date('F j, Y g:i A');
+        $this->render('admin/analyticsPdf.php', $payload);
+    }
+
+    private function buildAnalyticsPayload(string $requestedRange): array
+    {
+        $range = trim($requestedRange);
         $allowedRanges = ['weekly', 'monthly', 'yearly'];
         if (!in_array($range, $allowedRanges, true)) {
             $range = 'monthly';
@@ -109,7 +127,6 @@ class AdminActionHandler extends BaseController
             $bookingItemsByBooking,
             array_flip(array_map(static fn (array $booking): int => (int) $booking['id'], $bookings))
         );
-        $services = $this->services->all();
         $notifications = [];
         foreach ($users as $user) {
             $userId = (int) ($user['id'] ?? 0);
@@ -240,9 +257,7 @@ class AdminActionHandler extends BaseController
             $monthlyTrend = (int) end($monthlyValues) - (int) prev($monthlyValues);
         }
 
-        $this->renderAdmin('analytics', [
-            'title' => 'Analytics',
-            'activeNav' => 'analytics',
+        return [
             'range' => $range,
             'rangeOptions' => $allowedRanges,
             'metrics' => [
@@ -268,7 +283,7 @@ class AdminActionHandler extends BaseController
             'notificationStats' => $notificationStats,
             'passwordRequestStatusCounts' => $passwordRequestStatusCounts,
             'activityTypeCounts' => array_slice($activityTypeCounts, 0, 10, true),
-        ]);
+        ];
     }
 
     public function categories(): void
