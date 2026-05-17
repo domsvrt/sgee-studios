@@ -27,6 +27,9 @@ $fieldSm = 'field field-sm w-full min-w-28';
         <input required name="name" placeholder="Name" class="<?= $field ?>">
         <input name="description" placeholder="Description" class="<?= $field ?> md:col-span-2">
         <label class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-200"><input type="checkbox" name="is_active" checked class="h-4 w-4 rounded border-slate-300 text-teal-600"> Active</label>
+        <div class="md:col-span-4 flex justify-end">
+            <button class="btn-primary" type="submit">Add category</button>
+        </div>
     </form>
     <div class="overflow-x-auto">
         <table id="categories-table" class="admin-table min-w-[900px]" data-sortable-table>

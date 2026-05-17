@@ -13,6 +13,8 @@ $monthlyRevenue = $monthlyRevenue ?? [];
 $topServices = $topServices ?? [];
 /** @var array<string, mixed> $healthStats */
 $healthStats = $healthStats ?? [];
+$range = (string) ($range ?? 'monthly');
+$rangeOptions = $rangeOptions ?? ['weekly', 'monthly', 'yearly'];
 
 $monthlyRevenueChart = [];
 foreach ($monthlyRevenue as $month => $revenue) {
@@ -91,6 +93,25 @@ $asOfDate = date('F j, Y');
   box-shadow: 0 16px 32px rgba(2,6,23,.45);
 }
 </style>
+
+<section class="admin-panel mb-5">
+    <div class="admin-panel-header">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h3 class="admin-panel-title">Analytics Range</h3>
+                <p class="admin-panel-subtitle">Data window set to <?= $e(ucfirst($range)) ?> as of <?= $e($asOfDate) ?></p>
+            </div>
+            <form method="get" action="/admin/analytics" class="flex items-center gap-2">
+                <select name="range" class="field field-sm min-w-40">
+                    <?php foreach ($rangeOptions as $option): ?>
+                        <option value="<?= $e($option) ?>" <?= $range === $option ? 'selected' : '' ?>><?= $e(ucfirst($option)) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="submit" class="btn-primary">Apply</button>
+            </form>
+        </div>
+    </div>
+</section>
 
 <div class="analytics-grid analytics-kpis">
     <?php foreach ($kpiCharts as $index => $kpi): ?>

@@ -90,6 +90,7 @@ if (str_starts_with($path, '/admin')) {
         'GET' => [
             '/admin' => [$admin, 'dashboard'],
             '/admin/analytics' => [$admin, 'analytics'],
+            '/admin/backups/export' => [$admin, 'exportBackup'],
             '/admin/users' => [$admin, 'users'],
             '/admin/categories' => [$admin, 'categories'],
             '/admin/services' => [$admin, 'services'],

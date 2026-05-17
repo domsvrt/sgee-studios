@@ -36,6 +36,9 @@ $selectionTypes = ['multiple', 'single'];
         <input name="description" placeholder="Description" class="<?= $field ?>">
         <select name="selection_type" class="<?= $field ?>"><?php admin_option_tags($selectionTypes, 'multiple'); ?></select>
         <label class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-200"><input type="checkbox" name="is_active" checked class="h-4 w-4 rounded border-slate-300 text-teal-600"> Active</label>
+        <div class="md:col-span-4 flex justify-end">
+            <button class="btn-primary" type="submit">Add section</button>
+        </div>
     </form>
     <div class="overflow-x-auto">
         <table id="sections-table" class="admin-table min-w-[1100px]" data-sortable-table>
@@ -97,6 +100,9 @@ $selectionTypes = ['multiple', 'single'];
         <input name="unit_label" placeholder="Unit label" class="<?= $field ?>">
         <select name="selection_type" class="<?= $field ?>"><?php admin_option_tags($selectionTypes, 'multiple'); ?></select>
         <label class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-200"><input type="checkbox" name="is_active" checked class="h-4 w-4 rounded border-slate-300 text-teal-600"> Active</label>
+        <div class="md:col-span-4 flex justify-end">
+            <button class="btn-primary" type="submit">Add service</button>
+        </div>
     </form>
     <div class="overflow-x-auto">
         <table id="services-table" class="admin-table min-w-[1300px]" data-sortable-table>

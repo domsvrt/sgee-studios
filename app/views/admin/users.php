@@ -10,6 +10,7 @@ $fieldSm = 'field field-sm w-full min-w-36';
 $fieldSmCompact = 'field field-sm w-full min-w-24';
 $roles = ['user', 'manager', 'admin'];
 $statuses = ['active', 'inactive', 'banned'];
+$canManageProtectedEntries = (bool) ($canManageProtectedEntries ?? false);
 ?>
 <section class="admin-panel">
     <div class="admin-panel-header">
@@ -19,7 +20,9 @@ $statuses = ['active', 'inactive', 'banned'];
                 <p class="admin-panel-subtitle"><?= $e(count($users)) ?> account records</p>
             </div>
             <div class="flex items-center gap-2">
-                <button type="button" class="btn-secondary" data-create-toggle data-target="create-user-form" data-show-label="Create user" data-hide-label="Hide form">Create user</button>
+                <?php if ($canManageProtectedEntries): ?>
+                    <button type="button" class="btn-secondary" data-create-toggle data-target="create-user-form" data-show-label="Create user" data-hide-label="Hide form">Add user</button>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -31,6 +34,9 @@ $statuses = ['active', 'inactive', 'banned'];
         <input required type="password" name="password" placeholder="Temporary password" class="<?= $field ?>">
         <select name="role" class="<?= $field ?>"><?php admin_option_tags($roles, 'user'); ?></select>
         <select name="status" class="<?= $field ?>"><?php admin_option_tags($statuses, 'active'); ?></select>
+        <div class="md:col-span-2 xl:col-span-4 flex justify-end">
+            <button class="btn-primary" type="submit">Add user</button>
+        </div>
     </form>
     <div class="overflow-x-auto">
         <table class="admin-table min-w-[1120px]">
@@ -55,9 +61,13 @@ $statuses = ['active', 'inactive', 'banned'];
                         <td class="px-4 py-3 text-xs font-semibold"><?= $e($user['updated_at'] ?? '') ?></td>
                         <td class="px-4 py-3">
                             <div class="flex gap-2">
-                                <button type="button" data-edit-button class="btn-secondary min-h-8 px-3 py-1.5 text-xs">Edit</button>
-                                <form id="user-<?= $e($user['id']) ?>" method="post" action="/admin/users/update"><input type="hidden" name="id" value="<?= $e($user['id']) ?>"><button data-save-button class="btn-primary hidden min-h-8 px-3 py-1.5 text-xs">Save</button></form>
-                                <form method="post" action="/admin/users/delete" onsubmit="return confirm('Delete this user?');"><input type="hidden" name="id" value="<?= $e($user['id']) ?>"><button class="btn-danger">Delete</button></form>
+                                <?php if ($canManageProtectedEntries): ?>
+                                    <button type="button" data-edit-button class="btn-secondary min-h-8 px-3 py-1.5 text-xs">Edit</button>
+                                    <form id="user-<?= $e($user['id']) ?>" method="post" action="/admin/users/update"><input type="hidden" name="id" value="<?= $e($user['id']) ?>"><button data-save-button class="btn-primary hidden min-h-8 px-3 py-1.5 text-xs">Save</button></form>
+                                    <form method="post" action="/admin/users/delete" onsubmit="return confirm('Delete this user?');"><input type="hidden" name="id" value="<?= $e($user['id']) ?>"><button class="btn-danger">Delete</button></form>
+                                <?php else: ?>
+                                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">Read-only for admin role</p>
+                                <?php endif; ?>
                             </div>
                         </td>
                     </tr>

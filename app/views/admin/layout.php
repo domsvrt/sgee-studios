@@ -72,6 +72,9 @@ $navIcon = static function (string $key): string {
                     <h2 class="mt-1 text-3xl font-black tracking-tight text-slate-950 dark:text-white"><?= $e($title ?? 'Admin') ?></h2>
                 </div>
                 <div class="flex flex-wrap gap-2">
+                    <?php if (($canManageProtectedEntries ?? false) === true): ?>
+                        <a href="/admin/backups/export" class="btn-secondary">Export backup</a>
+                    <?php endif; ?>
                     <button id="theme-toggle" type="button" class="btn-secondary">Dark mode</button>
                     <button id="logout-toggle-btn" type="button" class="btn-primary" onclick="var p=document.getElementById('logout-confirm-inline');var b=document.getElementById('logout-toggle-btn');if(p&&b){p.classList.remove('hidden');b.classList.add('hidden');}">Logout</button>
                     <div id="logout-confirm-inline" class="hidden flex items-center gap-2">

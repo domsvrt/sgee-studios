@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers\Shared;
 
+use App\Database\DatabaseConnection;
 use App\Models\Shared\BookingItemModel;
 use App\Models\Shared\BookingModel;
 use App\Models\Shared\BookingStatusLogModel;
@@ -14,6 +15,8 @@ use App\Models\Shared\ServiceCategoryModel;
 use App\Models\Shared\ServiceSectionModel;
 use App\Models\Shared\ServiceModel;
 use App\Models\Shared\UserModel;
+use DateTimeImmutable;
+use PDO;
 use Throwable;
 
 class AdminActionHandler extends BaseController
@@ -75,9 +78,37 @@ class AdminActionHandler extends BaseController
 
     public function analytics(): void
     {
+        $range = trim((string) ($_GET['range'] ?? 'monthly'));
+        $allowedRanges = ['weekly', 'monthly', 'yearly'];
+        if (!in_array($range, $allowedRanges, true)) {
+            $range = 'monthly';
+        }
+
+        $now = new DateTimeImmutable('now');
+        $rangeStart = match ($range) {
+            'weekly' => $now->modify('-6 days'),
+            'yearly' => $now->modify('-11 months')->modify('first day of this month'),
+            default => $now->modify('-29 days'),
+        };
+
         $users = $this->users->all();
-        $bookings = $this->bookings->all();
+        $allBookings = $this->bookings->all();
+        $bookings = array_values(array_filter($allBookings, static function (array $booking) use ($rangeStart, $now): bool {
+            $rawDate = (string) ($booking['booking_date'] ?? '');
+            if ($rawDate === '') {
+                return false;
+            }
+            $bookingDate = DateTimeImmutable::createFromFormat('Y-m-d', $rawDate);
+            if (!$bookingDate) {
+                return false;
+            }
+            return $bookingDate >= $rangeStart && $bookingDate <= $now;
+        }));
         $bookingItemsByBooking = $this->bookingItems->groupedByBooking();
+        $bookingItemsByBooking = array_intersect_key(
+            $bookingItemsByBooking,
+            array_flip(array_map(static fn (array $booking): int => (int) $booking['id'], $bookings))
+        );
         $services = $this->services->all();
         $notifications = [];
         foreach ($users as $user) {
@@ -89,8 +120,34 @@ class AdminActionHandler extends BaseController
                 $notifications[] = $notification;
             }
         }
-        $passwordRequests = $this->passwordResetRequests->all(null, 500);
-        $activityLogs = $this->activityLogs->recent(500);
+        $passwordRequests = array_values(array_filter(
+            $this->passwordResetRequests->all(null, 500),
+            static function (array $request) use ($rangeStart, $now): bool {
+                $rawDate = (string) ($request['requested_at'] ?? '');
+                if ($rawDate === '') {
+                    return false;
+                }
+                $date = date_create_immutable($rawDate);
+                if (!$date) {
+                    return false;
+                }
+                return $date >= $rangeStart && $date <= $now;
+            }
+        ));
+        $activityLogs = array_values(array_filter(
+            $this->activityLogs->recent(500),
+            static function (array $log) use ($rangeStart, $now): bool {
+                $rawDate = (string) ($log['created_at'] ?? '');
+                if ($rawDate === '') {
+                    return false;
+                }
+                $date = date_create_immutable($rawDate);
+                if (!$date) {
+                    return false;
+                }
+                return $date >= $rangeStart && $date <= $now;
+            }
+        ));
 
         $userRoleCounts = [];
         foreach ($users as $user) {
@@ -108,17 +165,22 @@ class AdminActionHandler extends BaseController
             $bookingStatusCounts[$status] = ($bookingStatusCounts[$status] ?? 0) + 1;
             $amount = (float) ($booking['total_amount'] ?? 0);
             $revenueTotal += $amount;
-            $month = substr((string) ($booking['booking_date'] ?? ''), 0, 7);
-            if ($month !== '' && strlen($month) === 7) {
-                $monthlyRevenue[$month] = ($monthlyRevenue[$month] ?? 0) + $amount;
-                $monthlyBookings[$month] = ($monthlyBookings[$month] ?? 0) + 1;
+            $date = DateTimeImmutable::createFromFormat('Y-m-d', (string) ($booking['booking_date'] ?? ''));
+            if ($date) {
+                $bucket = match ($range) {
+                    'weekly', 'monthly' => $date->format('M d'),
+                    'yearly' => $date->format('Y-m'),
+                    default => $date->format('M d'),
+                };
+                $monthlyRevenue[$bucket] = ($monthlyRevenue[$bucket] ?? 0) + $amount;
+                $monthlyBookings[$bucket] = ($monthlyBookings[$bucket] ?? 0) + 1;
             }
         }
         ksort($bookingStatusCounts);
         ksort($monthlyRevenue);
         ksort($monthlyBookings);
-        $monthlyRevenue = array_slice($monthlyRevenue, -6, null, true);
-        $monthlyBookings = array_slice($monthlyBookings, -6, null, true);
+        $monthlyRevenue = array_slice($monthlyRevenue, -12, null, true);
+        $monthlyBookings = array_slice($monthlyBookings, -12, null, true);
 
         $topServices = [];
         foreach ($bookingItemsByBooking as $items) {
@@ -181,6 +243,8 @@ class AdminActionHandler extends BaseController
         $this->renderAdmin('analytics', [
             'title' => 'Analytics',
             'activeNav' => 'analytics',
+            'range' => $range,
+            'rangeOptions' => $allowedRanges,
             'metrics' => [
                 'totalUsers' => count($users),
                 'totalBookings' => count($bookings),
@@ -303,6 +367,7 @@ class AdminActionHandler extends BaseController
     public function createUser(): void
     {
         $this->handle(function (): void {
+            $this->assertCanManageProtectedEntries();
             $password = trim($_POST['password'] ?? '');
             if ($password === '') {
                 throw new \InvalidArgumentException('Password is required when creating a user.');
@@ -316,6 +381,7 @@ class AdminActionHandler extends BaseController
     public function updateUser(): void
     {
         $this->handle(function (): void {
+            $this->assertCanManageProtectedEntries();
             $id = $this->requiredId();
             $password = trim($_POST['password'] ?? '');
             $this->users->update($id, $this->userPayload($password !== '' ? $password : null));
@@ -324,7 +390,10 @@ class AdminActionHandler extends BaseController
 
     public function deleteUser(): void
     {
-        $this->handle(fn () => $this->users->delete($this->requiredId()), '/admin/users', 'User deleted.');
+        $this->handle(function (): void {
+            $this->assertCanManageProtectedEntries();
+            $this->users->delete($this->requiredId());
+        }, '/admin/users', 'User deleted.');
     }
 
     public function createCategory(): void
@@ -382,6 +451,7 @@ class AdminActionHandler extends BaseController
     public function createBooking(): void
     {
         $this->handle(function (): void {
+            $this->assertCanManageProtectedEntries();
             $bookingId = $this->bookings->create($this->bookingPayload());
             $this->bookingItems->replaceForBooking($bookingId, $_POST['service_ids'] ?? []);
             $this->bookings->recalculateTotal($bookingId);
@@ -391,6 +461,7 @@ class AdminActionHandler extends BaseController
     public function updateBooking(): void
     {
         $this->handle(function (): void {
+            $this->assertCanManageProtectedEntries();
             $id = $this->requiredId();
             $old = $this->bookings->find($id);
             $payload = $this->bookingPayload();
@@ -415,6 +486,7 @@ class AdminActionHandler extends BaseController
     public function updateBookingStatus(): void
     {
         $this->handle(function (): void {
+            $this->assertCanManageProtectedEntries();
             $id = $this->requiredId();
             $status = $this->enum($_POST['status'] ?? '', ['pending', 'confirmed', 'completed', 'cancelled'], 'status');
             $old = $this->bookings->updateStatus($id, $status, null);
@@ -435,7 +507,67 @@ class AdminActionHandler extends BaseController
 
     public function deleteBooking(): void
     {
-        $this->handle(fn () => $this->bookings->delete($this->requiredId()), '/admin/bookings', 'Booking deleted.');
+        $this->handle(function (): void {
+            $this->assertCanManageProtectedEntries();
+            $this->bookings->delete($this->requiredId());
+        }, '/admin/bookings', 'Booking deleted.');
+    }
+
+    public function exportBackup(): void
+    {
+        $this->ensureAdminAccess();
+        $this->assertCanManageProtectedEntries();
+
+        $db = DatabaseConnection::get();
+        $tables = $db->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN) ?: [];
+        $allowedTables = [
+            'users',
+            'service_categories',
+            'service_sections',
+            'services',
+            'bookings',
+            'booking_items',
+            'booking_status_logs',
+            'user_notifications',
+            'password_reset_requests',
+            'activity_logs',
+        ];
+        $tables = array_values(array_intersect($allowedTables, $tables));
+
+        $output = [];
+        $output[] = '-- SGee Studios backup export';
+        $output[] = '-- Generated at ' . date('Y-m-d H:i:s');
+        $output[] = 'SET FOREIGN_KEY_CHECKS=0;';
+        foreach ($tables as $table) {
+            $output[] = '';
+            $output[] = "-- Table: {$table}";
+            $rows = $db->query("SELECT * FROM `{$table}`")->fetchAll();
+            foreach ($rows as $row) {
+                $columns = array_map(static fn (string $key): string => "`{$key}`", array_keys($row));
+                $values = array_map(fn ($value): string => $value === null ? 'NULL' : $db->quote((string) $value), array_values($row));
+                $output[] = sprintf(
+                    'INSERT INTO `%s` (%s) VALUES (%s);',
+                    $table,
+                    implode(', ', $columns),
+                    implode(', ', $values)
+                );
+            }
+        }
+        $output[] = 'SET FOREIGN_KEY_CHECKS=1;';
+
+        $this->activityLogs->create(
+            'backup_export',
+            'Backup exported',
+            'A manager exported a full data backup.',
+            (int) ($_SESSION['user_id'] ?? 0) ?: null
+        );
+
+        $filename = 'sgee-backup-' . date('Ymd-His') . '.sql';
+        header('Content-Type: application/sql; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        echo implode("\n", $output);
+        exit;
     }
 
     public function updatePasswordRequest(): void
